@@ -1,0 +1,18 @@
+{
+	"langrev": "1",
+	// Warnings used for all targets.
+	"warnings": [ "no-unused" ],
+	"dependency-search-paths": [ "../.." ],
+	"dependencies": [ "pleroma" ],
+	"authors": [ "John Doe <john.doe@example.com>" ],
+	"version": "0.1.0",
+	"sources": [ "src/**" ],
+	"output": "build",
+	"targets": {
+		"tests": {
+			"type": "executable",
+		},
+	},
+	"cpu": "generic",
+	"opt": "O0",
+}
