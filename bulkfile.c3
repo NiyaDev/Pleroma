@@ -5,15 +5,11 @@ import libc;
 import std::io::file;
 
 
-/**
- *
- **/
 struct BulkFile {
 	char* data;
 	usz head;
 	usz length;
 }
-
 /**
  * Initializes a new Bulk file using the desired length
  * @require length > 0
@@ -47,7 +43,6 @@ fn void BulkFile.init_file(&self, String filename) {
 	}
 	self.head = 0;
 }
-
 /**
  * Saves bulk to inputted filename
  * @param filename
@@ -62,7 +57,6 @@ fn void BulkFile.save(&self, String filename) {
 		if (try file.close()) {}
 	}
 }
-
 //= Writing
 /**
  * Writes inputted byte to the bulkfile at the head
@@ -124,7 +118,6 @@ fn void BulkFile.write_string(&self, char* str) {
 	length++;
 	self.head += length;
 }
-
 //= Reading
 /**
  * Reads byte from the bulkfile at the head, moving it forward
@@ -175,7 +168,7 @@ fn String BulkFile.read_string(&self, usz length) {
 	return (String)result;
 }
 /**
- * 
+ * Gets a pointer to where the head is in the data
  **/
 fn void* BulkFile.get_cur_ptr(&self) {
 	return self.data + self.head;

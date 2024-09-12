@@ -61,10 +61,10 @@ fn void init() {
 		
 		.render_texture = rt,
 		.is_rendering = false,
-		.background_color = DARKGRAY,
+		.background_color = color::DARKGRAY,
 		.line_spacing = 1,
 		
-		.default_texture = sprite::from_image(gen_image_checked(8,8,2,2,PURPLE,BLACK)),
+		.default_texture = sprite::from_image(gen_image_checked(8,8,2,2,color::PURPLE,color::BLACK)),
 	};
 }
 
@@ -111,7 +111,7 @@ fn void end_drawing() {
 		},
 		{.x = 0, .y = 0},
 		0,
-		WHITE,
+		color::WHITE,
 	);
 	end_drawing_rl();
 }

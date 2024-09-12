@@ -238,7 +238,6 @@ fn void Bulk.save(&self, String filename) {
 
 	new_file.save(filename);
 }
-
 //= Conversion
 /**
  * Retrieves string from bulk entry
@@ -273,8 +272,6 @@ fn Sprite* Bulk.get_sprite(&self, String entry_name) {
 		return pleroma::data.default_texture;
 	}
 }
-
-
 //= Debug
 /**
  * Prints bulk to console

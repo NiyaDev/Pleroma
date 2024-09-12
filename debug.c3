@@ -1,6 +1,7 @@
 module pleroma::debug;
 
 
+import pleroma;
 import std::io;
 import std::core::string;
 import std::collections;
@@ -75,7 +76,7 @@ fn void draw_debug_log() {
 	for (int i = 0; i < error_list.len(); i++) {
 		PlError* err = error_list.get(i);
 		
-		pleroma::draw_text(err.text, 10, pleroma::data.render_size.height - ((i + 1) * 10), 8, pleroma::RED);
+		pleroma::draw_text(err.text, 10, pleroma::data.render_size.height - ((i + 1) * 10), 8, color::RED);
 		
 		err.lifespan--;
 		if (err.lifespan <= 0) { error_list.remove_at(i); }
