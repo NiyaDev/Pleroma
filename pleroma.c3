@@ -116,50 +116,9 @@ fn void end_drawing() {
 	end_drawing_rl();
 }
 
+//TODO set_icon that takes in an array of images but uses singular if len == 1
 
-/// Window-related functions
-extern fn void init_window(int width, int height, char* title) @private @extern("InitWindow");
-extern fn void close_window() @private @extern("CloseWindow");
-extern fn bool window_should_close() @extern("WindowShouldClose");
-extern fn bool window_is_ready() @private @extern("IsWindowReady");
-extern fn bool set_window_icon(Image image) @private @extern("SetWindowIcon");
-//extern "C" { fn SetWindowPosition(x: i32, y: i32); }
-//extern "C" { fn SetWindowMonitor(monitor: i32); }
-//extern "C" { fn SetWindowMinSize(width: i32, height: i32); }
-//extern "C" { fn SetWindowMaxSize(width: i32, height: i32); }
-//extern "C" { fn SetWindowOpacity(opacity: f32); }
-//extern "C" { fn GetMonitorCount() -> i32; }
-//extern "C" { fn GetCurrentMonitor() -> i32; }
-//extern "C" { fn GetMonitorWidth(monitor: i32) -> i32; }
-//extern "C" { fn GetMonitorHeight(monitor: i32) -> i32; }
-//extern "C" { fn GetMonitorPhysicalWidth(monitor: i32) -> i32; }
-//extern "C" { fn GetMonitorPhysicalHeight(monitor: i32) -> i32; }
-//extern "C" { fn GetMonitorRefreshRate(monitor: i32) -> i32; }
-//extern "C" { fn GetWindowPosition() -> Vector2; }
-//extern "C" { fn GetWindowScaleDPI() -> Vector2; }
-//extern "C" { fn GetMonitorName(monitor: i32) -> *const i8; }
-//extern "C" { fn SetClipboardText(text: *const i8); }
-//extern "C" { fn GetClipboardText() -> *const i8; }
 
-/// Cursor-related functions
-//extern "C" { fn ShowCursor(); }
-//extern "C" { fn HideCursor(); }
-//extern "C" { fn IsCursorHidden() -> bool; }
-//extern "C" { fn EnableCursor(); }
-//extern "C" { fn DisableCursor(); }
-//extern "C" { fn IsCursorOnScreen() -> bool; }
-
-/// Drawing-related functions
-extern fn void clear_background(Color color) @private @extern("ClearBackground");
-extern fn void begin_drawing_rl() @private @extern("BeginDrawing");
-extern fn void end_drawing_rl() @private @extern("EndDrawing");
-//extern "C" { fn BeginMode2D(camera: Camera2DRl); }
-//extern "C" { fn EndMode2D(); }
-//extern "C" { fn BeginMode3D(camera: Camera3DRl); }
-//extern "C" { fn EndMode3D(); }
-
-/// Timing-related functions
-extern fn void set_target_fps(int fps) @extern("SetTargetFPS");
 
 /// Misc. functions
 extern fn void set_trace_log_level(int logLevel) @extern("SetTraceLogLevel");

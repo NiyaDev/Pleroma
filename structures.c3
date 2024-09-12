@@ -19,8 +19,26 @@ fn void BoundingBox.draw(&self, Color color) {
 	draw_bounding_box(*self, color);
 }
 
-/// Model drawing functions
-extern fn void draw_bounding_box(BoundingBox bounds, Color color) @extern("DrawBoundingBox");
+
+
+//= Camera 2D
+struct Camera2D {
+	Vector2 offset, target;
+	float rotation, zoom;
+}
+
+struct Camera3D {
+	Vector3 position, target, up;
+	float fovy;
+	CameraProjection projection;
+}
+
+enum CameraProjection : int {
+	// Perspective projection
+	CAMERA_PERSPECTIVE,
+	// Orthographic projection
+    CAMERA_ORTHOGRAPHIC,
+}
 
 
 
@@ -504,6 +522,19 @@ struct NPatchInfo {
 	int right;
 	int bottom;
 	int layout;
+}
+
+
+
+//= Ray
+struct Ray {
+	Vector3 position, direction;
+}
+
+struct RayCollision {
+	bool hit;
+	float distance;
+	Vector3 point, normal;
 }
 
 
@@ -1788,11 +1819,33 @@ fn void Matrix.print(&self) {
 }
 
 
+
 //= Axis + Angle
 struct AxisAngle {
 	Vector3 axis;
 	float angle;
 }
+
+
+
+//= VR
+struct VrDeviceInfo {
+	int h_resolution, v_resolution;
+	float h_screen_size, v_screen_size;
+	float eye_to_screen_distance;
+	float lens_seperation_distance;
+	float interpupillary_distance;
+	float[4] lens_distortion_values;
+	float[4] chroma_aberration_correction;
+}
+
+struct VrStereoConfig {
+	Matrix[2] projection, view_offset;
+	float[2] left_lens_center, right_lens_center;
+	float[2] left_screen_center, right_screen_center;
+	float[2] scale, scale_in;
+}
+
 
 
 //= Color module

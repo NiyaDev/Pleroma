@@ -1,6 +1,246 @@
 module pleroma;
 
 
+//= Raylib v5.0.0
+
+//= Window-related functions
+// Initialize window and OpenGL context
+extern fn void init_window(int width, int height, char* title) @private @extern("InitWindow");
+// Close window and unload OpenGL context
+extern fn void close_window() @private @extern("CloseWindow");
+// Check if application should close (KEY_ESCAPE pressed or windows close icon clicked)
+extern fn bool window_should_close() @extern("WindowShouldClose");
+// Check if window has been initialized successfully
+extern fn bool window_is_ready() @private @extern("IsWindowReady");
+/* Covered by variables in pleroma data
+	// Check if window is currently fullscreen
+	extern fn bool is_window_fullscreen() @private @extern("IsWindowFullscreen");
+	// Check if window is currently hidden (only PLATFORM_DESKTOP)
+	extern fn bool is_window_hidden() @private @extern("IsWindowHidden");
+	// Check if window is currently minimized (only PLATFORM_DESKTOP)
+	extern fn bool is_window_minimized() @private @extern("IsWindowMinimized");
+	// Check if window is currently maximized (only PLATFORM_DESKTOP)
+	extern fn bool is_window_maximized() @private @extern("IsWindowMaximized");
+	// Check if window is currently focused (only PLATFORM_DESKTOP)
+	extern fn bool is_window_focused() @private @extern("IsWindowFocused");
+	// Check if window has been resized last frame
+	extern fn bool is_window_resized() @private @extern("IsWindowResized");
+	// Check if one specific window flag is enabled
+	extern fn bool is_window_state(uint flag) @private @extern("IsWindowState");
+*/
+// Set window configuration state using flags (only PLATFORM_DESKTOP)
+extern fn void set_window_state(uint flag) @private @extern("SetWindowState");
+/* Covered by set_window_state, but kept here if needed
+	// Clear window configuration state flags
+	extern fn void clear_window_state(uint flag) @private @extern("ClearWindowState");
+	// Toggle window state: fullscreen/windowed (only PLATFORM_DESKTOP)
+	extern fn void toggle_fullscreen() @private @extern("ToggleFullscreen");
+	// Toggle window state: borderless windowed (only PLATFORM_DESKTOP)
+	extern fn void toggle_borderless() @private @extern("ToggleBorderlessWindowed");
+	// Set window state: maximized, if resizable (only PLATFORM_DESKTOP)
+	extern fn void maximize_window() @private @extern("MaximizeWindow");
+	// Set window state: minimized, if resizable (only PLATFORM_DESKTOP)
+	extern fn void minimize_window() @private @extern("MinimizeWindow");
+	// Set window state: not minimized/maximized (only PLATFORM_DESKTOP)
+	extern fn void restore_window() @private @extern("RestoreWindow");
+*/
+// Set icon for window (single image, RGBA 32bit, only PLATFORM_DESKTOP)
+extern fn void set_window_icon(Image image) @private @extern("SetWindowIcon");
+// Set icon for window (multiple images, RGBA 32bit, only PLATFORM_DESKTOP)
+extern fn void set_window_icons(Image* image, int count) @private @extern("SetWindowIcons");
+// Set title for window (only PLATFORM_DESKTOP and PLATFORM_WEB)
+extern fn void set_window_title(char* title) @private @extern("SetWindowTitle");
+// Set window position on screen (only PLATFORM_DESKTOP)
+extern fn void set_window_position(int x, int y) @private @extern("SetWindowPosition");
+// Set monitor for the current window
+extern fn void set_window_monitor(int monitor) @private @extern("SetWindowMonitor");
+// Set window minimum dimensions (for FLAG_WINDOW_RESIZABLE)
+extern fn void set_window_min(int height, int width) @private @extern("SetWindowMinSize");
+// Set window maximum dimensions (for FLAG_WINDOW_RESIZABLE)
+extern fn void set_window_max(int height, int width) @private @extern("SetWindowMaxSize");
+// Set window dimensions
+extern fn void set_window_size(int height, int width) @private @extern("SetWindowSize");
+// Set window opacity [0.0f..1.0f] (only PLATFORM_DESKTOP)
+extern fn void set_window_opacity(float opacity) @private @extern("SetWindowOpacity");
+// Set window focused (only PLATFORM_DESKTOP)
+extern fn void set_window_focused() @private @extern("SetWindowFocused");
+// Get native window handle
+extern fn void* get_window_handle() @private @extern("GetWindowHandle");
+/* Values held by Pleroma data
+	// Get current screen width
+	extern fn int get_screen_width() @private @extern("GetScreenWidth");
+	// Get current screen height
+	extern fn int get_screen_height() @private @extern("GetScreenHeight");
+	// Get current render width (it considers HiDPI)
+	extern fn int get_render_width() @private @extern("GetRenderWidth");
+	// Get current render height (it considers HiDPI)
+	extern fn int get_render_height() @private @extern("GetRenderHeight");
+*/
+// Get number of connected monitors
+extern fn int get_monitor_count() @private @extern("GetMonitorCount");
+// Get current connected monitor
+extern fn int get_current_monitor() @private @extern("GetCurrentMonitor");
+// Get specified monitor position
+extern fn Vector2 get_monitor_position(int monitor) @private @extern("GetMonitorPosition");
+// Get specified monitor width (current video mode used by monitor)
+extern fn int get_monitor_width(int monitor) @private @extern("GetMonitorWidth");
+// Get specified monitor height (current video mode used by monitor)
+extern fn int get_monitor_height(int monitor) @private @extern("GetMonitorHeight");
+// Get specified monitor physical width in millimetres
+extern fn int get_monitor_physical_width(int monitor) @private @extern("GetMonitorPhysicalWidth");
+// Get specified monitor physical height in millimetres
+extern fn int get_monitor_physical_height(int monitor) @private @extern("GetMonitorPhysicalHeight");
+// Get specified monitor refresh rate
+extern fn int get_monitor_refresh(int monitor) @private @extern("GetMonitorRefreshRate");
+// Get window position XY on monitor
+extern fn Vector2 get_window_position() @private @extern("GetWindowPosition");
+// Get window scale DPI factor
+extern fn Vector2 get_window_scale_dpi() @private @extern("GetWindowScaleDPI");
+// Get the human-readable, UTF-8 encoded name of the specified monitor
+extern fn char* get_monitor_name(int monitor) @private @extern("GetMonitorName");
+// Set clipboard text content
+extern fn void set_clipboard(char* text) @private @extern("SetClipboardText");
+// Get clipboard text content
+extern fn char* get_clipboard() @private @extern("SetClipboardText");
+// Enable waiting for events on EndDrawing(), no automatic event polling
+extern fn void enable_event_waiting() @private @extern("EnableEventWaiting");
+// Disable waiting for events on EndDrawing(), automatic events polling
+extern fn void disable_event_waiting() @private @extern("EnableEventWaiting");
+
+//= Cursor-related functions
+// TODO Create module for just this
+// Shows cursor
+extern fn void show_cursor() @private @extern("ShowCursor");
+// Hides cursor
+extern fn void hide_cursor() @private @extern("HideCursor");
+// Check if cursor is not visible
+extern fn bool is_cursor_hidden() @private @extern("IsCursorHidden");
+// Enables cursor (unlock cursor)
+extern fn void enable_cursor() @private @extern("EnableCursor");
+// Disables cursor (lock cursor)
+extern fn void disable_cursor() @private @extern("DisableCursor");
+// Check if cursor is on the screen
+extern fn bool is_cursor_onscreen() @private @extern("IsCursorOnScreen");
+
+//= Drawing-related functions
+// Set background color (framebuffer clear color)
+extern fn void clear_background(Color color) @private @extern("ClearBackground");
+// Setup canvas (framebuffer) to start drawing
+extern fn void begin_drawing_rl() @private @extern("BeginDrawing");
+// End canvas drawing and swap buffers (double buffering)
+extern fn void end_drawing_rl() @private @extern("EndDrawing");
+// Begin 2D mode with custom camera (2D)
+extern fn void begin_2d_mode(Camera2D camera) @private @extern("BeginMode2D");
+// Ends 2D mode with custom camera
+extern fn void end_2d_mode() @private @extern("EndMode2D");
+// Begin 3D mode with custom camera (3D)
+extern fn void begin_3d_mode(Camera3D camera) @private @extern("BeginMode3D");
+// Ends 3D mode and returns to default 2D orthographic mode
+extern fn void end_3d_mode() @private @extern("EndMode3D");
+// Begin drawing to render texture
+extern fn void begin_texture_mode(RenderTexture target) @private @extern("BeginTextureMode");
+// Ends drawing to render texture
+extern fn void end_texture_mode() @private @extern("EndTextureMode");
+// Begin custom shader drawing
+extern fn void begin_shader_mode(Shader shader) @private @extern("BeginShaderMode");
+// End custom shader drawing (use default shader)
+extern fn void end_shader_mode() @private @extern("EndShaderMode");
+// Begin blending mode (alpha, additive, multiplied, subtract, custom)
+extern fn void begin_blend_mode(int mode) @private @extern("BeginBlendMode");
+// End blending mode (reset to default: alpha blending)
+extern fn void end_blend_mode() @private @extern("EndDrawing");
+// Begin scissor mode (define screen area for following drawing)
+extern fn void begin_scissor_mode(int x, int y, int width, int height) @private @extern("BeginScissorMode");
+// End scissor mode
+extern fn void end_scissor_mode() @private @extern("EndScissorMode");
+// TODO move this into module
+// Begin stereo rendering (requires VR simulator)
+extern fn void begin_vr_mode(VrStereoConfig config) @private @extern("BeginVrStereoMode");
+// End stereo rendering (requires VR simulator)
+extern fn void end_vr_mode() @private @extern("EndVrStereoMode");
+
+//= VR stereo config functions for VR simulator
+// Load VR stereo config for VR simulator device parameters
+extern fn VrStereoConfig load_vr_config(VrDeviceInfo device) @private @extern("LoadVrStereoConfig");
+// Unload VR stereo config
+
+//= Shader management functions
+//= NOTE: Shader functionality is not available on OpenGL 1.1
+// Load shader from files and bind default locations
+extern fn Shader load_shader(char* vsFilename, char* fsFilename) @private @extern("LoadShader");
+// Load shader from code strings and bind default locations
+extern fn Shader load_shader_memory(char* vsCode, char* fsCode) @private @extern("LoadShaderFromMemory");
+// Check if a shader is ready
+extern fn bool is_shader_ready(Shader shader) @extern("IsShaderReady");
+// Get shader uniform location
+extern fn int get_shader_location(Shader shader, char* uniformName) @private @extern("GetShaderLocation");
+// Get shader attribute location
+extern fn int get_shader_location_attribute(Shader shader, char* atttribName) @private @extern("GetShaderLocationAttrib");
+// Set shader uniform value
+extern fn void set_shader_value(Shader shader, int locIndex, void* value, int uniformType) @private @extern("SetShaderValue");
+// Set shader uniform value vector
+extern fn void set_shader_value_vec(Shader shader, int locIndex, void* value, int uniformType) @private @extern("SetShaderValueV");
+// Set shader uniform value (matrix 4x4)
+extern fn void set_shader_value_mat(Shader shader, int locIndex, Matrix mat) @private @extern("SetShaderValueMatrix");
+// Set shader uniform value for texture (sampler2d)
+extern fn void set_shader_value_texture(Shader shader, int locIndex, void* value, int uniformType) @private @extern("SetShaderValueTexture");
+// Unload shader from GPU memory (VRAM)
+extern fn void unload_shader(Shader shader) @private @extern("UnloadShader");
+
+//= Screen-space-related functions
+// Get a ray trace from mouse position
+extern fn Ray get_mouse_ray(Vector2 mouse_position, Camera3D camera) @private @extern("GetMouseRay");
+// Get camera transform matrix (view matrix)
+extern fn Matrix get_camera_matrix(Camera3D camera) @private @extern("GetCameraMatrix");
+// Get camera 2d transform matrix
+extern fn Matrix get_camera_matrix_2d(Camera2D camera) @private @extern("GetCameraMatrix2D");
+// Get the screen space position for a 3d world space position
+extern fn Vector2 get_world_to_screen(Vector3 mouse_position, Camera3D camera) @private @extern("GetWorldToScreen");
+// Get the world space position for a 2d camera screen space position
+extern fn Vector2 get_screen_to_world_2d(Vector3 mouse_position, Camera2D camera) @private @extern("GetScreenToWorld2D");
+// Get size position for a 3d world space position
+extern fn Vector2 get_world_to_screen_ex(Vector3 mouse_position, Camera3D camera, int width, int height) @private @extern("GetWorldToScreenEx");
+// Get the screen space position for a 2d camera world space position
+extern fn Vector2 get_world_to_screen_2d(Vector2 mouse_position, Camera2D camera) @private @extern("GetWorldToScreen2D");
+
+//= Timing-related functions
+// Set target FPS (maximum)
+extern fn void set_target_fps(int fps) @private @extern("SetTargetFPS");
+// Get time in seconds for last frame drawn (delta time)
+extern fn float get_frametime() @private @extern("GetFrameTime");
+// Get elapsed time in seconds since InitWindow()
+extern fn double get_time() @private @extern("GetTime");
+// Get current FPS
+extern fn int get_fps() @private @extern("GetFPS");
+
+//= Custom frame control functions
+//= NOTE: Those functions are intended for advance users that want full control over the frame processing
+//= By default EndDrawing() does this job: draws everything + SwapScreenBuffer() + manage frame timing + PollInputEvents()
+//= To avoid that behaviour and control frame processes manually, enable in config.h: SUPPORT_CUSTOM_FRAME_CONTROL
+// Swap back buffer with front buffer (screen drawing)
+extern fn void swap_screen_buffer() @private @extern("SwapScreenBuffer");
+// Register all input events
+extern fn void poll_input_events() @private @extern("PollInputEvents");
+// Wait for some time (halt program execution)
+extern fn void wait_time(double seconds) @private @extern("WaitTime");
+
+//= Random values generation functions
+// Set the seed for the random number generator
+extern fn void set_seed(uint seed) @private @extern("SetRandomSeed");
+// Get a random value between min and max (both included)
+extern fn int get_value(int min, int max) @private @extern("GetRandomValue");
+// Load random values sequence, no values repeated
+extern fn int* load_sequence(uint count, int min, int max) @private @extern("LoadRandomSequence");
+// Unload random values sequence
+extern fn void unload_sequence(int* sequence) @private @extern("UnloadRandomSequence");
+
+
+
+//= Bounding box
+/// Model drawing functions
+extern fn void draw_bounding_box(BoundingBox bounds, Color color) @extern("DrawBoundingBox");
+
+
 //= Font
 /// Font loading/unloading functions
 extern fn Font get_font_default() @extern("GetFontDefault");
@@ -151,23 +391,6 @@ extern fn void unlaod_material(Material material) @extern("UnloadMaterial");
 extern fn void set_material_texture(Material* material, int mapType, Texture texture) @extern("SetMaterialTexture");
 
 
-//= Shaders
-//= Drawing-related functions
-extern fn void begin_shader_mode(Shader shader) @extern("BeginShaderMode");
-extern fn void end_shader_mode() @extern("EndShaderMode");
-
-//= Shader management functions
-extern fn Shader load_shader(char* vsFilename, char* fsFilename) @extern("LoadShader");
-extern fn bool is_shader_ready(Shader shader) @extern("IsShaderReady");
-extern fn int get_shader_location(Shader shader, char* uniformName) @extern("GetShaderLocation");
-//extern "C" { fn GetShaderLocationAttrib(shader: ShaderRl, atttribName: *const i8) -> i32; }
-extern fn void set_shader_value(Shader shader, int locIndex, void* value, int uniformType) @extern("SetShaderValue");
-extern fn void set_shader_value_v(Shader shader, int locIndex, void* value, int uniformType) @extern("SetShaderValueV");
-//extern "C" { fn SetShaderValueMatrix(shader: ShaderRl, locIndex: i32, value: *const c_void, uniformType: i32); }
-extern fn void set_shader_value_texture(Shader shader, int locIndex, void* value, int uniformType) @extern("SetShaderValueTexture");
-extern fn void unload_shader(Shader shader) @extern("UnloadShader");
-
-
 //= Textures
 /// Texture loading functions
 extern fn Texture load_texture(char* filename) @extern("LoadTexture");
@@ -191,10 +414,6 @@ extern fn void draw_texture_ex(Texture texture, Vector2 position, float rotation
 extern fn void draw_texture_rec(Texture texture, Rectangle source, Vector2 position, Color tint) @extern("DrawTextureRec");
 extern fn void draw_texture_pro(Texture texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint) @extern("DrawTexturePro");
 extern fn void draw_texture_npatch(Texture texture, NPatchInfo npatch_info, Rectangle dest, Vector2 origin, float rotation, Color tint) @extern("DrawTextureNPatch");
-
-/// Drawing-related functions
-extern fn void begin_texture_mode(RenderTexture target) @extern("BeginTextureMode");
-extern fn void end_texture_mode() @extern("EndTextureMode");
 
 // TODO find out where this func was
 extern fn PixelFormat get_pixel_data_size(int width, int height, PixelFormat format) @extern("GetPixelDataSize");
