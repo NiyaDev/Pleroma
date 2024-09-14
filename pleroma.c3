@@ -1,6 +1,8 @@
 module pleroma;
 
 
+import pleroma::keybindings;
+import raylib;
 import std::io;
 
 
@@ -36,13 +38,15 @@ struct Pleroma {
 
 fn void init() {
 	//* Init Raylib
-	set_trace_log_level(7);
-	init_window(1280, 720, "Default");
-	set_target_fps(60);
+	raylib::set_trace_log_level(7);
+	raylib::init_window(1280, 720, "Default");
+	raylib::set_target_fps(60);
 	
-	set_window_icon(load_image("resources/icon.png"));
+	raylib::set_window_icon(raylib::load_image("resources/icon.png"));
 	
-	RenderTexture rt_val = load_render_texture(640, 360);
+	keybindings::init();
+	
+	RenderTexture rt_val = raylib::load_render_texture(640, 360);
 	RenderTexture* rt = malloc($sizeof(rt_val));
 	*rt = rt_val;
 	
@@ -64,12 +68,12 @@ fn void init() {
 		.background_color = color::DARKGRAY,
 		.line_spacing = 1,
 		
-		.default_texture = sprite::from_image(gen_image_checked(8,8,2,2,color::PURPLE,color::BLACK)),
+		.default_texture = sprite::from_image(raylib::gen_image_checked(8,8,2,2,color::PURPLE,color::BLACK)),
 	};
 }
 
 fn void close() {
-	close_window();
+	raylib::close_window();
 }
 
 fn void begin_drawing() {
@@ -83,7 +87,7 @@ fn void begin_drawing() {
 	
 	//* Start drawing to render texture
 	data.render_texture.begin();
-	clear_background(data.background_color);
+	raylib::clear_background(data.background_color);
 	data.is_rendering = true;
 }
 
@@ -95,7 +99,7 @@ fn void end_drawing() {
 	//* Draw render texture
 	data.render_texture.end();
 	
-	begin_drawing_rl();
+	raylib::begin_drawing_rl();
 	data.render_texture.texture.draw_pro(
 		{
 			.x = 0,
@@ -113,22 +117,16 @@ fn void end_drawing() {
 		0,
 		color::WHITE,
 	);
-	end_drawing_rl();
+	raylib::end_drawing_rl();
 }
 
 //TODO set_icon that takes in an array of images but uses singular if len == 1
 
 
 
-/// Misc. functions
-extern fn void set_trace_log_level(int logLevel) @extern("SetTraceLogLevel");
 
 /// Input-related functions: keyboard
 //extern "C" { fn SetExitKey(key: i32); }
 
 /// Text font info functions
 //extern "C" { fn SetTextLineSpacing(spacing: i32); }
-
-//extern "C" { fn SetWindowTitle(title: *const i8); }
-//extern "C" { fn SetWindowSize(width: i32, height: i32); }
-//extern "C" { fn SetWindowState(flags: i32); }

@@ -1,6 +1,7 @@
 module pleroma;
 
 
+import raylib;
 import std::math;
 import std::io;
 
@@ -16,7 +17,7 @@ struct BoundingBox {
  * Draws the bounding box
  **/
 fn void BoundingBox.draw(&self, Color color) {
-	draw_bounding_box(*self, color);
+	raylib::draw_bounding_box(*self, color);
 }
 
 
@@ -208,10 +209,8 @@ fn Color Color.alpha(&self, float alpha) {
  * Get src alpha-blended into dst color with tint
  **/
 fn Color Color.alpha_blend(&self, Color src, Color tint) {
-	return color_alpha_blend(*self, src, tint);
+	return raylib::color_alpha_blend(*self, src, tint);
 }
-
-extern fn Color color_alpha_blend(Color dst, Color src, Color tint) @extern("ColorAlphaBlend");
 
 
 
@@ -247,15 +246,22 @@ struct Image {
  * Wrapper for Raylib::IsImageReady()
  **/
 fn bool Image.ready(&self) {
-	return is_image_ready(*self);
+	return raylib::is_image_ready(*self);
 }
 /**
  * Wrapper for Raylib::UnloadImage()
  **/
 fn void Image.unload(&self) {
-	unload_image(*self);
+	raylib::unload_image(*self);
 }
 
+
+
+//= File path
+struct FilePathList {
+	uint capacity, count;
+	char** paths;
+}
 
 
 //= Materials
@@ -296,19 +302,19 @@ struct Shader {
  * Wrapper for Raylib::UnloadShader(shader: ShaderRl)
  **/
 fn void Shader.unload(&self) {
-	unload_shader(*self);
+	raylib::unload_shader(*self);
 }
 /**
  * Wrapper for bool Raylib::IsShaderReady(shader: ShaderRl)
  **/
 fn bool Shader.ready(&self) {
-	return is_shader_ready(*self);
+	return raylib::is_shader_ready(*self);
 }
 /**
  * Wrapper for raylib::BeginShaderMode()
  **/
 fn Shader* Shader.begin(&self) {
-	begin_shader_mode(*self);
+	raylib::begin_shader_mode(*self);
 	
 	return self;
 }
@@ -316,7 +322,7 @@ fn Shader* Shader.begin(&self) {
  * Wrapper for raylib::EndShaderMode()
  **/
 fn Shader* Shader.end(&self) {
-	end_shader_mode();
+	raylib::end_shader_mode();
 	
 	return self;
 }
@@ -333,19 +339,19 @@ struct Texture {
  * Wrapper for Raylib::UnloadTexture()
  **/
 fn void Texture.unload(&self) {
-	unload_texture(*self);
+	raylib::unload_texture(*self);
 }
 /**
  * Wrapper for Raylib::IsTextureReady()
  **/
 fn bool Texture.ready(&self) {
-	return is_texture_ready(*self);
+	return raylib::is_texture_ready(*self);
 }
 /**
  * Wrapper for Raylib::UpdateTexture()
  **/
 fn Texture* Texture.update(&self, void* pixels) {
-	update_texture(*self, pixels);
+	raylib::update_texture(*self, pixels);
 	
 	return self;
 }
@@ -353,7 +359,7 @@ fn Texture* Texture.update(&self, void* pixels) {
  * Wrapper for Raylib::UpdateTextureRec()
  **/
 fn Texture* Texture.update_rec(&self, Rectangle rec, void* pixels) {
-	update_texture_rec(*self, rec, pixels);
+	raylib::update_texture_rec(*self, rec, pixels);
 	
 	return self;
 }
@@ -361,7 +367,7 @@ fn Texture* Texture.update_rec(&self, Rectangle rec, void* pixels) {
  * Wrapper for Raylib::GenTextureMipmaps()
  **/
 fn Texture* Texture.gen_mipmaps(&self) {
-	gen_texture_mipmaps(self);
+	raylib::gen_texture_mipmaps(self);
 	
 	return self;
 }
@@ -369,7 +375,7 @@ fn Texture* Texture.gen_mipmaps(&self) {
  * Wrapper for Raylib::SetTextureFilter()
  **/
 fn Texture* Texture.set_filter(&self, int filter) {
-	set_texture_filter(*self, filter);
+	raylib::set_texture_filter(*self, filter);
 	
 	return self;
 }
@@ -377,7 +383,7 @@ fn Texture* Texture.set_filter(&self, int filter) {
  * Wrapper for Raylib::SetTextureWrap()
  **/
 fn Texture* Texture.set_wrap(&self, int wrap) {
-	set_texture_wrap(*self, wrap);
+	raylib::set_texture_wrap(*self, wrap);
 	
 	return self;
 }
@@ -385,7 +391,7 @@ fn Texture* Texture.set_wrap(&self, int wrap) {
  * Wrapper for Raylib::DrawTexture()
  **/
 fn Texture* Texture.draw(&self, int pos_x, int pos_y, Color tint) {
-	draw_texture(*self, pos_x, pos_y, tint);
+	raylib::draw_texture(*self, pos_x, pos_y, tint);
 	
 	return self;
 }
@@ -393,7 +399,7 @@ fn Texture* Texture.draw(&self, int pos_x, int pos_y, Color tint) {
  * Wrapper for Raylib::DrawTextureV()
  **/
 fn Texture* Texture.draw_v(&self, Vector2 position, Color tint) {
-	draw_texture_v(*self, position, tint);
+	raylib::draw_texture_v(*self, position, tint);
 	
 	return self;
 }
@@ -401,7 +407,7 @@ fn Texture* Texture.draw_v(&self, Vector2 position, Color tint) {
  * Wrapper for Raylib::DrawTextureEx()
  **/
 fn Texture* Texture.draw_ex(&self, Vector2 position, float rotation, float scale, Color tint) {
-	draw_texture_ex(*self, position, rotation, scale, tint);
+	raylib::draw_texture_ex(*self, position, rotation, scale, tint);
 	
 	return self;
 }
@@ -409,7 +415,7 @@ fn Texture* Texture.draw_ex(&self, Vector2 position, float rotation, float scale
  * Wrapper for Raylib::DrawTextureRec()
  **/
 fn Texture* Texture.draw_rec(&self, Rectangle source, Vector2 position, Color tint) {
-	draw_texture_rec(*self, source, position, tint);
+	raylib::draw_texture_rec(*self, source, position, tint);
 	
 	return self;
 }
@@ -417,7 +423,7 @@ fn Texture* Texture.draw_rec(&self, Rectangle source, Vector2 position, Color ti
  * Wrapper for Raylib::DrawTexturePro()
  **/
 fn Texture* Texture.draw_pro(&self, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint) {
-	draw_texture_pro(*self, source, dest, origin, rotation, tint);
+	raylib::draw_texture_pro(*self, source, dest, origin, rotation, tint);
 	
 	return self;
 }
@@ -425,7 +431,7 @@ fn Texture* Texture.draw_pro(&self, Rectangle source, Rectangle dest, Vector2 or
  * Wrapper for Raylib::DrawTextureNPatch()
  **/
 fn Texture* Texture.draw_npatch(&self, NPatchInfo npatch_info, Rectangle dest, Vector2 origin, float rotation, Color tint) {
-	draw_texture_npatch(*self, npatch_info, dest, origin, rotation, tint);
+	raylib::draw_texture_npatch(*self, npatch_info, dest, origin, rotation, tint);
 	
 	return self;
 }
@@ -452,19 +458,19 @@ struct RenderTexture {
  * Wrapper for Raylib::UnloadRenderTexture()
  **/
 fn void RenderTexture.unload(&self) {
-	unload_render_texture(*self);
+	raylib::unload_render_texture(*self);
 }
 /**
  * Wrapper for Raylib::IsRenderTextureReady()
  **/
 fn bool RenderTexture.ready(&self) {
-	return is_render_texture_ready(*self);
+	return raylib::is_render_texture_ready(*self);
 }
 /**
  * Wrapper for Raylib::BeginTextureMode()
  **/
 fn RenderTexture* RenderTexture.begin(&self) {
-	begin_texture_mode(*self);
+	raylib::begin_texture_mode(*self);
 	
 	return self;
 }
@@ -472,7 +478,7 @@ fn RenderTexture* RenderTexture.begin(&self) {
  * Wrapper for Raylib::EndTextureMode()
  **/
 fn RenderTexture* RenderTexture.end(&self) {
-	end_texture_mode();
+	raylib::end_texture_mode();
 	
 	return self;
 }
@@ -510,7 +516,7 @@ enum PixelFormat : int {
  * Wrapper for Raylib::GetPixelDataSize().
  **/
 fn PixelFormat PixelFormat.fade(&self, int width, int height) {
-	return get_pixel_data_size(width, height, *self);
+	return (PixelFormat)raylib::get_pixel_data_size(width, height, (int)*self);
 }
 
 

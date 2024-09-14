@@ -2,6 +2,7 @@ module pleroma::sprite;
 
 
 import pleroma;
+import raylib;
 import std::collections;
 import std::io;
 
@@ -40,15 +41,15 @@ fn Sprite* from_file(char* filename) {
 	};
 	
 	//* Load spritesheet and cut up into textures
-	Image sheet = pleroma::load_image(filename);
+	Image sheet = raylib::load_image(filename);
 	result.original = sheet;
 	int width = sheet.width;
 	int height = sheet.height;
 	int total_textures = width / height;
 	for (int i = 0; i < total_textures; i++) {
-		Image dup = pleroma::image_from_image(sheet, {(float)(i * height), 0, height, height});
-		Texture text = pleroma::load_texture_from_image(dup);
-		pleroma::unload_image(dup);
+		Image dup = raylib::image_from_image(sheet, {(float)(i * height), 0, height, height});
+		Texture text = raylib::load_texture_from_image(dup);
+		raylib::unload_image(dup);
 		result.textures.push(text);
 	}
 	result.dim = height;
@@ -80,9 +81,9 @@ fn Sprite* from_image(Image img) {
 	int height = img.height;
 	int total_textures = width / height;
 	for (int i = 0; i < total_textures; i++) {
-		Image dup = pleroma::image_from_image(img, {(float)(i * height), 0, height, height});
-		Texture text = pleroma::load_texture_from_image(dup);
-		pleroma::unload_image(dup);
+		Image dup = raylib::image_from_image(img, {(float)(i * height), 0, height, height});
+		Texture text = raylib::load_texture_from_image(dup);
+		raylib::unload_image(dup);
 		result.textures.push(text);
 	}
 	result.dim = height;
