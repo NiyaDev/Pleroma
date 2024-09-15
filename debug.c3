@@ -23,13 +23,16 @@ enum PlErrorLevel {
 	CRITICAL,
 }
 
-enum PleromaFault : int (String fmt, PlErrorLevel level, String desc) {
-	GENERAL_FAILURE = {"[%s] - %s %s", PlErrorLevel.NONE, "General error."},
+enum PleromaFault : int (PlErrorLevel level, String desc) {
+	GENERAL_FAILURE = {PlErrorLevel.NONE, "General error."},
 	
-	BULK_FAILED_FIND_ENTRY = {"[%s] - %s %s", PlErrorLevel.LOW, "Failed to find inputted entry in Bulk."},
+	BULK_FAILED_FIND_ENTRY = {PlErrorLevel.LOW, "Failed to find inputted entry in Bulk."},
+	BULK_ENTRY_ALREADY_EXISTS = {PlErrorLevel.LOW, "Attempted to replace a bulk entry."},
 	
-	KEYBIND_NOT_INIT = {"[%s] - %s %s", PlErrorLevel.MID, "Attempted to add a keybind without initializing map."},
-	KEYBIND_REPLACED_ENTRY = {"[%s] - %s %s", PlErrorLevel.NONE, "Replaced keybind."},
+	KEYBIND_NOT_INIT = {PlErrorLevel.MID, "Attempted to add a keybind without initializing map."},
+	KEYBIND_REPLACED_ENTRY = {PlErrorLevel.NONE, "Replaced keybind."},
+	
+	SPRITE_ANIMATION_DOESNT_EXIST = {PlErrorLevel.NONE, "Input animation doesn't exist."},
 }
 
 const int LOGTIMER_DEF = 200;
@@ -50,7 +53,7 @@ fn void log(PleromaFault f, args...) {
 	};
 	
 	String text;
-	error.text = string::tformat(f.fmt, f.level, f.desc, args);
+	error.text = string::tformat("[%s] - %s %s", f.level, f.desc, args);
 	error.level = f.level;
 	
 	if (debug_print) { io::printfn(error.text); }

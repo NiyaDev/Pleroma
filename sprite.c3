@@ -55,7 +55,7 @@ fn Sprite* from_file(char* filename) {
 	result.dim = height;
 	
 	//* Creating default animation list
-	result.new_animation("default", {0}, 1);
+	result.new_animation("default", {0});
 	
 	//* Malloc and return
 	Sprite* res_ptr = malloc($sizeof(result));
@@ -89,7 +89,7 @@ fn Sprite* from_image(Image img) {
 	result.dim = height;
 	
 	//* Creating default animation list
-	result.new_animation("default", {0}, 1);
+	result.new_animation("default", {0});
 	
 	//* Malloc and return
 	Sprite* res_ptr = malloc($sizeof(result));
@@ -131,7 +131,9 @@ fn void Sprite.draw(&self, Vector2 position) {
  * @param dst
  **/
 fn void Sprite.drawp(&self, Rectangle dst) {
-	self.textures[self.frame].draw_pro({0,0,self.dim,self.dim}, dst, {0,0}, 0, self.tint);
+	if (try current_animation = self.animations[self.current_animation]) {
+		self.textures[current_animation.data[self.frame]].draw_pro({0,0,self.dim,self.dim}, dst, {0,0}, 0, self.tint);
+	}
 	
 	self.timer++;
 	if (self.timer >= self.timer_max) {
@@ -149,15 +151,13 @@ fn void Sprite.drawp(&self, Rectangle dst) {
  * Initializing a sprite using sprite from file
  * @param name
  * @param [in] input
- * @param size
- * @require size > 0
  **/
-fn void Sprite.new_animation(&self, String name, int[] input, usz size) {
+fn void Sprite.new_animation(&self, String name, int[] input) {
 	Animation ani = {
-		.data = malloc($sizeof(input[0])*size),
-		.length = size,
+		.data = malloc($sizeof(input[0])*input.len),
+		.length = input.len,
 	};
-	for (int i = 0; i < size; i++) { ani.data[i] = input[i]; }
+	for (int i = 0; i < input.len; i++) { ani.data[i] = input[i]; }
 	self.animations.set(name, ani);
 }
 
@@ -166,9 +166,13 @@ fn void Sprite.new_animation(&self, String name, int[] input, usz size) {
  * @param name
  **/
 fn void Sprite.set_animation(&self, String name) {
-	self.current_animation = name;
-	self.frame = 0;
-	self.timer = 0;
+	if (self.animations.has_key(name)) {
+		self.current_animation = name;
+		self.frame = 0;
+		self.timer = 0;
+	} else {
+		debug::log(SPRITE_ANIMATION_DOESNT_EXIST, name);
+	}
 }
 
 /**

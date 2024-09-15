@@ -14,6 +14,7 @@ import raylib;
 const char BULK_MAJOR = 1;
 const char BULK_MINOR = 0;
 const char BULK_PATCH = 0;
+const bool BULK_COMPRESS = true;
 
 
 
@@ -53,6 +54,19 @@ struct Bulk {
 }
 //= Saving / Loading
 /**
+ * Initialize a blank Bulk
+ **/
+fn Bulk init(String name) {
+	Bulk result = {
+		.name = name,
+		.major = BULK_MAJOR,
+		.minor = BULK_MINOR,
+		.patch = BULK_PATCH,
+	};
+	result.entries.new_init();
+	return result;
+}
+/**
  * Opens bulk into structure
  * @param filename
 **/
@@ -74,8 +88,8 @@ fn Bulk open(String filename) {
 	
 	for (int i = 0; i < number_of_entries; i ++) {
 		usz entry_name_length = file.read_long();
-		String entry_name = file.read_string(entry_name_length);
 		usz ptr = file.read_long();
+		String entry_name = file.read_string(entry_name_length);
 		
 		//* Save head value and set it to data
 		usz old_head = file.head;
@@ -111,7 +125,7 @@ fn Bulk open(String filename) {
 					for (int k = 0; k < ani_length; k++) {
 						anim[k] = file.read_int();
 					}
-					data.new_animation(ani_name, anim, ani_length);
+					data.new_animation(ani_name, anim);
 				}
 				
 				//* Save
@@ -130,9 +144,8 @@ fn Bulk open(String filename) {
 }
 /**
  * Saves bulk to file
- * @param filename
  **/
-fn void Bulk.save(&self, String filename) {
+fn void Bulk.save(&self) {
 	//* Building table of contents
 	List(<BulkTableEntry>) table;
 	self.entries.@each(; String key, BulkEntry entry) {
@@ -175,7 +188,7 @@ fn void Bulk.save(&self, String filename) {
 				free(data);
 
 				//* Number of animations
-				offset += (8 * spr.animations.len());
+				offset += 8;
 
 				spr.animations.@each(; String key, Animation entry) {
 					//* Animation name length
@@ -203,8 +216,8 @@ fn void Bulk.save(&self, String filename) {
 	foreach (BulkTableEntry ent : table) {
 		usz key_length = ent.name.len;
 		new_file.write_64(key_length);
-		new_file.write_ptr(ent.name, key_length);
 		new_file.write_64((ulong)ent.ptr);
+		new_file.write_ptr(ent.name, key_length);
 	}
 
 	//* Write each entry to file
@@ -251,7 +264,18 @@ fn void Bulk.save(&self, String filename) {
 		}
 	}
 
-	new_file.save(filename);
+	new_file.save(self.name);
+}
+//= Interaction
+/**
+ * 
+ **/
+fn void Bulk.add(&self, String name, BulkEntry entry) {
+	if (self.entries.has_key(name)) {
+		debug::log(BULK_ENTRY_ALREADY_EXISTS);
+		return;
+	}
+	self.entries.set(name, entry);
 }
 //= Conversion
 /**
@@ -336,10 +360,16 @@ fn void BulkFile.init_file(&self, String filename) {
 			char[] buffer = allocator::alloc_array(allocator::heap(), char, length);
 			usz! result = file.read(buffer);
 			if (try result && buffer.len != 0) {
-				int decompressed_size = 0;
-				char* data = raylib::decompress(buffer, (int)length, &decompressed_size);
-				self.init_len(decompressed_size);
-				self.write_ptr((void*)data, decompressed_size);
+				if (BULK_COMPRESS) {
+					int decompressed_size = 0;
+					char* data = raylib::decompress(buffer, (int)length, &decompressed_size);
+					self.init_len(decompressed_size);
+					self.write_ptr((void*)data, decompressed_size);
+				} else {
+					self.init_len(length);
+					self.write_array(buffer);
+				}
+				
 			}
 		}
 
@@ -354,13 +384,18 @@ fn void BulkFile.init_file(&self, String filename) {
 fn void BulkFile.save(&self, String filename) {
 	io::File! file = file::open(filename, "wb");
 	if (try file) {
-		int compressed_size = 0;
-		char* data = raylib::compress(self.data, (int)self.length, &compressed_size);
-		
-		for (int i = 0; i < compressed_size; i++) {
-			if (try file.write_byte(data[i])) {}
-			
+		if (BULK_COMPRESS) {
+			int compressed_size = 0;
+			char* data = raylib::compress(self.data, (int)self.length, &compressed_size);
+			for (int i = 0; i < compressed_size; i++) {
+				if (try file.write_byte(data[i])) {}
+			}
+		} else {
+			for (int i = 0; i < self.length; i++) {
+				if (try file.write_byte(self.data[i])) {}
+			}
 		}
+		
 
 		if (try file.close()) {}
 	}
@@ -403,14 +438,12 @@ fn void BulkFile.write_ptr(&self, void* ptr, usz length) {
 /**
  * Writes contents of inputted array to the bulkfile at the head
  * @param array
- * @param length
- * @require length > 0
  **/
-fn void BulkFile.write_array(&self, char[] array, usz length) {
-	for (int i = 0; i < length; i++) {
+fn void BulkFile.write_array(&self, char[] array) {
+	for (int i = 0; i < array.len; i++) {
 		self.data[self.head + i] = array[i];
 	}
-	self.head += length;
+	self.head += array.len;
 }
 /**
  * Writes contents of inputted null-terminated string to the bulkfile at the head
