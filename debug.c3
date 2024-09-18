@@ -31,6 +31,7 @@ enum PleromaFault : int (PlErrorLevel level, String desc) {
 	
 	KEYBIND_NOT_INIT = {PlErrorLevel.MID, "Attempted to add a keybind without initializing map."},
 	KEYBIND_REPLACED_ENTRY = {PlErrorLevel.NONE, "Replaced keybind."},
+	KEYBIND_NO_ENTRY = {PlErrorLevel.NONE, "No keybinding for entry."},
 	
 	SPRITE_ANIMATION_DOESNT_EXIST = {PlErrorLevel.NONE, "Input animation doesn't exist."},
 }

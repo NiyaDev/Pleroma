@@ -10,12 +10,15 @@ fn int main(String[] args) {
 	pleroma::init();
 	defer pleroma::close();
 	
-	Bulk bulk = bulk::open("resources/sprites.blk");
-	Sprite* spr1 = bulk.get_sprite("black_units");
+	Bulk spr_bulk = bulk::open("resources/sprites.blk");
+	Sprite* spr1 = spr_bulk.get_sprite("black_units");
 	spr1.set_animation("pawn");
-	Sprite* spr2 = bulk.get_sprite("white_units");
+	Sprite* spr2 = spr_bulk.get_sprite("white_units");
 	spr2.set_animation("queen");
-	Sprite* spr3 = bulk.get_sprite("tiles_1");
+	Sprite* spr3 = spr_bulk.get_sprite("tiles_1");
+	
+	Bulk kb_bulk = bulk::open("resources/def_keybinds.blk");
+	keybindings::print();
 	
 	//Bulk bulk = bulk::init("resources/sprites.blk");
 	//Sprite* black_units = sprite::from_file("resources/black_units.png");
@@ -42,10 +45,34 @@ fn int main(String[] args) {
 	//bulk.add("tiles_1", {SPRITE, $sizeof(*tiles_1), tiles_1});
 	//bulk.save();
 	
+	//Bulk kb_bulk = bulk::init("resources/def_keybinds.blk");
+	//KeybindBulk* up_bind		= keybindings::new_bulk( .key = "up",   	.value = { .type = KEYBOARD, .index = 0, .key = 87 });
+	//KeybindBulk* down_bind		= keybindings::new_bulk( .key = "down", 	.value = { .type = KEYBOARD, .index = 0, .key = 83 });
+	//KeybindBulk* left_bind		= keybindings::new_bulk( .key = "left", 	.value = { .type = KEYBOARD, .index = 0, .key = 65 });
+	//KeybindBulk* right_bind		= keybindings::new_bulk( .key = "right",	.value = { .type = KEYBOARD, .index = 0, .key = 68 });
+	//KeybindBulk* up_bind_2		= keybindings::new_bulk( .key = "up",   	.value = { .type = KEYBOARD, .index = 0, .key = 265 });
+	//KeybindBulk* down_bind_2	= keybindings::new_bulk( .key = "down", 	.value = { .type = KEYBOARD, .index = 0, .key = 264 });
+	//KeybindBulk* left_bind_2	= keybindings::new_bulk( .key = "left", 	.value = { .type = KEYBOARD, .index = 0, .key = 263 });
+	//KeybindBulk* right_bind_2	= keybindings::new_bulk( .key = "right",	.value = { .type = KEYBOARD, .index = 0, .key = 262 });
+	//kb_bulk.add("kb_up_1",		{KEYBINDING, $sizeof(*up_bind), up_bind});
+	//kb_bulk.add("kb_up_2",		{KEYBINDING, $sizeof(*up_bind_2), up_bind_2});
+	//kb_bulk.add("kb_down_1",	{KEYBINDING, $sizeof(*down_bind), down_bind});
+	//kb_bulk.add("kb_down_2",	{KEYBINDING, $sizeof(*down_bind_2), down_bind_2});
+	//kb_bulk.add("kb_left_1",	{KEYBINDING, $sizeof(*left_bind), left_bind});
+	//kb_bulk.add("kb_left_2",	{KEYBINDING, $sizeof(*left_bind_2), left_bind_2});
+	//kb_bulk.add("kb_right_1",	{KEYBINDING, $sizeof(*right_bind), right_bind});
+	//kb_bulk.add("kb_right_2",	{KEYBINDING, $sizeof(*right_bind_2), right_bind_2});
+	//kb_bulk.save();
+	
 	
 	//keybindings::add("test", KeyType.KEYBOARD, 87);
 	
 	while (!raylib::window_should_close()) {
+		if (keybindings::pressed("up")) { io::printn("up"); }
+		if (keybindings::pressed("down")) { io::printn("down"); }
+		if (keybindings::pressed("left")) { io::printn("left"); }
+		if (keybindings::pressed("right")) { io::printn("right"); }
+		
 		pleroma::begin_drawing();
 		
 		for (int i = 0; i < (8*8); i++) {

@@ -6,6 +6,7 @@ import std::io;
 import std::io::file;
 import std::collections;
 import pleroma::sprite;
+import pleroma::keybindings;
 import pleroma::debug;
 import raylib;
 
@@ -33,9 +34,31 @@ struct BulkEntry {
 	usz length;
 	void* data;
 }
-enum BulkEntryType {
+enum BulkEntryType : char {
 	STRING,
 	SPRITE,
+	
+	PADDING_2,
+	PADDING_3,
+	PADDING_4,
+	PADDING_5,
+	PADDING_6,
+	PADDING_7,
+	PADDING_8,
+	PADDING_9,
+	PADDING_10,
+	PADDING_11,
+	PADDING_12,
+	PADDING_13,
+	PADDING_14,
+	PADDING_15,
+	PADDING_16,
+	PADDING_17,
+	PADDING_18,
+	PADDING_19,
+	PADDING_20,
+	
+	KEYBINDING,
 }
 /**
  * Prints bulk entry to console
@@ -102,13 +125,13 @@ fn Bulk open(String filename) {
 		//* Copy data
 		switch (entry.type) {
 			default:
-			case BulkEntryType.STRING:
+			case STRING: // 00
 				entry.length = (usz)file.read_long();
 				entry.data = malloc(entry.length);
 				for (int j = 0; j < entry.length; j++) {
 					((char*)entry.data)[j] = file.read_byte();
 				}
-			case BulkEntryType.SPRITE:
+			case SPRITE: // 01
 				//* Create Image
 				entry.length = (usz)file.read_long();
 				Sprite* data = sprite::from_image(raylib::load_image_from_memory(".png", (char*)file.get_cur_ptr(), (int)entry.length));
@@ -130,6 +153,30 @@ fn Bulk open(String filename) {
 				
 				//* Save
 				entry.data = (void*)data;
+			
+			case KEYBINDING:
+				//* Get keybind name
+				usz name_length = (usz)file.read_long();
+				String name = file.read_string(name_length);
+				
+				//* Get keybind
+				Keybind kb = {
+					.type = (KeyType)file.read_byte(),
+					.key = file.read_int(),
+					.index = file.read_byte(),
+				};
+				
+				//* add to list
+				keybindings::add(name, kb);
+				
+				//* Save
+				KeybindBulk kb_b = {
+					.key = name,
+					.value = kb,
+				};
+				entry.length = $sizeof(kb_b);
+				entry.data = malloc(entry.length);
+				*(KeybindBulk*)entry.data = kb_b;
 		}
 		
 		
@@ -139,7 +186,6 @@ fn Bulk open(String filename) {
 		file.head = old_head;
 	}
 	
-	self.print();
 	return self;
 }
 /**
@@ -170,14 +216,14 @@ fn void Bulk.save(&self) {
 		offset++;
 		switch (ent.data.type) {
 			default:
-			case BulkEntryType.STRING:
+			case STRING:
 				char* ptr = ent.data.data;
 				//* Length of string
 				offset += 8;
 				//* String
 				for (int j = 0; ptr[j] != '\0'; j++) { offset++; }
 				offset++;
-			case BulkEntryType.SPRITE:
+			case SPRITE:
 				Sprite* spr = (Sprite*)ent.data.data;
 				//* Length of data
 				offset += 8;
@@ -200,6 +246,18 @@ fn void Bulk.save(&self) {
 					//* Frames
 					offset += (entry.length * 4);
 				};
+			case KEYBINDING:
+				//* Length of name
+				offset += 8;
+				
+				//* Name
+				//for (int j = 0; ent.data.key[j] != '\0'; j++) { offset++; }
+				offset += ((KeybindBulk*)ent.data.data).key.len;
+	
+				//* Keybind
+				offset += 1; // Type
+				offset += 4; // ID
+				offset += 1; // Gamepad index
 		}
 	}
 
@@ -226,7 +284,7 @@ fn void Bulk.save(&self) {
 		new_file.write_byte((char)ent.data.type);
 		switch (ent.data.type) {
 			default:
-			case BulkEntryType.STRING:
+			case STRING:
 				char* ptr = ent.data.data;
 				
 				//* Length
@@ -236,7 +294,7 @@ fn void Bulk.save(&self) {
 				
 				//* Data
 				new_file.write_string(ptr);
-			case BulkEntryType.SPRITE:
+			case SPRITE:
 				Sprite* spr = (Sprite*)ent.data.data;
 				int image_length = 0;
 				char* data = raylib::export_image_to_memory(spr.original, ".png", &image_length);
@@ -261,6 +319,19 @@ fn void Bulk.save(&self) {
 					//* Frames
 					new_file.write_ptr(entry.data, entry.length * 4);
 				};
+			case KEYBINDING:
+				KeybindBulk* kb = (KeybindBulk*)ent.data.data;
+			
+				//* Length of name
+				new_file.write_64(kb.key.len);
+				
+				//* Name
+				new_file.write_string(kb.key);
+	
+				//* Keybind
+				new_file.write_byte((char)kb.value.type);
+				new_file.write_32(kb.value.key);
+				new_file.write_byte(kb.value.index);
 		}
 	}
 
@@ -268,7 +339,7 @@ fn void Bulk.save(&self) {
 }
 //= Interaction
 /**
- * 
+ * Add entry to the bulk
  **/
 fn void Bulk.add(&self, String name, BulkEntry entry) {
 	if (self.entries.has_key(name)) {
@@ -409,6 +480,16 @@ fn void BulkFile.write_byte(&self, char input) {
 	self.data[self.head++] = input;
 }
 /**
+ * Writes inputted int to the bulkfile at the head
+ * @param input
+ **/
+fn void BulkFile.write_32(&self, int input) {
+	self.data[self.head++] = (char)(input >>  0);
+	self.data[self.head++] = (char)(input >>  8);
+	self.data[self.head++] = (char)(input >> 16);
+	self.data[self.head++] = (char)(input >> 24);
+}
+/**
  * Writes inputted long to the bulkfile at the head
  * @param input
  **/
@@ -456,7 +537,6 @@ fn void BulkFile.write_string(&self, char* str) {
 		self.data[self.head + i] = ((char*)str)[i];
 		length++;
 	}
-	length++;
 	self.head += length;
 }
 //= Reading
