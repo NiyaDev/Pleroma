@@ -17,8 +17,8 @@ fn int main(String[] args) {
 	spr2.set_animation("queen");
 	Sprite* spr3 = spr_bulk.get_sprite("tiles_1");
 	
-	Bulk kb_bulk = bulk::open("resources/def_keybinds.blk");
-	keybindings::print();
+	//Bulk kb_bulk = bulk::open("resources/def_keybinds.blk");
+	//keybindings::print();
 	
 	//Bulk bulk = bulk::init("resources/sprites.blk");
 	//Sprite* black_units = sprite::from_file("resources/black_units.png");

@@ -17,16 +17,33 @@ enum KeyType {
 	KEYBOARD,
 	MOUSE_BUTTONS,
 	MOUSE_AXIS,
-	GAMEPAD,
+	GAMEPAD_BUTTONS,
+	GAMEPAD_AXIS,
 }
 
 
 HashMap(<String,List(<Keybind>)>) keybindings;
+float deadzone = 0;
+
 /**
  * Initializes keybinds system
  **/
 fn void init() {
 	keybindings.new_init();
+	
+	if (file::is_file("resources/sav_kb.blk")) {
+		Bulk kb_bulk = bulk::open("resources/sav_kb.blk");
+		debug::log(KEYBIND_SAVE_LOADED);
+		return;
+	}
+	if (file::is_file("resources/def_kb.blk")) {
+		Bulk kb_bulk = bulk::open("resources/def_kb.blk");
+		debug::log(KEYBIND_DEFAULTS_LOADED);
+		return;
+	}
+	
+	debug::log(KEYBIND_NO_FILES);
+	return;
 }
 /**
  * Adds input keybind in list of binds
@@ -55,15 +72,177 @@ fn bool pressed(String key) {
 		debug::log(KEYBIND_NOT_INIT);
 		return false;
 	}
-	if (try value = keybindings[key]) {
-		foreach(index, val : value) {
-			if (raylib::is_key_pressed(val.key)) { return true; }
-		}
-		return false;
-	} else {
+	
+	List(<Keybind>)! value = keybindings[key];
+	if (catch value) {
 		debug::log(KEYBIND_NO_ENTRY);
 		return false;
 	}
+	
+	foreach(index, val : value) {
+		switch (val.type) {
+			case KEYBOARD:
+				return raylib::is_key_pressed(val.key);
+			case MOUSE_BUTTONS:
+				return raylib::is_mouse_button_pressed(val.key);
+			case MOUSE_AXIS:
+				switch (val.key) {
+					default: debug::log(KEYBIND_INVALID_KEY, val.key);
+					case 0: if (raylib::get_mouse_x() > deadzone || raylib::get_mouse_x() < -deadzone) { return true; }
+					case 1: if (raylib::get_mouse_y() > deadzone || raylib::get_mouse_y() < -deadzone) { return true; }
+				}
+			case GAMEPAD_BUTTONS:
+				if (!raylib::is_gamepad_available(val.index)) {
+					debug::log(KEYBIND_GAMEPAD_NOT_CONNECTED, val.index);
+					return false;
+				}
+				return raylib::is_gamepad_button_pressed(val.index, val.key);
+			case GAMEPAD_AXIS:
+				if (!raylib::is_gamepad_available(val.index)) {
+					debug::log(KEYBIND_GAMEPAD_NOT_CONNECTED, val.index);
+					return false;
+				}
+				float movement = raylib::get_gamepad_axis_movement(val.index, val.key);
+				if (movement > deadzone || movement < -deadzone) { return true; }
+		}
+	}
+	
+	return false;
+}
+/**
+ * Gets whether the input key is pressed or axis is not currently zero
+ **/
+fn bool down(String key) {
+	if (!keybindings.is_initialized()) {
+		debug::log(KEYBIND_NOT_INIT);
+		return false;
+	}
+	
+	List(<Keybind>)! value = keybindings[key];
+	if (catch value) {
+		debug::log(KEYBIND_NO_ENTRY);
+		return false;
+	}
+	
+	foreach(index, val : value) {
+		switch (val.type) {
+			case KEYBOARD:
+				return raylib::is_key_down(val.key);
+			case MOUSE_BUTTONS:
+				return raylib::is_mouse_button_down(val.key);
+			case MOUSE_AXIS:
+				switch (val.key) {
+					default: debug::log(KEYBIND_INVALID_KEY, val.key);
+					case 0: if (raylib::get_mouse_x() > deadzone || raylib::get_mouse_x() < -deadzone) { return true; }
+					case 1: if (raylib::get_mouse_y() > deadzone || raylib::get_mouse_y() < -deadzone) { return true; }
+				}
+			case GAMEPAD_BUTTONS:
+				if (!raylib::is_gamepad_available(val.index)) {
+					debug::log(KEYBIND_GAMEPAD_NOT_CONNECTED, val.index);
+					return false;
+				}
+				return raylib::is_gamepad_button_down(val.index, val.key);
+			case GAMEPAD_AXIS:
+				if (!raylib::is_gamepad_available(val.index)) {
+					debug::log(KEYBIND_GAMEPAD_NOT_CONNECTED, val.index);
+					return false;
+				}
+				float movement = raylib::get_gamepad_axis_movement(val.index, val.key);
+				if (movement > deadzone || movement < -deadzone) { return true; }
+		}
+	}
+	
+	return false;
+}
+/**
+ * Gets whether the input key has been released or axis is currently zero
+ **/
+fn bool released(String key) {
+	if (!keybindings.is_initialized()) {
+		debug::log(KEYBIND_NOT_INIT);
+		return false;
+	}
+	
+	List(<Keybind>)! value = keybindings[key];
+	if (catch value) {
+		debug::log(KEYBIND_NO_ENTRY);
+		return false;
+	}
+	
+	foreach(index, val : value) {
+		switch (val.type) {
+			case KEYBOARD:
+				return raylib::is_key_released(val.key);
+			case MOUSE_BUTTONS:
+				return raylib::is_mouse_button_released(val.key);
+			case MOUSE_AXIS:
+				switch (val.key) {
+					default: debug::log(KEYBIND_INVALID_KEY, val.key);
+					case 0: if (raylib::get_mouse_x() < deadzone || raylib::get_mouse_x() > -deadzone) { return true; }
+					case 1: if (raylib::get_mouse_y() < deadzone || raylib::get_mouse_y() > -deadzone) { return true; }
+				}
+			case GAMEPAD_BUTTONS:
+				if (!raylib::is_gamepad_available(val.index)) {
+					debug::log(KEYBIND_GAMEPAD_NOT_CONNECTED, val.index);
+					return false;
+				}
+				return raylib::is_gamepad_button_released(val.index, val.key);
+			case GAMEPAD_AXIS:
+				if (!raylib::is_gamepad_available(val.index)) {
+					debug::log(KEYBIND_GAMEPAD_NOT_CONNECTED, val.index);
+					return false;
+				}
+				float movement = raylib::get_gamepad_axis_movement(val.index, val.key);
+				if (movement < deadzone || movement > -deadzone) { return true; }
+		}
+	}
+	
+	return false;
+}
+/**
+ * Gets whether the input key is not pressed or axis is currently zero
+ **/
+fn bool up(String key) {
+	if (!keybindings.is_initialized()) {
+		debug::log(KEYBIND_NOT_INIT);
+		return false;
+	}
+	
+	List(<Keybind>)! value = keybindings[key];
+	if (catch value) {
+		debug::log(KEYBIND_NO_ENTRY);
+		return false;
+	}
+	
+	foreach(index, val : value) {
+		switch (val.type) {
+			case KEYBOARD:
+				return raylib::is_key_up(val.key);
+			case MOUSE_BUTTONS:
+				return raylib::is_mouse_button_up(val.key);
+			case MOUSE_AXIS:
+				switch (val.key) {
+					default: debug::log(KEYBIND_INVALID_KEY, val.key);
+					case 0: if (raylib::get_mouse_x() < deadzone || raylib::get_mouse_x() > -deadzone) { return true; }
+					case 1: if (raylib::get_mouse_y() < deadzone || raylib::get_mouse_y() > -deadzone) { return true; }
+				}
+			case GAMEPAD_BUTTONS:
+				if (!raylib::is_gamepad_available(val.index)) {
+					debug::log(KEYBIND_GAMEPAD_NOT_CONNECTED, val.index);
+					return false;
+				}
+				return raylib::is_gamepad_button_up(val.index, val.key);
+			case GAMEPAD_AXIS:
+				if (!raylib::is_gamepad_available(val.index)) {
+					debug::log(KEYBIND_GAMEPAD_NOT_CONNECTED, val.index);
+					return false;
+				}
+				float movement = raylib::get_gamepad_axis_movement(val.index, val.key);
+				if (movement < deadzone || movement > -deadzone) { return true; }
+		}
+	}
+	
+	return false;
 }
 /**
  * Prints the contents of the keybindings map

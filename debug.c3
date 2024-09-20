@@ -32,6 +32,11 @@ enum PleromaFault : int (PlErrorLevel level, String desc) {
 	KEYBIND_NOT_INIT = {PlErrorLevel.MID, "Attempted to add a keybind without initializing map."},
 	KEYBIND_REPLACED_ENTRY = {PlErrorLevel.NONE, "Replaced keybind."},
 	KEYBIND_NO_ENTRY = {PlErrorLevel.NONE, "No keybinding for entry."},
+	KEYBIND_INVALID_KEY = {PlErrorLevel.NONE, "Invalid key value."},
+	KEYBIND_GAMEPAD_NOT_CONNECTED = {PlErrorLevel.LOW, "Selected gamepad not connected."},
+	KEYBIND_SAVE_LOADED = {PlErrorLevel.NONE, "Loaded saved keybindings file."},
+	KEYBIND_DEFAULTS_LOADED = {PlErrorLevel.NONE, "Loaded default keybindings file."},
+	KEYBIND_NO_FILES = {PlErrorLevel.LOW, "Failed to find saved or default keybindings file."},
 	
 	SPRITE_ANIMATION_DOESNT_EXIST = {PlErrorLevel.NONE, "Input animation doesn't exist."},
 }
@@ -40,6 +45,7 @@ const int LOGTIMER_DEF = 200;
 
 bool debug_state = true;
 bool debug_print = true;
+PlErrorLevel lowest = NONE;
 List(<PlError*>) error_list;
 int log_timer = LOGTIMER_DEF;
 
@@ -57,11 +63,13 @@ fn void log(PleromaFault f, args...) {
 	error.text = string::tformat("[%s] - %s %s", f.level, f.desc, args);
 	error.level = f.level;
 	
-	if (debug_print) { io::printfn(error.text); }
-	
-	PlError* ptr = (PlError*)malloc($sizeof(error));
-	*ptr = error;
-	error_list.push(ptr);
+	if (error.level >= lowest) {
+		if (debug_print) { io::printfn(error.text); }
+		
+		PlError* ptr = (PlError*)malloc($sizeof(error));
+		*ptr = error;
+		error_list.push(ptr);
+	}
 }
 
 //= Drawing
