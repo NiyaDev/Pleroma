@@ -26,10 +26,12 @@ enum PlErrorLevel {
 enum PleromaFault : int (PlErrorLevel level, String desc) {
 	GENERAL_FAILURE = {PlErrorLevel.NONE, "General error."},
 	
+	GENERAL_NO_RENDER_TEXTURE = {PlErrorLevel.HIGH, "Attempted to start drawing while not having a RenderTexture."},
+	
 	BULK_FAILED_FIND_ENTRY = {PlErrorLevel.LOW, "Failed to find inputted entry in Bulk."},
 	BULK_ENTRY_ALREADY_EXISTS = {PlErrorLevel.LOW, "Attempted to replace a bulk entry."},
 	
-	KEYBIND_NOT_INIT = {PlErrorLevel.MID, "Attempted to add a keybind without initializing map."},
+	KEYBIND_NOT_INIT = {PlErrorLevel.MID, "Attempted to use keybinds without initializing."},
 	KEYBIND_REPLACED_ENTRY = {PlErrorLevel.NONE, "Replaced keybind."},
 	KEYBIND_NO_ENTRY = {PlErrorLevel.NONE, "No keybinding for entry."},
 	KEYBIND_INVALID_KEY = {PlErrorLevel.NONE, "Invalid key value."},

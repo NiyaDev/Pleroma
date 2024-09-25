@@ -113,7 +113,9 @@ fn void Sprite.free(&self) {
  * @param position
  **/
 fn void Sprite.draw(&self, Vector2 position) {
-	self.textures[self.frame].draw_v(position, self.tint);
+	if (try current_animation = self.animations[self.current_animation]) {
+		self.textures[current_animation.data[self.frame]].draw_v(position, self.tint);
+	}
 	
 	self.timer++;
 	if (self.timer >= self.timer_max) {

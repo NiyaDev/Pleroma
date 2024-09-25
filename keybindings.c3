@@ -22,6 +22,7 @@ enum KeyType {
 }
 
 
+bool kb_initialized = false;
 HashMap(<String,List(<Keybind>)>) keybindings;
 float deadzone = 0;
 

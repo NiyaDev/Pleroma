@@ -254,7 +254,12 @@ fn bool Image.ready(&self) {
 fn void Image.unload(&self) {
 	raylib::unload_image(*self);
 }
-
+/**
+ * Wrapper for Raylib::UnloadImage()
+ **/
+fn Texture Image.texture(&self) {
+	return raylib::load_texture_from_image(*self);
+}
 
 
 //= File path
@@ -430,10 +435,25 @@ fn Texture* Texture.draw_pro(&self, Rectangle source, Rectangle dest, Vector2 or
 /**
  * Wrapper for Raylib::DrawTextureNPatch()
  **/
-fn Texture* Texture.draw_npatch(&self, NPatchInfo npatch_info, Rectangle dest, Vector2 origin, float rotation, Color tint) {
-	raylib::draw_texture_npatch(*self, npatch_info, dest, origin, rotation, tint);
+fn Texture* Texture.draw_npatch(&self, Rectangle dest, Vector2 origin, float rotation, Color tint) {
+	NPatchInfo npat = self.npatch();
+	
+	raylib::draw_texture_npatch(*self, npat, dest, origin, rotation, tint);
 	
 	return self;
+}
+/**
+ * Create NPatch for use
+ **/
+fn NPatchInfo Texture.npatch(&self) {
+	return {
+		.source = {0, 0, self.width, self.height},
+		.left = self.width / 3,
+		.top = self.height / 3,
+		.right = self.width / 3,
+		.bottom = self.height / 3,
+		.layout = 0,
+	};
 }
 /**
  * Prints information of texture

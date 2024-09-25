@@ -7,10 +7,17 @@ import raylib;
 import std::io;
 
 fn int main(String[] args) {
-	pleroma::init();
+	pleroma::init(
+		.title = "Testing",
+		.render_resolution = {640, 360},
+		.debug_mode = true,
+		.debug_level = LOW,
+	);
 	defer pleroma::close();
 	
 	Bulk spr_bulk = bulk::open("resources/sprites.blk");
+	//defer spr_bulk.close();
+	
 	Sprite* spr1 = spr_bulk.get_sprite("black_units");
 	spr1.set_animation("pawn");
 	Sprite* spr2 = spr_bulk.get_sprite("white_units");
@@ -68,9 +75,9 @@ fn int main(String[] args) {
 	//keybindings::add("test", KeyType.KEYBOARD, 87);
 	
 	while (!raylib::window_should_close()) {
-		if (keybindings::pressed("up")) { io::printn("up"); }
-		if (keybindings::pressed("down")) { io::printn("down"); }
-		if (keybindings::pressed("left")) { io::printn("left"); }
+		if (keybindings::pressed("up")) pleroma::set_render_resolution({640,360});
+		if (keybindings::pressed("down")) pleroma::set_render_resolution({1280,720});
+		if (keybindings::pressed("left")) pleroma::set_render_resolution({1920,1080});
 		if (keybindings::pressed("right")) { io::printn("right"); }
 		
 		pleroma::begin_drawing();

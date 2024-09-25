@@ -36,31 +36,59 @@ struct Pleroma {
 	Sprite* default_texture;
 }
 
-fn void init() {
+/**
+ * Initialize Pleroma
+ * @param title				"Window title"
+ * @param screen_resolution	"Resolution of window"
+ * @param render_resolution	"Resolution rendered at"
+ * @param framerate			"Framerate"
+ * @param keybindings		"Decides if keybindings are initialized"
+ * @param debug_mode		"Turns on Debugging"
+ * @param debug_level		"Sets Screen display for Errors above the inputted level"
+ **/
+fn void init(
+		String title = "Default",
+		Resolution screen_resolution = {1280, 720},
+		Resolution render_resolution = {1280, 720},
+		int framerate = 60,
+		bool keybindings = true,
+		
+		//* Debug
+		bool debug_mode = true,
+		PlErrorLevel debug_level = NONE,
+) {
 	//* Init Raylib
 	raylib::set_trace_log_level(7);
-	raylib::init_window(1280, 720, "Default");
-	raylib::set_target_fps(60);
+	raylib::init_window(screen_resolution.width, screen_resolution.height, title);
+	raylib::set_target_fps(framerate);
 	
-	raylib::set_window_icon(raylib::load_image("resources/icon.png"));
+	//* Debug
+	debug::debug_state = debug_mode;
+	debug::lowest = debug_level;
 	
-	keybindings::init();
+	//* Icon
+	Image icon = raylib::load_image("resources/icon.png");
+	if (icon.ready()) raylib::set_window_icon(icon);
 	
-	RenderTexture rt_val = raylib::load_render_texture(640, 360);
+	//* Keybindings
+	if (keybindings) keybindings::init();
+	
+	//* Render textures
+	RenderTexture rt_val = raylib::load_render_texture(render_resolution.width, render_resolution.height);
 	RenderTexture* rt = malloc($sizeof(rt_val));
 	*rt = rt_val;
 	
 	data = {
 		.initialized = true,
 		.screen_size = {
-			.width  = 1280,
-			.height =  720,
+			.width  = screen_resolution.width,
+			.height = screen_resolution.height,
 		},
 		.render_size = {
-			.width  = 640,
-			.height = 360,
+			.width  = render_resolution.width,
+			.height = render_resolution.height,
 		},
-		.framerate = 60,
+		.framerate = framerate,
 		.window_flags = 0,
 		
 		.render_texture = rt,
@@ -71,17 +99,22 @@ fn void init() {
 		.default_texture = sprite::from_image(raylib::gen_image_checked(8,8,2,2,color::PURPLE,color::BLACK)),
 	};
 }
-
+/**
+ * Closing Pleroma
+ **/
 fn void close() {
 	raylib::close_window();
 }
 
+/**
+ * Starts the process of drawing the next frame
+ **/
 fn void begin_drawing() {
 	//* Music
 	
 	//* Make sure render texture exists
 	if (data.render_texture == null) {
-		// TODO log error
+		debug::log(GENERAL_NO_RENDER_TEXTURE);
 		return;
 	}
 	
@@ -90,7 +123,9 @@ fn void begin_drawing() {
 	raylib::clear_background(data.background_color);
 	data.is_rendering = true;
 }
-
+/**
+ * Finishes the process of drawing the next frame
+ **/
 fn void end_drawing() {
 	//* Debug info
 	//* Draw log
@@ -101,32 +136,48 @@ fn void end_drawing() {
 	
 	raylib::begin_drawing_rl();
 	data.render_texture.texture.draw_pro(
-		{
-			.x = 0,
-			.y = 0,
-			.width = (float)data.render_size.width,
-			.height = (float)-data.render_size.height,
-		},
-		{
-			.x = 0,
-			.y = 0,
-			.width = (float)data.screen_size.width,
-			.height = (float)data.screen_size.height,
-		},
-		{.x = 0, .y = 0},
+		{0, 0, (float)data.render_size.width, (float)-data.render_size.height},
+		{0, 0, (float)data.screen_size.width, (float)data.screen_size.height},
+		{0, 0},
 		0,
 		color::WHITE,
 	);
 	raylib::end_drawing_rl();
 }
 
+//= Settings
+/**
+ * Change debug mode
+ **/
+fn void set_debug(
+		bool debug_mode = true,
+		PlErrorLevel debug_level = NONE,
+) {
+	debug::debug_state = debug_mode;
+	debug::lowest = debug_level;
+}
+/**
+ * Change screen resolution
+ **/
+fn void set_screen_resolution(
+		Resolution screen_resolution = {1280, 720},
+) {
+	data.screen_size = screen_resolution;
+	raylib::set_window_size(screen_resolution.width, screen_resolution.height);
+}
+/**
+ * Change render resolution
+ **/
+fn void set_render_resolution(
+		Resolution render_resolution = {1280, 720},
+) {
+	data.render_size = render_resolution;
+	data.render_texture.unload();
+	
+	RenderTexture rt_val = raylib::load_render_texture(render_resolution.width, render_resolution.height);
+	*data.render_texture = rt_val;
+}
+
 //TODO set_icon that takes in an array of images but uses singular if len == 1
 
 
-
-
-/// Input-related functions: keyboard
-//extern "C" { fn SetExitKey(key: i32); }
-
-/// Text font info functions
-//extern "C" { fn SetTextLineSpacing(spacing: i32); }
