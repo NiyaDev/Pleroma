@@ -9,12 +9,15 @@ import std::io;
 const float EPSILON = 1.1920929E-7;
 
 
-//= Bounds
+/**
+ * Bounding box for hitboxes and collisions
+ **/
 struct BoundingBox {
 	Vector3 min, max;
 }
 /**
  * Draws the bounding box
+ * @param color "Color to draw the bounds"
  **/
 fn void BoundingBox.draw(&self, Color color) {
 	raylib::draw_bounding_box(*self, color);
@@ -22,12 +25,17 @@ fn void BoundingBox.draw(&self, Color color) {
 
 
 
-//= Camera 2D
+/**
+ * 2D Camera
+ **/
 struct Camera2D {
 	Vector2 offset, target;
 	float rotation, zoom;
 }
 
+/**
+ * 3D Camera
+ **/
 struct Camera3D {
 	Vector3 position, target, up;
 	float fovy;
@@ -35,34 +43,36 @@ struct Camera3D {
 }
 
 enum CameraProjection : int {
-	// Perspective projection
-	CAMERA_PERSPECTIVE,
-	// Orthographic projection
-    CAMERA_ORTHOGRAPHIC,
+	CAMERA_PERSPECTIVE,		// Perspective projection
+	CAMERA_ORTHOGRAPHIC,	// Orthographic projection
 }
 
 
 
-//= Color
+/**
+ * Color
+ **/
 struct Color {
 	char r, g, b, a;
 }
 /**
  * Apply alpha to color
+ * @param alpha "Value to change alpha to"
+ * @require alpha <= 1, alpha >= 0, "Alpha not withing proper range of 0 -> 1"
  **/
-fn void Color.fade(Color* self, float alpha) {
-	if (alpha < 0.0) alpha = 0.0;
-	if (alpha > 1.0) alpha = 1.0;
-	self.a = (char)(255.0 * alpha);
+fn void Color.fade(&self, float alpha) {
+	self.a = (char)(255 * alpha);
 }
 /**
  * Converts color to hexadecimal representation
+ * @return "Hex version of color"
  **/
-fn uint Color.to_int(Color* self) {
+fn uint Color.to_int(&self) {
 	return self.r << 24 | self.g << 16 | self.b << 8 | self.a;
 }
 /**
  * Converts color into Vector4 representation
+ * @return "Vector4 version of color with each value being a float between 0 and 1"
  **/
 fn Vector4 Color.normalize(&self) {
 	return {
@@ -73,7 +83,8 @@ fn Vector4 Color.normalize(&self) {
 	};
 }
 /**
- * Converts input HSV into  it's equivalent color
+ * Converts color into HSV
+ * @return "Hue, Saturation, and Value version of color as a Vector3"
  **/
 fn Vector3 Color.hsv(&self) {
 	float r = (float)self.r / 255;
@@ -89,8 +100,8 @@ fn Vector3 Color.hsv(&self) {
 	else if (cmax == g) { hue = (60 * (((b - r) / delta) + 120)) % 360; }
 	else if (cmax == b) { hue = (60 * (((r - g) / delta) + 240)) % 360; }
 	else { hue = -1; };
-	float sat;
-	if (cmax == 0) { sat = 0; } else { sat = delta / cmax; };
+
+	float sat = (cmax == 0 ? 0 : delta / cmax);
 
 	return {
 		.x = hue,
@@ -100,6 +111,8 @@ fn Vector3 Color.hsv(&self) {
 }
 /**
  * Multiplies color by input
+ * @param tint "Color to tint"
+ * @return "Tinted color"
  **/
 fn Color Color.tint(&self, Color tint) {
 	Color result = *self;
@@ -118,28 +131,26 @@ fn Color Color.tint(&self, Color tint) {
 }
 /**
  * Corrects color for brightness
+ * @param factor "Percentage to increase brightness"
+ * @require factor <= 1, factor >= -1, "Brightness factor not within range"
+ * @return "Brightened / Darkened color"
  **/
 fn Color Color.brightness(&self, float factor) {
 	Color result = *self;
 
-	float n_factor;
-	if (factor > 1) { n_factor = 1; }
-	else if (factor < -1) { n_factor = -1; }
-	else { n_factor = factor; }
+	float red	= (float)self.r;
+	float green	= (float)self.g;
+	float blue	= (float)self.b;
 
-	float red = (float)self.r;
-	float green = (float)self.g;
-	float blue = (float)self.b;
-
-	if (n_factor < 0) {
-		n_factor = 1 + n_factor;
-		red *= n_factor;
-		green *= n_factor;
-		blue *= n_factor;
+	if (factor < 0) {
+		factor	 = 1 + factor;
+		red		*= factor;
+		green	*= factor;
+		blue	*= factor;
 	} else {
-		red = (255 - red) * n_factor + red;
-		green = (255 - green) * n_factor + green;
-		blue = (255 - blue) * n_factor + blue;
+		red		= (255 - red)	* factor + red;
+		green	= (255 - green)	* factor + green;
+		blue	= (255 - blue)	* factor + blue;
 	}
 
 	result.r = (char)red;
@@ -150,20 +161,19 @@ fn Color Color.brightness(&self, float factor) {
 }
 /**
  * Corrects color for contrast
+ * @param contrast "Percentage to change brightness"
+ * @require contrast <= 1, contrast >= -1, "Contrast not within proper range"
+ * @return "Color changed by contrast"
  **/
 fn Color Color.contrast(&self, float contrast) {
 	Color result = *self;
 
-	float n_contrast;
-	if (contrast < -1) { n_contrast = -1; }
-	else if (contrast > 1) { n_contrast = 1; }
-	else { n_contrast = contrast; }
-	n_contrast = 1 + n_contrast;
-	n_contrast *= n_contrast;
+	contrast += 1;
+	contrast *= contrast;
 
 	float pr = (float)self.r / 255;
 	pr -= 0.5;
-	pr *= n_contrast;
+	pr *= contrast;
 	pr += 0.5;
 	pr *= 255;
 	if (pr < 0) { pr = 0; }
@@ -171,7 +181,7 @@ fn Color Color.contrast(&self, float contrast) {
 
 	float pg = (float)self.g / 255;
 	pg -= 0.5;
-	pg *= n_contrast;
+	pg *= contrast;
 	pg += 0.5;
 	pg *= 255;
 	if (pg < 0) { pg = 0; }
@@ -179,7 +189,7 @@ fn Color Color.contrast(&self, float contrast) {
 
 	float pb = (float)self.b / 255.0;
 	pb -= 0.5;
-	pb *= n_contrast;
+	pb *= contrast;
 	pb += 0.5;
 	pb *= 255;
 	if (pb < 0) { pb = 0; }
@@ -193,20 +203,22 @@ fn Color Color.contrast(&self, float contrast) {
 }
 /**
  * Get color with alpha applied
+ * @param alpha "Alpha to apply to color"
+ * @require alpha >= 0, alpha <= 1, "Alpha not within proper range"
+ * @return "Color with alpha applied"
  **/
 fn Color Color.alpha(&self, float alpha) {
 	Color result = *self;
 
-	float n_alpha;
-	if (alpha < 0) { n_alpha = 0; }
-	else if (alpha > 1) { n_alpha = 1; }
-
-	result.a = (char)(255 * n_alpha);
+	result.a = (char)(255 * alpha);
 
 	return result;
 }
 /**
  * Get src alpha-blended into dst color with tint
+ * @param src
+ * @param tint
+ * @return "Color with Alpha blend applied"
  **/
 fn Color Color.alpha_blend(&self, Color src, Color tint) {
 	return raylib::color_alpha_blend(*self, src, tint);
@@ -214,7 +226,9 @@ fn Color Color.alpha_blend(&self, Color src, Color tint) {
 
 
 
-//= Font
+/**
+ * Font
+ **/
 struct Font {
 	int base_size;
 	int glyph_count;
@@ -224,6 +238,9 @@ struct Font {
 	GlyphInfo* glyphs;
 }
 
+/**
+ * Glyph Information
+ **/
 struct GlyphInfo {
 	int value;
 	int offset_x;
@@ -232,37 +249,9 @@ struct GlyphInfo {
 	Image image;
 }
 
-
-
-//= Image
-struct Image {
-	void* data;
-	int width;
-	int height;
-	int mipmaps;
-	PixelFormat format;
-}
 /**
- * Wrapper for Raylib::IsImageReady()
+ * File path list
  **/
-fn bool Image.ready(&self) {
-	return raylib::is_image_ready(*self);
-}
-/**
- * Wrapper for Raylib::UnloadImage()
- **/
-fn void Image.unload(&self) {
-	raylib::unload_image(*self);
-}
-/**
- * Wrapper for Raylib::UnloadImage()
- **/
-fn Texture Image.texture(&self) {
-	return raylib::load_texture_from_image(*self);
-}
-
-
-//= File path
 struct FilePathList {
 	uint capacity, count;
 	char** paths;
@@ -320,7 +309,7 @@ fn bool Shader.ready(&self) {
  **/
 fn Shader* Shader.begin(&self) {
 	raylib::begin_shader_mode(*self);
-	
+
 	return self;
 }
 /**
@@ -328,7 +317,7 @@ fn Shader* Shader.begin(&self) {
  **/
 fn Shader* Shader.end(&self) {
 	raylib::end_shader_mode();
-	
+
 	return self;
 }
 
@@ -357,7 +346,7 @@ fn bool Texture.ready(&self) {
  **/
 fn Texture* Texture.update(&self, void* pixels) {
 	raylib::update_texture(*self, pixels);
-	
+
 	return self;
 }
 /**
@@ -365,7 +354,7 @@ fn Texture* Texture.update(&self, void* pixels) {
  **/
 fn Texture* Texture.update_rec(&self, Rectangle rec, void* pixels) {
 	raylib::update_texture_rec(*self, rec, pixels);
-	
+
 	return self;
 }
 /**
@@ -373,7 +362,7 @@ fn Texture* Texture.update_rec(&self, Rectangle rec, void* pixels) {
  **/
 fn Texture* Texture.gen_mipmaps(&self) {
 	raylib::gen_texture_mipmaps(self);
-	
+
 	return self;
 }
 /**
@@ -381,7 +370,7 @@ fn Texture* Texture.gen_mipmaps(&self) {
  **/
 fn Texture* Texture.set_filter(&self, int filter) {
 	raylib::set_texture_filter(*self, filter);
-	
+
 	return self;
 }
 /**
@@ -389,7 +378,7 @@ fn Texture* Texture.set_filter(&self, int filter) {
  **/
 fn Texture* Texture.set_wrap(&self, int wrap) {
 	raylib::set_texture_wrap(*self, wrap);
-	
+
 	return self;
 }
 /**
@@ -397,7 +386,7 @@ fn Texture* Texture.set_wrap(&self, int wrap) {
  **/
 fn Texture* Texture.draw(&self, int pos_x, int pos_y, Color tint) {
 	raylib::draw_texture(*self, pos_x, pos_y, tint);
-	
+
 	return self;
 }
 /**
@@ -405,7 +394,7 @@ fn Texture* Texture.draw(&self, int pos_x, int pos_y, Color tint) {
  **/
 fn Texture* Texture.draw_v(&self, Vector2 position, Color tint) {
 	raylib::draw_texture_v(*self, position, tint);
-	
+
 	return self;
 }
 /**
@@ -413,7 +402,7 @@ fn Texture* Texture.draw_v(&self, Vector2 position, Color tint) {
  **/
 fn Texture* Texture.draw_ex(&self, Vector2 position, float rotation, float scale, Color tint) {
 	raylib::draw_texture_ex(*self, position, rotation, scale, tint);
-	
+
 	return self;
 }
 /**
@@ -421,7 +410,7 @@ fn Texture* Texture.draw_ex(&self, Vector2 position, float rotation, float scale
  **/
 fn Texture* Texture.draw_rec(&self, Rectangle source, Vector2 position, Color tint) {
 	raylib::draw_texture_rec(*self, source, position, tint);
-	
+
 	return self;
 }
 /**
@@ -429,7 +418,7 @@ fn Texture* Texture.draw_rec(&self, Rectangle source, Vector2 position, Color ti
  **/
 fn Texture* Texture.draw_pro(&self, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint) {
 	raylib::draw_texture_pro(*self, source, dest, origin, rotation, tint);
-	
+
 	return self;
 }
 /**
@@ -437,9 +426,9 @@ fn Texture* Texture.draw_pro(&self, Rectangle source, Rectangle dest, Vector2 or
  **/
 fn Texture* Texture.draw_npatch(&self, Rectangle dest, Vector2 origin, float rotation, Color tint) {
 	NPatchInfo npat = self.npatch();
-	
+
 	raylib::draw_texture_npatch(*self, npat, dest, origin, rotation, tint);
-	
+
 	return self;
 }
 /**
@@ -491,7 +480,7 @@ fn bool RenderTexture.ready(&self) {
  **/
 fn RenderTexture* RenderTexture.begin(&self) {
 	raylib::begin_texture_mode(*self);
-	
+
 	return self;
 }
 /**
@@ -499,7 +488,7 @@ fn RenderTexture* RenderTexture.begin(&self) {
  **/
 fn RenderTexture* RenderTexture.end(&self) {
 	raylib::end_texture_mode();
-	
+
 	return self;
 }
 
@@ -606,7 +595,7 @@ fn float Vector2.distance_sr(&self, Vector2 v2) {
 fn float Vector2.angle(&self, Vector2 v2) {
 	float dot = self.dot_product(v2);
 	float det = (self.x * v2.x) - (self.y * v2.y);
-	
+
 	return math::atan2(dot,det);
 }
 /**
@@ -620,12 +609,12 @@ fn float Vector2.angle_line(&self, Vector2 end) {
  **/
 fn Vector2 Vector2.normalize(&self) {
 	float length = self.length();
-	
+
 	if (length > 0.0) {
 		float ilength = 1.0 / length;
 		return {.x = self.x * ilength, .y = self.y * ilength};
 	}
-	
+
 	return *self;
 }
 /**
@@ -635,7 +624,7 @@ fn Vector2 Vector2.transform(&self, Matrix mat) {
 	float x = self.x;
 	float y = self.y;
 	float z = 0;
-	
+
 	return {
 		.x = (mat.m0 * x) + (mat.m4 * y) + (mat.m8 * z) + mat.m12,
 		.y = (mat.m1 * x) + (mat.m5 * y) + (mat.m9 * z) + mat.m13,
@@ -655,7 +644,7 @@ fn Vector2 Vector2.lerp(&self, Vector2 v2, float amount) {
  **/
 fn Vector2 Vector2.reflect(&self, Vector2 normal) {
 	float dot = self.dot_product(normal);
-	
+
 	return {
 		.x = self.x - (2 * normal.x) * dot,
 		.y = self.y - (2 * normal.y) * dot,
@@ -667,7 +656,7 @@ fn Vector2 Vector2.reflect(&self, Vector2 normal) {
 fn Vector2 Vector2.rotate(&self, float angle) {
 	float cosres = math::cos(angle);
 	float sinres = math::sin(angle);
-	
+
 	return {
 		.x = (self.x * cosres) - (self.y * sinres),
 		.y = (self.x * sinres) + (self.y * cosres),
@@ -680,10 +669,10 @@ fn Vector2 Vector2.move_towards(&self, Vector2 target, float max_distance) {
 	float dx = target.x - self.x;
 	float dy = target.y - self.y;
 	float value = dx.pow(2) + dy.pow(2);
-	
+
 	if (value == 0 || (max_distance >= 0 && value <= max_distance.pow(2))) { return target; }
 	float dist = math::sqrt(value);
-	
+
 	return {
 		.x = self.x + (dx / dist) * max_distance,
 		.y = self.y + (dy / dist) * max_distance,
@@ -713,23 +702,23 @@ fn Vector2 Vector2.clamp(&self, Vector2 min, Vector2 max) {
  **/
 fn Vector2 Vector2.clamp_mag(&self, float min, float max) {
 	float length = self.length();
-	
+
 	if (length > 0) {
 		length = math::sqrt(length);
-		
+
 		float scale = 1;
 		if (length < min) {
 			scale = min / length;
 		} else if (length > max) {
 			scale = max / length;
 		}
-		
+
 		return {
 			.x = self.x * scale,
 			.y = self.y * scale,
 		};
 	}
-	
+
 	return {
 		.x = self.x,
 		.y = self.y,
@@ -799,7 +788,7 @@ fn Vector3 Vector3.cross_product(&self, Vector3 v2) {
 fn Vector3 Vector3.perpendicular(&self) {
 	float min = math::abs(self.x);
 	Vector3 cardinal_axis = {.x = 1, .y = 0, .z = 0};
-	
+
 	if (math::abs(self.y) < min) {
 		min = math::abs(self.y);
 		cardinal_axis = {.x = 0, .y = 1, .z = 0};
@@ -807,7 +796,7 @@ fn Vector3 Vector3.perpendicular(&self) {
 	if (math::abs(self.z) < min) {
 		cardinal_axis = {.x = 0, .y = 1, .z = 0};
 	}
-	
+
 	return self.cross_product(cardinal_axis);
 }
 /**
@@ -855,7 +844,7 @@ fn float Vector3.angle(&self, Vector3 v2) {
 	Vector3 cross = self.cross_product(v2);
 	float len = cross.length();
 	float dot = self.dot_product(v2);
-	
+
 	return math::atan2(len, dot);
 }
 /**
@@ -865,7 +854,7 @@ fn Vector3 Vector3.normalize(&self) {
 	float len = self.length();
 	if (len != 0) {
 		float ilen = self.length();
-		
+
 		return {
 			.x = self.x * ilen,
 			.y = self.y * ilen,
@@ -879,9 +868,9 @@ fn Vector3 Vector3.normalize(&self) {
 fn Vector3 Vector3.project(&self, Vector3 v2) {
 	float v1dv2 = self.x*v2.x + self.y*v2.y + self.z*v2.z;
 	float v2dv2 = v2.length_sqr();
-	
+
 	float mag = v1dv2 / v2dv2;
-	
+
 	return {
 		.x = v2.x * mag,
 		.y = v2.y * mag,
@@ -909,7 +898,7 @@ fn Vector3 Vector3.reject(&self, Vector3 v2) {
 fn void Vector3.orthinormalize(&self, Vector3* v2) {
 	float len;
 	float ilen;
-	
+
 	//* Normalize self
 	len = self.length();
 	if (len == 0) len = 1;
@@ -917,10 +906,10 @@ fn void Vector3.orthinormalize(&self, Vector3* v2) {
 	self.x *= ilen;
 	self.y *= ilen;
 	self.z *= ilen;
-	
-	//* Cross product 
+
+	//* Cross product
 	Vector3 vn1 = self.cross_product(*v2);
-	
+
 	//* Normalize
 	len = vn1.length();
 	if (len == 0) len = 1;
@@ -928,7 +917,7 @@ fn void Vector3.orthinormalize(&self, Vector3* v2) {
 	vn1.x *= ilen;
 	vn1.y *= ilen;
 	vn1.z *= ilen;
-	
+
 	//* Cross product
 	Vector3 vn2 = vn1.cross_product(*self);
 
@@ -1225,7 +1214,7 @@ fn Vector3 Vector3.refract(Vector3 v, Vector3 n, float r) {
 
 	if (d >= 0) {
 		d = math::sqrt(d);
-		
+
 		result = {
 			.x = r * v.x - (r * dot + d) * n.x,
 			.y = r * v.y - (r * dot + d) * n.y,
@@ -1357,7 +1346,7 @@ fn float Vector4.distance_square(&self, Vector4 v2) {
  **/
 fn Vector4 Vector4.normalize(&self) {
 	Vector4 result = {};
-	
+
 	float len = self.length();
 	if (len > 0) {
 		float ilen = 1 / len;
@@ -1368,7 +1357,7 @@ fn Vector4 Vector4.normalize(&self) {
 			.w = self.w * ilen,
 		};
 	}
-	
+
 	return result;
 }
 /**
@@ -1624,7 +1613,7 @@ fn Vector3 Quaternion.to_euler(&self) {
 	float z0 = 2 * (self.w * self.z + self.x * self.y);
 	float z1 = 1 - 2 * (self.y.pow(2) + self.z.pow(2));
 	yaw = math::atan2(z0, z1);
-	
+
 	return { .x = pitch, .y = yaw, .z = roll };
 }
 /**
@@ -1667,7 +1656,7 @@ fn Matrix Matrix.add(&self, Matrix rhs) {
 	result.m13 = self.m13 + rhs.m13;
 	result.m14 = self.m14 + rhs.m14;
 	result.m15 = self.m15 + rhs.m15;
-	
+
 	return result;
 }
 /**
@@ -2310,7 +2299,7 @@ fn pleroma::Quaternion quaternion_from_axis_angle(Vector3 axis, float angle) {
 			.y = axis.y * ilen,
 			.z = axis.z * ilen,
 		};
-		
+
 		float sinres = math::sin(new_angle);
 		float cosres = math::cos(new_angle);
 
