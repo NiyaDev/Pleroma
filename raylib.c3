@@ -339,33 +339,57 @@ extern fn void set_mouse_cursor(int cursor) @extern("SetMouseCursor");
 
 //= rTextures
 //= Image loading functions
+// Load image from file into CPU memory (RAM)
 extern fn Image load_image(char* filename) @extern("LoadImage");
+// Load image from RAW file data
 extern fn Image load_image_raw(char* filename, int width, int height, PixelFormat format, int header_size) @extern("LoadImageRaw");
+// Load image from SVG file data or string with specified size
 extern fn Image load_image_svg(char* filename, int width, int height) @extern("LoadImageSvg");
+// Load image sequence from file (frames appended to image.data)
 extern fn Image load_image_anim(char* fileName, int* frames) @extern("LoadImageAnim");
+// Load image from memory buffer, fileType refers to extension: i.e. '.png'
 extern fn Image load_image_from_memory(char* fileType, char* fileData, int dataSize) @extern("LoadImageFromMemory");
+// Load image from GPU texture data
 extern fn Image load_image_from_texture(Texture texture) @extern("LoadImageFromTexture");
+// Load image from screen buffer and (screenshot)
 extern fn Image load_image_from_screen() @extern("LoadImageFromScreen");
+// Check if an image is ready
 extern fn bool is_image_ready(Image image) @extern("IsImageReady");
+// Unload image from CPU memory (RAM)
 extern fn void unload_image(Image image) @extern("UnloadImage");
+// Export image data to file, returns true on success
 extern fn bool export_image(Image image, char* filename) @extern("ExportImage");
+// Export image to memory buffer
 extern fn char* export_image_to_memory(Image image, char* fileType, int* fileSize) @extern("ExportImageToMemory");
+// Export image as code file defining an array of bytes, returns true on success
 extern fn bool export_image_as_code(Image image, char* file) @extern("ExportImageAsCode");
 
 //= Image generation functions
+// Generate image: plain color
 extern fn Image gen_image_color(int width, int height, Color color) @extern("GenImageColor");
+// Generate image: linear gradient, direction in degrees [0..360], 0=Vertical gradient
 extern fn Image gen_image_gradient_linear(int width, int height, int direction, Color start, Color end) @extern("GenImageGradientLinear");
+// Generate image: radial gradient
 extern fn Image gen_image_gradient_radial(int width, int height, float density, Color inner, Color outer) @extern("GenImageGradientRadial");
+// Generate image: square gradient
 extern fn Image gen_image_gradient_square(int width, int height, float density, Color inner, Color outer) @extern("GenImageGradientSquare");
+// Generate image: checked
 extern fn Image gen_image_checked(int width, int height, int checksX, int checksY, Color col1, Color col2) @extern("GenImageChecked");
+// Generate image: white noise
 extern fn Image gen_image_white_noise(int width, int height, float factor) @extern("GenImageWhiteNoise");
+// Generate image: perlin noise
 extern fn Image gen_image_perlin_noise(int width, int height, int offsetX, int offsetY, float scale) @extern("GenImagePerlinNoise");
+// Generate image: cellular algorithm, bigger tileSize means bigger cells
 extern fn Image gen_image_cellular(int width, int height, int tileSize) @extern("GenImageCellular");
+// Generate image: grayscale image from text data
 extern fn Image gen_image_text(int width, int height, char* text) @extern("GenImageText");
 
 //= Image manipulation functions
+// Create an image duplicate (useful for transformations)
 extern fn Image image_copy(Image image) @extern("ImageCopy");
+// Create an image from another image piece
 extern fn Image image_from_image(Image image, Rectangle rec) @extern("ImageFromImage");
+// Create an image from text (default font)
 extern fn Image image_text(char* text, int fontSize, Color color) @extern("ImageText");
 extern fn Image image_text_ex(Font font, char* text, float fontSize, float spacing, Color tint) @extern("ImageTextEx");
 extern fn void image_format(Image* image, int newFormat) @extern("ImageFormat");

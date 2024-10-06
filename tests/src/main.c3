@@ -11,7 +11,7 @@ fn int main(String[] args) {
 		.title = "Testing",
 		.render_resolution = {640, 360},
 		.debug_mode = true,
-		.debug_level = LOW,
+		.debug_level = NONE,
 	);
 	defer pleroma::close();
 	

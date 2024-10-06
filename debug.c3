@@ -23,24 +23,9 @@ enum PlErrorLevel {
 	CRITICAL,
 }
 
-enum PleromaFault : int (PlErrorLevel level, String desc) {
-	GENERAL_FAILURE = {PlErrorLevel.NONE, "General error."},
-	
-	GENERAL_NO_RENDER_TEXTURE = {PlErrorLevel.HIGH, "Attempted to start drawing while not having a RenderTexture."},
-	
-	BULK_FAILED_FIND_ENTRY = {PlErrorLevel.LOW, "Failed to find inputted entry in Bulk."},
-	BULK_ENTRY_ALREADY_EXISTS = {PlErrorLevel.LOW, "Attempted to replace a bulk entry."},
-	
-	KEYBIND_NOT_INIT = {PlErrorLevel.MID, "Attempted to use keybinds without initializing."},
-	KEYBIND_REPLACED_ENTRY = {PlErrorLevel.NONE, "Replaced keybind."},
-	KEYBIND_NO_ENTRY = {PlErrorLevel.NONE, "No keybinding for entry."},
-	KEYBIND_INVALID_KEY = {PlErrorLevel.NONE, "Invalid key value."},
-	KEYBIND_GAMEPAD_NOT_CONNECTED = {PlErrorLevel.LOW, "Selected gamepad not connected."},
-	KEYBIND_SAVE_LOADED = {PlErrorLevel.NONE, "Loaded saved keybindings file."},
-	KEYBIND_DEFAULTS_LOADED = {PlErrorLevel.NONE, "Loaded default keybindings file."},
-	KEYBIND_NO_FILES = {PlErrorLevel.LOW, "Failed to find saved or default keybindings file."},
-	
-	SPRITE_ANIMATION_DOESNT_EXIST = {PlErrorLevel.NONE, "Input animation doesn't exist."},
+fault Images {
+	FAILED_FIND_FILE,
+	FAILED_GENERATE_IMAGE,
 }
 
 const int LOGTIMER_DEF = 200;
@@ -52,27 +37,25 @@ List(<PlError*>) error_list;
 int log_timer = LOGTIMER_DEF;
 
 /**
- * Log error
- * @param f
- * @param args
+ * Error logging
+ * @param desc "Description of the error"
+ * @param level "How problematic the error is"
+ * @param args "Any additional info that can be supplied"
  **/
-fn void log(PleromaFault f, args...) {
-	PlError error = {
-		.lifespan = LOGTIMER_DEF,
-	};
-	
-	String text;
-	error.text = string::tformat("[%s] - %s %s", f.level, f.desc, args);
-	error.level = f.level;
-	
-	if (error.level >= lowest) {
-		if (debug_print) { io::printfn(error.text); }
+fn void log(String desc = "Default", PlErrorLevel level = NONE, args...) {
+	if (level >= lowest) {
+		PlError* err = malloc(PlError.sizeof);
+		*err = {
+			.text = string::tformat("[%s] - %s %s", level, desc, args),
+			.level = level,
+			.lifespan = LOGTIMER_DEF,
+		};
+		error_list.push(err);
 		
-		PlError* ptr = (PlError*)malloc($sizeof(error));
-		*ptr = error;
-		error_list.push(ptr);
+		if (debug_print) { io::printfn(err.text); }
 	}
 }
+
 
 //= Drawing
 /**

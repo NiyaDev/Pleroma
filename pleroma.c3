@@ -1,5 +1,5 @@
-module pleroma;
 
+module pleroma;
 
 import pleroma::keybindings;
 import raylib;
@@ -67,16 +67,15 @@ fn void init(
 	debug::lowest = debug_level;
 	
 	//* Icon
-	Image icon = raylib::load_image("resources/icon.png");
-	if (icon.ready()) raylib::set_window_icon(icon);
+	Image*! icon = image::load("resources/icon.png");
+	if (try icon) icon.set_icon().unload();
 	
 	//* Keybindings
 	if (keybindings) keybindings::init();
 	
 	//* Render textures
-	RenderTexture rt_val = raylib::load_render_texture(render_resolution.width, render_resolution.height);
-	RenderTexture* rt = malloc($sizeof(rt_val));
-	*rt = rt_val;
+	RenderTexture* rt = malloc(RenderTexture.sizeof);
+	*rt = raylib::load_render_texture(render_resolution.width, render_resolution.height);
 	
 	data = {
 		.initialized = true,
@@ -97,12 +96,14 @@ fn void init(
 		.line_spacing = 1,
 		
 		.default_texture = sprite::from_image(raylib::gen_image_checked(8,8,2,2,color::PURPLE,color::BLACK)),
+		//.default_texture = image::gen_checker(8,8,2,2,color::PURPLE,color::BLACK).texture(),
 	};
 }
 /**
  * Closing Pleroma
  **/
 fn void close() {
+	data.render_texture.unload();
 	raylib::close_window();
 }
 
@@ -114,7 +115,7 @@ fn void begin_drawing() {
 	
 	//* Make sure render texture exists
 	if (data.render_texture == null) {
-		debug::log(GENERAL_NO_RENDER_TEXTURE);
+		debug::log("Attempted to start drawing while not having a RenderTexture.", HIGH);
 		return;
 	}
 	

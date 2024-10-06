@@ -1,8 +1,8 @@
+
 module pleroma;
 
-
-import raylib;
 import std::core::mem;
+import raylib;
 
 
 /**
@@ -50,16 +50,56 @@ fn char[] Image.to_mem(&self, String filetype) {
 }
 /**
  * Exports Image to GPU as texture
- * @return "Exported texture info"
+ * @return "Pointer to exported texture info"
  **/
-fn Texture Image.texture(&self) {
-	return raylib::load_texture_from_image(*self);
+fn Texture* Image.texture(&self) {
+	Texture* result = malloc(Texture.sizeof);
+	*result = raylib::load_texture_from_image(*self);
+	return result;
+}
+/**
+ * Creates a copy of image
+ * @return "Pointer to duplicate of image"
+ **/
+fn Image* Image.copy(&self) {
+	Image* result = malloc(Image.sizeof);
+	*result = raylib::image_copy(*self);
+	return result;
+}
+/**
+ * Copies a subsection of image
+ * @require rec.width <= self.width, rec.height <= self.height, "Rect Width or Height is larger than image"
+ * @return "Pointer to duplicate of image"
+ **/
+fn Image* Image.copy_section(&self, Rectangle rec) {
+	Image* result = malloc(Image.sizeof);
+	*result = raylib::image_from_image(*self, rec);
+	return result;
 }
 
+/**
+ * Sets the window icon to image
+ * @return "self for later use"
+ **/
+fn Image* Image.set_icon(&self) {
+	raylib::set_window_icon(*self);
+	return self;
+}
+/**
+ * Sets the window icon to an array of images
+ * @return "self for later use"
+ **/
+fn Image[]* Image[].set_icons(&self) {
+	raylib::set_window_icons((Image*)*self, self.len);
+	return self;
+}
+	
 
 module pleroma::image;
 
+import std::io::file;
 import raylib;
+import pleroma::debug;
 
 /**
  * Loads image from file.
@@ -67,10 +107,16 @@ import raylib;
  * @param filename "Name of file to load"
  * @return "Pointer to loaded Image"
  **/
-fn Image* load(String filename) {
+fn Image*! load(String filename) {
 	Image* result = malloc(Image.sizeof);
-	*result = raylib::load_image(filename);
-	return result;
+	
+	if (file::is_file(filename)) {
+		*result = raylib::load_image(filename);
+		return result;
+	} else {
+		debug::log("Failed to load Image", NONE, filename);
+		return debug::Images.FAILED_FIND_FILE?;
+	}
 }
 /**
  * Loads image from raw file.
@@ -83,10 +129,16 @@ fn Image* load(String filename) {
  * @param headersize "Size of image header in file"
  * @return "Pointer to loaded Image"
  **/
-fn Image* load_raw(String filename, int width, int height, PixelFormat format, int headersize) {
+fn Image*! load_raw(String filename, int width, int height, PixelFormat format, int headersize) {
 	Image* result = malloc(Image.sizeof);
-	*result = raylib::load_image_raw(filename, width, height, format, headersize);
-	return result;
+	
+	if (file::is_file(filename)) {
+		*result = raylib::load_image_raw(filename, width, height, format, headersize);
+		return result;
+	} else {
+		debug::log("Failed to load Image", NONE, filename);
+		return debug::Images.FAILED_FIND_FILE?;
+	}
 }
 /**
  * Loads image from .svg
@@ -97,10 +149,16 @@ fn Image* load_raw(String filename, int width, int height, PixelFormat format, i
  * @require width > 0, height > 0, "Width of Height value is invalid"
  * @return "Pointer to loaded image"
  **/
-fn Image* load_svg(String filename, int width, int height) {
+fn Image*! load_svg(String filename, int width, int height) {
 	Image* result = malloc(Image.sizeof);
-	*result = raylib::load_image_svg(filename, width, height);
-	return result;
+	
+	if (file::is_file(filename)) {
+		*result = raylib::load_image_svg(filename, width, height);
+		return result;
+	} else {
+		debug::log("Failed to load Image", NONE, filename);
+		return debug::Images.FAILED_FIND_FILE?;
+	}
 }
 /**
  * Loads image from anim
@@ -109,10 +167,16 @@ fn Image* load_svg(String filename, int width, int height) {
  * @param [&out] frames "Pointer to number of frames"
  * @return "Pointer to loaded image"
  **/
-fn Image* load_anim(String filename, int* frames) {
+fn Image*! load_anim(String filename, int* frames) {
 	Image* result = malloc(Image.sizeof);
-	*result = raylib::load_image_anim(filename, frames);
-	return result;
+	
+	if (file::is_file(filename)) {
+		*result = raylib::load_image_anim(filename, frames);
+		return result;
+	} else {
+		debug::log("Failed to load Image", NONE, filename);
+		return debug::Images.FAILED_FIND_FILE?;
+	}
 }
 /**
  * Loads image from memory
@@ -152,10 +216,15 @@ fn Image* load_screen() {
  * @param color "Color of generated image"
  * @return "Pointer to loaded image"
  **/
-fn Image* gen_color(int width, int height, Color color) {
+fn Image*! gen_color(int width, int height, Color color) {
 	Image* result = malloc(Image.sizeof);
 	*result = raylib::gen_image_color(width, height, color);
-	return result;
+	
+	if (result.data != null) { return result; }
+	else {
+		debug::log("Failed to generate Image", NONE, $$FUNC);
+		return debug::Images.FAILED_GENERATE_IMAGE?;
+	}
 }
 /**
  * Generate an image made of a two color gradient
@@ -167,10 +236,15 @@ fn Image* gen_color(int width, int height, Color color) {
  * @param end "Color of gradient end"
  * @return "Pointer to loaded image"
  **/
-fn Image* gen_linear_gradient(int width, int height, int direction, Color start, Color end) {
+fn Image*! gen_linear_gradient(int width, int height, int direction, Color start, Color end) {
 	Image* result = malloc(Image.sizeof);
 	*result = raylib::gen_image_gradient_linear(width, height, direction, start, end);
-	return result;
+	
+	if (result.data != null) { return result; }
+	else {
+		debug::log("Failed to generate Image", NONE, $$FUNC);
+		return debug::Images.FAILED_GENERATE_IMAGE?;
+	}
 }
 /**
  * Generate an image made of a two color gradient
@@ -182,10 +256,15 @@ fn Image* gen_linear_gradient(int width, int height, int direction, Color start,
  * @param outer "Color of gradient outer"
  * @return "Pointer to loaded image"
  **/
-fn Image* gen_radial_gradient(int width, int height, float density, Color inner, Color outer) {
+fn Image*! gen_radial_gradient(int width, int height, float density, Color inner, Color outer) {
 	Image* result = malloc(Image.sizeof);
 	*result = raylib::gen_image_gradient_radial(width, height, density, inner, outer);
-	return result;
+	
+	if (result.data != null) { return result; }
+	else {
+		debug::log("Failed to generate Image", NONE, $$FUNC);
+		return debug::Images.FAILED_GENERATE_IMAGE?;
+	}
 }
 /**
  * Generate an image made of a two color gradient
@@ -197,10 +276,15 @@ fn Image* gen_radial_gradient(int width, int height, float density, Color inner,
  * @param outer "Color of gradient outer"
  * @return "Pointer to loaded image"
  **/
-fn Image* gen_square_gradient(int width, int height, float density, Color inner, Color outer) {
+fn Image*! gen_square_gradient(int width, int height, float density, Color inner, Color outer) {
 	Image* result = malloc(Image.sizeof);
 	*result = raylib::gen_image_gradient_square(width, height, density, inner, outer);
-	return result;
+	
+	if (result.data != null) { return result; }
+	else {
+		debug::log("Failed to generate Image", NONE, $$FUNC);
+		return debug::Images.FAILED_GENERATE_IMAGE?;
+	}
 }
 /**
  * Generate an image made of a two color gradient
@@ -213,10 +297,15 @@ fn Image* gen_square_gradient(int width, int height, float density, Color inner,
  * @param col2 "Checker color two"
  * @return "Pointer to loaded image"
  **/
-fn Image* gen_checker(int width, int height, int checksx, int checksy, Color col1, Color col2) {
+fn Image*! gen_checker(int width, int height, int checksx, int checksy, Color col1, Color col2) {
 	Image* result = malloc(Image.sizeof);
 	*result = raylib::gen_image_checked(width, height, checksx, checksy, col1, col2);
-	return result;
+	
+	if (result.data != null) { return result; }
+	else {
+		debug::log("Failed to generate Image", NONE, $$FUNC);
+		return debug::Images.FAILED_GENERATE_IMAGE?;
+	}
 }
 /**
  * Generate an image made of a two color gradient
@@ -226,10 +315,15 @@ fn Image* gen_checker(int width, int height, int checksx, int checksy, Color col
  * @param factor "Factor"
  * @return "Pointer to loaded image"
  **/
-fn Image* gen_white_noise(int width, int height, float factor) {
+fn Image*! gen_white_noise(int width, int height, float factor) {
 	Image* result = malloc(Image.sizeof);
 	*result = raylib::gen_image_white_noise(width, height, factor);
-	return result;
+	
+	if (result.data != null) { return result; }
+	else {
+		debug::log("Failed to generate Image", NONE, $$FUNC);
+		return debug::Images.FAILED_GENERATE_IMAGE?;
+	}
 }
 /**
  * Generate an image made of a two color gradient
@@ -241,10 +335,15 @@ fn Image* gen_white_noise(int width, int height, float factor) {
  * @param scale "Scale"
  * @return "Pointer to loaded image"
  **/
-fn Image* gen_perlin_noise(int width, int height, int offsetx, int offsety, float scale) {
+fn Image*! gen_perlin_noise(int width, int height, int offsetx, int offsety, float scale) {
 	Image* result = malloc(Image.sizeof);
 	*result = raylib::gen_image_perlin_noise(width, height, offsetx, offsety, scale);
-	return result;
+	
+	if (result.data != null) { return result; }
+	else {
+		debug::log("Failed to generate Image", NONE, $$FUNC);
+		return debug::Images.FAILED_GENERATE_IMAGE?;
+	}
 }
 /**
  * Generate an image made of a two color gradient
@@ -254,8 +353,31 @@ fn Image* gen_perlin_noise(int width, int height, int offsetx, int offsety, floa
  * @param tilesize "Tile size"
  * @return "Pointer to loaded image"
  **/
-fn Image* gen_cellular(int width, int height, float tilesize) {
+fn Image*! gen_cellular(int width, int height, int tilesize) {
 	Image* result = malloc(Image.sizeof);
 	*result = raylib::gen_image_cellular(width, height, tilesize);
-	return result;
+	
+	if (result.data != null) { return result; }
+	else {
+		debug::log("Failed to generate Image", NONE, $$FUNC);
+		return debug::Images.FAILED_GENERATE_IMAGE?;
+	}
+}
+
+/**
+ * Create an image from a string of text
+ * @param text "Text to create an image of"
+ * @param fontsize "Size of text font"
+ * @param color "Color of text"
+ * @return "Pointer to text image"
+ **/
+fn Image*! text(String text, int fontsize, Color color) {
+	Image* result = malloc(Image.sizeof);
+	*result = raylib::image_text(text, fontsize, color);
+	
+	if (result.data != null) { return result; }
+	else {
+		debug::log("Failed to generate Image", NONE, $$FUNC);
+		return debug::Images.FAILED_GENERATE_IMAGE?;
+	}
 }

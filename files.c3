@@ -343,7 +343,7 @@ fn void Bulk.save(&self) {
  **/
 fn void Bulk.add(&self, String name, BulkEntry entry) {
 	if (self.entries.has_key(name)) {
-		debug::log(BULK_ENTRY_ALREADY_EXISTS);
+		debug::log("Attempted to replace a bulk entry.", LOW);
 		return;
 	}
 	self.entries.set(name, entry);
@@ -366,7 +366,7 @@ fn String Bulk.get_string(&self, String entry_name) {
 		
 		return (String)result;
 	} else {
-		debug::log(PleromaFault.BULK_FAILED_FIND_ENTRY, self.name, entry_name);
+		debug::log("Failed to find inputted entry in Bulk.", LOW, self.name, entry_name);
 		return "{FAILED STRING}";
 	}
 	
@@ -381,7 +381,7 @@ fn Sprite* Bulk.get_sprite(&self, String entry_name) {
 	if (try entry) {
 		return entry.data;
 	} else {
-		debug::log(PleromaFault.BULK_FAILED_FIND_ENTRY, self.name, entry_name);
+		debug::log("Failed to find inputted entry in Bulk.", LOW, self.name, entry_name);
 		return pleroma::data.default_texture;
 	}
 }

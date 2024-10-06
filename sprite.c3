@@ -173,7 +173,7 @@ fn void Sprite.set_animation(&self, String name) {
 		self.frame = 0;
 		self.timer = 0;
 	} else {
-		debug::log(SPRITE_ANIMATION_DOESNT_EXIST, name);
+		debug::log("Input animation doesn't exist.", NONE, name);
 	}
 }
 
