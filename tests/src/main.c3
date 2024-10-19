@@ -18,11 +18,12 @@ fn int main(String[] args) {
 	Bulk spr_bulk = bulk::open("resources/sprites.blk");
 	//defer spr_bulk.close();
 	
-	Sprite* spr1 = spr_bulk.get_sprite("black_units");
-	spr1.set_animation("pawn");
-	Sprite* spr2 = spr_bulk.get_sprite("white_units");
-	spr2.set_animation("queen");
-	Sprite* spr3 = spr_bulk.get_sprite("tiles_1");
+	//Sprite* spr1 = spr_bulk.get_sprite("black_units");
+	//spr1.set_animation("pawn");
+	//Sprite* spr2 = spr_bulk.get_sprite("white_units_");
+	//spr2.set_animation("queen");
+	//Sprite* spr3 = spr_bulk.get_sprite("tiles_1");
+
 	
 	//Bulk kb_bulk = bulk::open("resources/def_keybinds.blk");
 	//keybindings::print();
@@ -83,14 +84,14 @@ fn int main(String[] args) {
 		pleroma::begin_drawing();
 		
 		for (int i = 0; i < (8*8); i++) {
-			if (i%2 == 0 ) { spr3.set_animation("white"); }
-			else { spr3.set_animation("black"); }
+			//if (i%2 == 0 ) { spr3.set_animation("white"); }
+			//else { spr3.set_animation("black"); }
 			
-			spr3.drawp({32*(float)(i%8),32*(float)(i/8),32,32});
+			//spr3.drawp({32*(float)(i%8),32*(float)(i/8),32,32});
 		}
 		
-		spr1.drawp({0,0,32,32});
-		spr2.drawp({32,0,32,32});
+		//spr1.drawp({0,0,32,32});
+		//spr2.drawp({32,0,32,32});
 
 		pleroma::end_drawing();
 	}
