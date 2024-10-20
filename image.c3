@@ -16,6 +16,13 @@ struct Image {
 	PixelFormat format;
 }
 /**
+ *Image
+ **/
+fault ImageFault {
+	FAILED_FIND_FILE,
+	FAILED_GENERATE_IMAGE,
+}
+/**
  * Checks whether the Image  is ready for use
  * @return "Image is ready to use"
  **/
@@ -497,7 +504,7 @@ fn Image*! load(String filename) {
 		return result;
 	} else {
 		debug::log("Failed to load Image", NONE, filename);
-		return debug::Images.FAILED_FIND_FILE?;
+		return ImageFault.FAILED_FIND_FILE?;
 	}
 }
 /**
@@ -519,7 +526,7 @@ fn Image*! load_raw(String filename, int width, int height, PixelFormat format, 
 		return result;
 	} else {
 		debug::log("Failed to load Image", NONE, filename);
-		return debug::Images.FAILED_FIND_FILE?;
+		return ImageFault.FAILED_FIND_FILE?;
 	}
 }
 /**
@@ -539,7 +546,7 @@ fn Image*! load_svg(String filename, int width, int height) {
 		return result;
 	} else {
 		debug::log("Failed to load Image", NONE, filename);
-		return debug::Images.FAILED_FIND_FILE?;
+		return ImageFault.FAILED_FIND_FILE?;
 	}
 }
 /**
@@ -557,7 +564,7 @@ fn Image*! load_anim(String filename, int* frames) {
 		return result;
 	} else {
 		debug::log("Failed to load Image", NONE, filename);
-		return debug::Images.FAILED_FIND_FILE?;
+		return ImageFault.FAILED_FIND_FILE?;
 	}
 }
 /**
@@ -605,7 +612,7 @@ fn Image*! gen_color(int width, int height, Color color) {
 	if (result.data != null) { return result; }
 	else {
 		debug::log("Failed to generate Image", NONE, $$FUNC);
-		return debug::Images.FAILED_GENERATE_IMAGE?;
+		return ImageFault.FAILED_GENERATE_IMAGE?;
 	}
 }
 /**
@@ -625,7 +632,7 @@ fn Image*! gen_linear_gradient(int width, int height, int direction, Color start
 	if (result.data != null) { return result; }
 	else {
 		debug::log("Failed to generate Image", NONE, $$FUNC);
-		return debug::Images.FAILED_GENERATE_IMAGE?;
+		return ImageFault.FAILED_GENERATE_IMAGE?;
 	}
 }
 /**
@@ -645,7 +652,7 @@ fn Image*! gen_radial_gradient(int width, int height, float density, Color inner
 	if (result.data != null) { return result; }
 	else {
 		debug::log("Failed to generate Image", NONE, $$FUNC);
-		return debug::Images.FAILED_GENERATE_IMAGE?;
+		return ImageFault.FAILED_GENERATE_IMAGE?;
 	}
 }
 /**
@@ -665,7 +672,7 @@ fn Image*! gen_square_gradient(int width, int height, float density, Color inner
 	if (result.data != null) { return result; }
 	else {
 		debug::log("Failed to generate Image", NONE, $$FUNC);
-		return debug::Images.FAILED_GENERATE_IMAGE?;
+		return ImageFault.FAILED_GENERATE_IMAGE?;
 	}
 }
 /**
@@ -686,7 +693,7 @@ fn Image*! gen_checker(int width, int height, int checksx, int checksy, Color co
 	if (result.data != null) { return result; }
 	else {
 		debug::log("Failed to generate Image", NONE, $$FUNC);
-		return debug::Images.FAILED_GENERATE_IMAGE?;
+		return ImageFault.FAILED_GENERATE_IMAGE?;
 	}
 }
 /**
@@ -704,7 +711,7 @@ fn Image*! gen_white_noise(int width, int height, float factor) {
 	if (result.data != null) { return result; }
 	else {
 		debug::log("Failed to generate Image", NONE, $$FUNC);
-		return debug::Images.FAILED_GENERATE_IMAGE?;
+		return ImageFault.FAILED_GENERATE_IMAGE?;
 	}
 }
 /**
@@ -724,7 +731,7 @@ fn Image*! gen_perlin_noise(int width, int height, int offsetx, int offsety, flo
 	if (result.data != null) { return result; }
 	else {
 		debug::log("Failed to generate Image", NONE, $$FUNC);
-		return debug::Images.FAILED_GENERATE_IMAGE?;
+		return ImageFault.FAILED_GENERATE_IMAGE?;
 	}
 }
 /**
@@ -742,7 +749,7 @@ fn Image*! gen_cellular(int width, int height, int tilesize) {
 	if (result.data != null) { return result; }
 	else {
 		debug::log("Failed to generate Image", NONE, $$FUNC);
-		return debug::Images.FAILED_GENERATE_IMAGE?;
+		return ImageFault.FAILED_GENERATE_IMAGE?;
 	}
 }
 
@@ -760,7 +767,7 @@ fn Image*! text(String text, int fontsize, Color color) {
 	if (result.data != null) { return result; }
 	else {
 		debug::log("Failed to generate Image", NONE, $$FUNC);
-		return debug::Images.FAILED_GENERATE_IMAGE?;
+		return ImageFault.FAILED_GENERATE_IMAGE?;
 	}
 }
 /**
@@ -779,6 +786,6 @@ fn Image*! text_ex(Font font, String text, float fontsize, float spacing, Color 
 	if (result.data != null) { return result; }
 	else {
 		debug::log("Failed to generate Image", NONE, $$FUNC);
-		return debug::Images.FAILED_GENERATE_IMAGE?;
+		return ImageFault.FAILED_GENERATE_IMAGE?;
 	}
 }

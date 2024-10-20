@@ -1,144 +1,109 @@
-
 module pleroma;
 
-import pleroma::keybindings;
+
 import raylib;
-import std::io;
+import pleroma::color;
 
 
-Pleroma data;
+Resolution screen_size;
+Resolution render_size;
+RenderTexture* render;
+int textures_rendered = 0;
+int models_rendered = 0;
 
-
-struct Pleroma {
-	bool initialized;
-	
-	//* Settings
-	Resolution screen_size;
-	Resolution render_size;
-	int framerate;
-	int window_flags;
-	
-	//* Screen
-	RenderTexture* render_texture;
-	bool is_rendering;
-	Color background_color;
-	float line_spacing;
-	
-	//* Camera
-	
-	//* Input
-	
-	//* Audio
-	
-	//* Debug
-	
-	//* General
-	Sprite* default_texture;
-}
 
 /**
  * Initialize Pleroma
- * @param title				"Window title"
- * @param screen_resolution	"Resolution of window"
- * @param render_resolution	"Resolution rendered at"
- * @param framerate			"Framerate"
- * @param keybindings		"Decides if keybindings are initialized"
- * @param debug_mode		"Turns on Debugging"
- * @param debug_level		"Sets Screen display for Errors above the inputted level"
  **/
 fn void init(
-		String title = "Default",
-		Resolution screen_resolution = {1280, 720},
-		Resolution render_resolution = {1280, 720},
-		int framerate = 60,
-		bool keybindings = true,
-		
-		//* Debug
-		bool debug_mode = true,
-		PlErrorLevel debug_level = NONE,
+	String title = "default",
+	Resolution screen_res = {1280, 720},
+	Resolution render_res = {1280, 720},
+	int framerate = 60,
+	CameraType camera_mode = CAMERA2D,
+	
+	//* Debug
+	bool debug_mode = true,
+	PlErrorLevel debug_level = NONE,
 ) {
 	//* Init Raylib
 	raylib::set_trace_log_level(7);
-	raylib::init_window(screen_resolution.width, screen_resolution.height, title);
+	raylib::init_window(screen_res.width, screen_res.height, title);
 	raylib::set_target_fps(framerate);
-	
+
 	//* Debug
 	debug::debug_state = debug_mode;
 	debug::lowest = debug_level;
-	
+
 	//* Icon
 	Image*! icon = image::load("resources/icon.png");
 	if (try icon) icon.set_icon().unload();
-	
+
 	//* Keybindings
-	if (keybindings) keybindings::init();
-	
-	//* Render textures
-	RenderTexture* rt = malloc(RenderTexture.sizeof);
-	*rt = raylib::load_render_texture(render_resolution.width, render_resolution.height);
-	
-	data = {
-		.initialized = true,
-		.screen_size = {
-			.width  = screen_resolution.width,
-			.height = screen_resolution.height,
-		},
-		.render_size = {
-			.width  = render_resolution.width,
-			.height = render_resolution.height,
-		},
-		.framerate = framerate,
-		.window_flags = 0,
-		
-		.render_texture = rt,
-		.is_rendering = false,
-		.background_color = color::DARKGRAY,
-		.line_spacing = 1,
-		
-		.default_texture = sprite::from_image(raylib::gen_image_checked(8,8,2,2,color::PURPLE,color::BLACK)),
-		//.default_texture = image::gen_checker(8,8,2,2,color::PURPLE,color::BLACK).texture(),
+	keybindings::init();
+
+	//* Render texture
+	render = malloc(RenderTexture.sizeof);
+	// TODO: Wrapper for RenderTexture
+	*render = raylib::load_render_texture(render_res.width, render_res.height);
+
+	//* Resolutions
+	screen_size = screen_res;
+	render_size = render_res;
+
+	//* Camera
+	camera::main = {
+		.type = camera_mode,
+		.cam2d = { {0,0}, {0,0}, 0, 1 },
+		.cam3d = { {0,5,-5}, {0,0,0}, {0,1,0}, 70, CAMERA_PERSPECTIVE }
 	};
 }
 /**
- * Closing Pleroma
+ * Free all data associated with Pleroma
  **/
 fn void close() {
-	data.render_texture.unload();
+	render.unload();
 	raylib::close_window();
 }
 
 /**
- * Starts the process of drawing the next frame
+ * Start drawing to render texture buffer
  **/
 fn void begin_drawing() {
+	textures_rendered = 0;
+
 	//* Music
-	
-	//* Make sure render texture exists
-	if (data.render_texture == null) {
+
+	//* Check for texture
+	if (render == null) {
 		debug::log("Attempted to start drawing while not having a RenderTexture.", HIGH);
 		return;
 	}
-	
-	//* Start drawing to render texture
-	data.render_texture.begin();
-	raylib::clear_background(data.background_color);
-	data.is_rendering = true;
+
+	//* Start drawing
+	render.begin();
+	camera::main.start();
+	raylib::clear_background(color::GRAY);
 }
 /**
- * Finishes the process of drawing the next frame
+ * Finish drawing to render texture
  **/
 fn void end_drawing() {
+	camera::main.end();
+
 	//* Debug info
-	//* Draw log
-	if (debug::debug_state) { debug::draw_debug_log(); }
+	if (debug::debug_state) {
+		debug::draw_debug_log();
+		debug::draw_debug_stats();
+	}
 	
 	//* Draw render texture
-	data.render_texture.end();
+	render.end();
 	
 	raylib::begin_drawing_rl();
-	data.render_texture.texture.draw_pro(
-		{0, 0, (float)data.render_size.width, (float)-data.render_size.height},
-		{0, 0, (float)data.screen_size.width, (float)data.screen_size.height},
+	render.texture.draw_pro(
+		{0, 0, (float)render_size.width, (float)-render_size.height},
+		{0, 0, (float)screen_size.width, (float)screen_size.height},
 		{0, 0},
 		0,
 		color::WHITE,
@@ -146,39 +111,21 @@ fn void end_drawing() {
 	raylib::end_drawing_rl();
 }
 
-//= Settings
-/**
- * Change debug mode
- **/
-fn void set_debug(
-		bool debug_mode = true,
-		PlErrorLevel debug_level = NONE,
-) {
-	debug::debug_state = debug_mode;
-	debug::lowest = debug_level;
-}
+
 /**
  * Change screen resolution
  **/
-fn void set_screen_resolution(
-		Resolution screen_resolution = {1280, 720},
-) {
-	data.screen_size = screen_resolution;
+fn void set_screen_resolution(Resolution screen_resolution = {1280, 720}) {
+	screen_size = screen_resolution;
 	raylib::set_window_size(screen_resolution.width, screen_resolution.height);
 }
 /**
  * Change render resolution
  **/
-fn void set_render_resolution(
-		Resolution render_resolution = {1280, 720},
-) {
-	data.render_size = render_resolution;
-	data.render_texture.unload();
+fn void set_render_resolution(Resolution render_resolution = {1280, 720}) {
+	render_size = render_resolution;
+	render.unload();
 	
 	RenderTexture rt_val = raylib::load_render_texture(render_resolution.width, render_resolution.height);
-	*data.render_texture = rt_val;
+	*render = rt_val;
 }
-
-//TODO set_icon that takes in an array of images but uses singular if len == 1
-
-

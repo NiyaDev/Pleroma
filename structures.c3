@@ -1,6 +1,7 @@
 module pleroma;
 
 
+import pleroma::camera;
 import raylib;
 import std::math;
 import std::io;
@@ -385,6 +386,17 @@ fn Texture* Texture.set_wrap(&self, int wrap) {
  * Wrapper for Raylib::DrawTexture()
  **/
 fn Texture* Texture.draw(&self, int pos_x, int pos_y, Color tint) {
+	bool x_min = (float)(pos_x + self.width) < -camera::main.cam2d.offset.x;
+	bool x_max = (float)(pos_x) > (-camera::main.cam2d.offset.x + render_size.width);
+	bool y_min = (float)(pos_y + self.height) < -camera::main.cam2d.offset.y;
+	bool y_max = (float)(pos_y) > (-camera::main.cam2d.offset.y + render_size.height);
+	//if ((float)(pos_x + self.width) < -camera::main.cam2d.offset.x &&
+	//	(float)(pos_x) > (-camera::main.cam2d.offset.x - render_size.width)) {
+	if (x_min || x_max || y_min || y_max ) {
+		//io::printfn("%d > %d", (float)(pos_x), -camera::main.cam2d.offset.x);
+		return self;
+	}
+	textures_rendered += 1;
 	raylib::draw_texture(*self, pos_x, pos_y, tint);
 
 	return self;

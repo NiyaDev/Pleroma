@@ -1,13 +1,16 @@
 module pleroma::debug;
 
 
-import pleroma;
-import raylib;
-import std::io;
-import std::core::string;
 import std::collections;
+import std::io;
+import raylib;
+import pleroma::color;
+import pleroma::camera;
 
 
+/**
+ * Error structure for displaying errors on screen
+ **/
 struct PlError {
 	String text;
 	PlErrorLevel level;
@@ -15,6 +18,9 @@ struct PlError {
 	int lifespan;
 }
 
+/**
+ * Error levels
+ **/
 enum PlErrorLevel {
 	NONE,
 	LOW,
@@ -23,18 +29,13 @@ enum PlErrorLevel {
 	CRITICAL,
 }
 
-fault Images {
-	FAILED_FIND_FILE,
-	FAILED_GENERATE_IMAGE,
-}
 
 const int LOGTIMER_DEF = 200;
 
+
 bool debug_state = true;
-bool debug_print = true;
 PlErrorLevel lowest = NONE;
 List(<PlError*>) error_list;
-int log_timer = LOGTIMER_DEF;
 
 /**
  * Error logging
@@ -52,12 +53,10 @@ fn void log(String desc = "Default", PlErrorLevel level = NONE, args...) {
 		};
 		error_list.push(err);
 		
-		if (debug_print) { io::printfn(err.text); }
+		if (debug_state) { io::printfn(err.text); }
 	}
 }
 
-
-//= Drawing
 /**
  *
  **/
@@ -68,9 +67,15 @@ fn void draw_debug_log() {
 	for (int i = 0; i < error_list.len(); i++) {
 		PlError* err = error_list.get(i);
 		
-		raylib::draw_text(err.text, 10, pleroma::data.render_size.height - ((i + 1) * 10), 8, color::RED);
+		raylib::draw_text(err.text, 10, pleroma::render_size.height - ((i + 1) * 10), 8, color::RED);
 		
 		err.lifespan--;
 		if (err.lifespan <= 0) { error_list.remove_at(i); }
 	}
+}
+/**
+ *
+ **/
+fn void draw_debug_stats() {
+	raylib::draw_text(string::tformat("FPS: %d\nCamera: %d,%d\nTextures: %d", raylib::get_fps(), -camera::main.cam2d.offset.x, camera::main.cam2d.offset.y, pleroma::textures_rendered), 0, 0, 10, color::BLACK);
 }

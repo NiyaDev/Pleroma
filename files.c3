@@ -5,7 +5,6 @@ import libc;
 import std::io;
 import std::io::file;
 import std::collections;
-import pleroma::sprite;
 import pleroma::keybindings;
 import pleroma::debug;
 import raylib;
@@ -124,7 +123,7 @@ fn Bulk open(String filename) {
 		
 		//* Copy data
 		switch (entry.type) {
-			default:
+			default: break;
 			case STRING: // 00
 				entry.length = (usz)file.read_long();
 				entry.data = malloc(entry.length);
@@ -132,27 +131,27 @@ fn Bulk open(String filename) {
 					((char*)entry.data)[j] = file.read_byte();
 				}
 			case SPRITE: // 01
-				//* Create Image
-				entry.length = (usz)file.read_long();
-				Sprite* data = sprite::from_image(raylib::load_image_from_memory(".png", (char*)file.get_cur_ptr(), (int)entry.length));
-				file.head += entry.length;
+				////* Create Image
+				//entry.length = (usz)file.read_long();
+				//Sprite* data = sprite::from_image(raylib::load_image_from_memory(".png", (char*)file.get_cur_ptr(), (int)entry.length));
+				//file.head += entry.length;
 				
-				//* Create animations
-				usz number_of_animations = file.read_long();
-				for (int j = 0; j < number_of_animations; j++) {
-					usz ani_name_length = file.read_long();
-					String ani_name = file.read_string(ani_name_length);
-					usz ani_length = file.read_long();
+				////* Create animations
+				//usz number_of_animations = file.read_long();
+				//for (int j = 0; j < number_of_animations; j++) {
+				//	usz ani_name_length = file.read_long();
+				//	String ani_name = file.read_string(ani_name_length);
+				//	usz ani_length = file.read_long();
 					
-					int[] anim = allocator::alloc_array(allocator::heap(), int, ani_length);
-					for (int k = 0; k < ani_length; k++) {
-						anim[k] = file.read_int();
-					}
-					data.new_animation(ani_name, anim);
-				}
+				//	int[] anim = allocator::alloc_array(allocator::heap(), int, ani_length);
+				//	for (int k = 0; k < ani_length; k++) {
+				//		anim[k] = file.read_int();
+				//	}
+				//	data.new_animation(ani_name, anim);
+				//}
 				
 				//* Save
-				entry.data = (void*)data;
+				//entry.data = (void*)data;
 			
 			case KEYBINDING:
 				//* Get keybind name
@@ -224,28 +223,28 @@ fn void Bulk.save(&self) {
 				for (int j = 0; ptr[j] != '\0'; j++) { offset++; }
 				offset++;
 			case SPRITE:
-				Sprite* spr = (Sprite*)ent.data.data;
-				//* Length of data
-				offset += 8;
-				//* Data
-				int image_length = 0;
-				char* data = raylib::export_image_to_memory(spr.original, ".png", &image_length);
-				offset += image_length;
-				free(data);
+				//Sprite* spr = (Sprite*)ent.data.data;
+				////* Length of data
+				//offset += 8;
+				////* Data
+				//int image_length = 0;
+				//char* data = raylib::export_image_to_memory(spr.original, ".png", &image_length);
+				//offset += image_length;
+				//free(data);
 
-				//* Number of animations
-				offset += 8;
+				////* Number of animations
+				//offset += 8;
 
-				spr.animations.@each(; String key, Animation entry) {
-					//* Animation name length
-					offset += 8;
-					//* Animation name
-					offset += key.len;
-					//* Number of frames
-					offset += 8;
-					//* Frames
-					offset += (entry.length * 4);
-				};
+				//spr.animations.@each(; String key, Animation entry) {
+				//	//* Animation name length
+				//	offset += 8;
+				//	//* Animation name
+				//	offset += key.len;
+				//	//* Number of frames
+				//	offset += 8;
+				//	//* Frames
+				//	offset += (entry.length * 4);
+				//};
 			case KEYBINDING:
 				//* Length of name
 				offset += 8;
@@ -295,30 +294,30 @@ fn void Bulk.save(&self) {
 				//* Data
 				new_file.write_string(ptr);
 			case SPRITE:
-				Sprite* spr = (Sprite*)ent.data.data;
-				int image_length = 0;
-				char* data = raylib::export_image_to_memory(spr.original, ".png", &image_length);
+				//Sprite* spr = (Sprite*)ent.data.data;
+				//int image_length = 0;
+				//char* data = raylib::export_image_to_memory(spr.original, ".png", &image_length);
 
-				//* Length of data
-				new_file.write_64(image_length);
+				////* Length of data
+				//new_file.write_64(image_length);
 
-				//* Data
-				new_file.write_ptr(data, image_length);
-				free(data);
+				////* Data
+				//new_file.write_ptr(data, image_length);
+				//free(data);
 
-				//* Number of animations
-				new_file.write_64(spr.animations.len());
+				////* Number of animations
+				//new_file.write_64(spr.animations.len());
 
-				spr.animations.@each(; String key, Animation entry) {
-					//* Animation name length
-					new_file.write_64(key.len);
-					//* Animation name
-					new_file.write_ptr(key, key.len);
-					//* Number of frames
-					new_file.write_64(entry.length);
-					//* Frames
-					new_file.write_ptr(entry.data, entry.length * 4);
-				};
+				//spr.animations.@each(; String key, Animation entry) {
+				//	//* Animation name length
+				//	new_file.write_64(key.len);
+				//	//* Animation name
+				//	new_file.write_ptr(key, key.len);
+				//	//* Number of frames
+				//	new_file.write_64(entry.length);
+				//	//* Frames
+				//	new_file.write_ptr(entry.data, entry.length * 4);
+				//};
 			case KEYBINDING:
 				KeybindBulk* kb = (KeybindBulk*)ent.data.data;
 			
@@ -371,20 +370,20 @@ fn String Bulk.get_string(&self, String entry_name) {
 	}
 	
 }
-/**
- * Retrieves Sprite ptr from bulk entry
- * @param entry_name
- **/
-fn Sprite* Bulk.get_sprite(&self, String entry_name) {
-	BulkEntry! entry = self.entries[entry_name];
-	
-	if (try entry) {
-		return entry.data;
-	} else {
-		debug::log("Failed to find inputted entry in Bulk.", LOW, self.name, entry_name);
-		return pleroma::data.default_texture;
-	}
-}
+///**
+// * Retrieves Sprite ptr from bulk entry
+// * @param entry_name
+// **/
+//fn Sprite* Bulk.get_sprite(&self, String entry_name) {
+//	BulkEntry! entry = self.entries[entry_name];
+//	
+//	if (try entry) {
+//		return entry.data;
+//	} else {
+//		debug::log("Failed to find inputted entry in Bulk.", LOW, self.name, entry_name);
+//		return null;//pleroma::data.default_texture;
+//	}
+//}
 //= Debug
 /**
  * Prints bulk to console
