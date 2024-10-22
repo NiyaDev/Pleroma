@@ -491,28 +491,47 @@ extern fn void image_draw_text(Image* dst, char* text, int posX, int posY, int f
 extern fn void image_draw_text_ex(Image* dst, Font font, char* text, Vector2 position, float fontSize, float spacing, Color tint) @extern("ImageDrawTextEx");
 
 //= Texture loading functions
+// Load texture from file into GPU memory (VRAM)
 extern fn Texture load_texture(char* filename) @extern("LoadTexture");
+// Load texture from image data
 extern fn Texture load_texture_from_image(Image image) @extern("LoadTextureFromImage");
+// Load cubemap from image, multiple image cubemap layouts supported
 extern fn Texture load_texture_cubemap(Image image, int layout) @extern("LoadTextureCubemap");
+// Load texture for rendering (framebuffer)
 extern fn RenderTexture load_render_texture(int width, int height) @extern("LoadRenderTexture");
+// Check if a texture is ready
 extern fn bool is_texture_ready(Texture texture) @extern("IsTextureReady");
+// Unload texture from GPU memory (VRAM)
 extern fn void unload_texture(Texture texture) @extern("UnloadTexture");
+// Check if a render texture is ready
 extern fn bool is_render_texture_ready(RenderTexture target) @extern("IsRenderTextureReady");
+// Unload render texture from GPU memory (VRAM)
 extern fn void unload_render_texture(RenderTexture target) @extern("UnloadRenderTexture");
+// Update GPU texture with new data
 extern fn void update_texture(Texture texture, void* pixels) @extern("UpdateTexture");
+// Update GPU texture rectangle with new data
 extern fn void update_texture_rec(Texture texture, Rectangle rec, void* pixels) @extern("UpdateTextureRec");
 
 //= Texture configuration functions
+// Generate GPU mipmaps for a texture
 extern fn void gen_texture_mipmaps(Texture* texture) @extern("GenTextureMipmaps");
+// Set texture scaling filter mode
 extern fn void set_texture_filter(Texture texture, int filter) @extern("SetTextureFilter");
+// Set texture wrapping mode
 extern fn void set_texture_wrap(Texture texture, int wrap) @extern("SetTextureWrap");
 
 //= Texture drawing functions
+// Draw a Texture2D
 extern fn void draw_texture(Texture texture, int pos_x, int pos_y, Color tint) @extern("DrawTexture");
+// Draw a Texture2D with position defined as Vector2
 extern fn void draw_texture_v(Texture texture, Vector2 position, Color tint) @extern("DrawTextureV");
+// Draw a Texture2D with extended parameters
 extern fn void draw_texture_ex(Texture texture, Vector2 position, float rotation, float scale, Color tint) @extern("DrawTextureEx");
+// Draw a part of a texture defined by a rectangle
 extern fn void draw_texture_rec(Texture texture, Rectangle source, Vector2 position, Color tint) @extern("DrawTextureRec");
+// Draw a part of a texture defined by a rectangle with 'pro' parameters
 extern fn void draw_texture_pro(Texture texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint) @extern("DrawTexturePro");
+// Draws a texture (or part of it) that stretches or shrinks nicely
 extern fn void draw_texture_npatch(Texture texture, NPatchInfo npatch_info, Rectangle dest, Vector2 origin, float rotation, Color tint) @extern("DrawTextureNPatch");
 
 //= Color/pixel related functions

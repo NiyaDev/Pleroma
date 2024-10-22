@@ -16,7 +16,7 @@ struct Image {
 	PixelFormat format;
 }
 /**
- *Image
+ * Image faults
  **/
 fault ImageFault {
 	FAILED_FIND_FILE,

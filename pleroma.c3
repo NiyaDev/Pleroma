@@ -1,3 +1,4 @@
+
 module pleroma;
 
 
@@ -43,9 +44,7 @@ fn void init(
 	keybindings::init();
 
 	//* Render texture
-	render = malloc(RenderTexture.sizeof);
-	// TODO: Wrapper for RenderTexture
-	*render = raylib::load_render_texture(render_res.width, render_res.height);
+	render = rendertexture::load(render_res.width, render_res.height);
 
 	//* Resolutions
 	screen_size = screen_res;
@@ -110,7 +109,6 @@ fn void end_drawing() {
 	);
 	raylib::end_drawing_rl();
 }
-
 
 /**
  * Change screen resolution

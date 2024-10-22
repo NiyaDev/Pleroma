@@ -28,7 +28,21 @@ enum CameraType {
 }
 
 /**
- *
+ * Checks if input Rectngle representing a texture should be rendered
+ * @param rec "Dimensions of texture"
+ * @return "Is rendered"
+ **/
+fn bool Camera.texture_rendered(&self, Rectangle rec) {
+	bool x_min = (float)(rec.x + rec.width) < -self.cam2d.offset.x;
+	bool x_max = (float)(rec.x) > (-self.cam2d.offset.x + pleroma::render_size.width);
+	bool y_min = (float)(rec.y + rec.height) < -self.cam2d.offset.y;
+	bool y_max = (float)(rec.y) > (-self.cam2d.offset.y + pleroma::render_size.height);
+
+	return x_min || x_max || y_min || y_max;
+}
+
+/**
+ * Start using camera to render
  **/
 fn void Camera.start(&self) {
 	switch (self.type) {
@@ -37,7 +51,7 @@ fn void Camera.start(&self) {
 	}
 }
 /**
- *
+ * Exit rendering mode
  **/
 fn void Camera.end(&self) {
 	switch (self.type) {
@@ -56,6 +70,24 @@ fn void Camera.move(&self, Vector3 movement) {
 			self.cam2d.offset.x += movement.x;
 			self.cam2d.offset.y += movement.y;
 		case CAMERA3D:
+			self.cam3d.position.x += movement.x;
+			self.cam3d.position.y += movement.y;
+			self.cam3d.position.z += movement.z;
+	}
+}
+/**
+ * Set camera position
+ * @param position "Position in space"
+ **/
+fn void Camera.set(&self, Vector3 position) {
+	switch (self.type) {
+		case CAMERA2D:
+			self.cam2d.offset.x = position.x;
+			self.cam2d.offset.y = position.y;
+		case CAMERA3D:
+			self.cam3d.position.x = position.x;
+			self.cam3d.position.y = position.y;
+			self.cam3d.position.z = position.z;
 	}
 }
 
