@@ -15,7 +15,13 @@ fn int main(String[] args) {
 	);
 	defer pleroma::close();
 	
-	//Bulk*
+	Bulk* spr_bulk = bulk::init("sprite_new");
+	(void)spr_bulk.add_image("img", image::load("resources/white_units.png"));
+	//spr_bulk.save();
+
+	//Bulk* spr_bulk = bulk::load("resources/sprite_new.blk");
+
+	Texture* test = spr_bulk.get_image("img").texture()!!;
 	//Bulk spr_bulk = bulk::open("resources/sprites.blk");
 	//defer spr_bulk.close();
 	
@@ -78,7 +84,7 @@ fn int main(String[] args) {
 	///*
 
 	//Texture* tex = texture::load("resources/black_units.png");
-	Texture* tex = image::load("resources/black_units.png").texture()!!;
+	//Texture* tex = image::load("resources/black_units.png").texture()!!;
 	
 	while (!raylib::window_should_close()) {
 		//if (keybindings::pressed("up")) pleroma::set_render_resolution({640,360});
@@ -94,7 +100,7 @@ fn int main(String[] args) {
 		pleroma::begin_drawing();
 		
 		for (int i = 0; i < (16*16); i++) {
-			tex.draw(48 * (i%8), 16 * (i/8), color::WHITE);
+			test.draw(48 * (i%8), 16 * (i/8), color::WHITE);
 			//if (i%2 == 0 ) { spr3.set_animation("white"); }
 			//else { spr3.set_animation("black"); }
 			

@@ -57,6 +57,15 @@ fn char[] Image.to_mem(&self, String filetype) {
 	return result;
 }
 /**
+ * Save image to memory
+ * @param filetype "Filetype as a string"
+ * @return "Array of bytes"
+ **/
+fn char* Image.to_mem_ptr(&self, String filetype, int* length) {
+	char* result_ptr = raylib::export_image_to_memory(*self, filetype, length);
+	return result_ptr;
+}
+/**
  * Exports Image to GPU as texture
  * @return "Pointer to exported texture info"
  **/
@@ -576,6 +585,18 @@ fn Image*! load_anim(String filename, int* frames) {
 fn Image* load_mem(String filetype, char[] data) {
 	Image* result = malloc(Image.sizeof);
 	*result = raylib::load_image_from_memory(filetype, (char*)data, data.len);
+	return result;
+}
+/**
+ * Loads image from memory
+ * @param filetype "Filetype as a string"
+ * @param data "Data as a pointer"
+ * @param length "Length of data"
+ * @return "Pointer to loaded image"
+ **/
+fn Image* load_mem_ptr(String filetype, char* data, usz length) {
+	Image* result = malloc(Image.sizeof);
+	*result = raylib::load_image_from_memory(filetype, data, (int)length);
 	return result;
 }
 /**

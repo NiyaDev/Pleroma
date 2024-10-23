@@ -5,6 +5,7 @@ import libc;
 import std::io;
 import std::collections;
 import pleroma::keybindings;
+import pleroma::image;
 import pleroma::debug;
 import raylib;
 
@@ -97,7 +98,12 @@ fn Bulk* load(String filename, Compression compression = NONE) {
 				for (int j = 0; j < entry.length; j++) {
 					((char*)entry.data)[j] = file.read_8();
 				}
-			case SPRITE: // 01
+			case IMAGE: // 01
+				entry.length = (usz)file.read_64();
+				char[] data = file.read_pointer(entry.length);
+				//io::printfn("%s", data);
+				entry.data = image::load_mem(".png", data);
+			case IMAGESHEET: // 02
 
 			case KEYBINDING: // 21
 				//* Get keybind name
@@ -145,7 +151,7 @@ fn void Bulk.close(&self) {
 /**
  * Save Bulk to file
  **/
-fn void Bulk.save(&self) {
+fn void Bulk.save(&self, Compression compression = NONE) {
 	//* Building table of contents
 	List(<BulkTableEntry>) table;
 	self.entries.@each(; String key, BulkEntry entry) {
@@ -177,7 +183,12 @@ fn void Bulk.save(&self) {
 				//* String
 				for (int j = 0; ptr[j] != '\0'; j++) { offset++; }
 				offset++;
-			case SPRITE:
+			case IMAGE:
+				//* Length of data
+				offset += 8;
+				//* Data
+				offset += ent.data.length;
+			case IMAGESHEET:
 
 			case KEYBINDING:
 				//* Length of name
@@ -227,8 +238,11 @@ fn void Bulk.save(&self) {
 				
 				//* Data
 				new_file.write_string(ptr);
-			case SPRITE:
-				
+			case IMAGE:
+				new_file.write_64(ent.data.length);
+				new_file.write_ptr(ent.data.data, ent.data.length);
+			case IMAGESHEET:
+
 			case KEYBINDING:
 				KeybindBulk* kb = (KeybindBulk*)ent.data.data;
 			
@@ -245,7 +259,9 @@ fn void Bulk.save(&self) {
 		}
 	}
 
-	(void)new_file.save(self.name);
+	String filename = string::tformat("resources/%s.blk", self.name);
+	(void)new_file.save(filename, compression);
+	//(void)new_file.save(self.name);
 }
 
 /**
@@ -298,6 +314,44 @@ fn String! Bulk.get_string(&self, String entry_name) {
 		
 	return (String)result;
 }
+/**
+ * Add image to Bulk
+ * @param name "Name of entry in Bulk"
+ * @param data "Image to add to Bulk"
+ **/
+fn void! Bulk.add_image(&self, String name, Image* data) {
+	//* Checking if it already exists
+	if (self.entries.has_key(name)) {
+		debug::log("Attempted to replace a bulk entry.", LOW);
+		return BulkFault.ENTRY_EXISTS?;
+	}
+
+	int length = 0;
+	char* mem = data.to_mem_ptr(".png", &length);
+	free(mem);
+
+	BulkEntry entry = {
+		.type = IMAGE,
+		.length = length,
+		.data = data,
+	};
+	self.entries.set(name, entry);
+}
+/**
+ * Retrieves string from bulk entry
+ * @param entry_name
+ * @return "String entry"
+ **/
+fn Image*! Bulk.get_image(&self, String entry_name) {
+	//* Entry error checking
+	BulkEntry! entry = self.entries[entry_name];
+	if (catch entry) {
+		debug::log("Failed to find inputted entry in Bulk.", LOW, self.name, entry_name);
+		return BulkFault.ENTRY_DOESNT_EXIST?;
+	}
+
+	return entry.data;
+}
 // TODO
 
 /**
@@ -322,9 +376,9 @@ struct BulkEntry {
  **/
 enum BulkEntryType : char {
 	STRING,
-	SPRITE,
-	
-	PADDING_2,
+	IMAGE,
+	IMAGESHEET,
+
 	PADDING_3,
 	PADDING_4,
 	PADDING_5,
@@ -589,6 +643,20 @@ fn String BulkFile.read_string(&self, usz length) {
 	self.head += length;
 	
 	return (String)result;
+}
+/**
+ * Read data at pointer to array
+ * @param length "Amount of data to copy"
+ * @return "Array of copied data"
+ **/
+fn char[] BulkFile.read_pointer(&self, usz length) {
+	char[] result = allocator::alloc_array(allocator::heap(), char, length);
+
+	for (int i = 0; i < length; i++) {
+		result[i] = self.data[self.head++];
+	}
+
+	return result;
 }
 /**
  * Gets a pointer to where the head is in the data
