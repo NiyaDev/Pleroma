@@ -15,6 +15,7 @@ fn int main(String[] args) {
 	);
 	defer pleroma::close();
 	
+	//Bulk*
 	//Bulk spr_bulk = bulk::open("resources/sprites.blk");
 	//defer spr_bulk.close();
 	
@@ -72,8 +73,9 @@ fn int main(String[] args) {
 	//kb_bulk.add("kb_right_2",	{KEYBINDING, $sizeof(*right_bind_2), right_bind_2});
 	//kb_bulk.save();
 	
-	
 	//keybindings::add("test", KeyType.KEYBOARD, 87);
+
+	///*
 
 	//Texture* tex = texture::load("resources/black_units.png");
 	Texture* tex = image::load("resources/black_units.png").texture()!!;
@@ -104,6 +106,7 @@ fn int main(String[] args) {
 
 		pleroma::end_drawing();
 	}
+	//*/
 	
 	return 0;
 }

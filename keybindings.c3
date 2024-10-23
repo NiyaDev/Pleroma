@@ -33,12 +33,12 @@ fn void init() {
 	keybindings.new_init();
 	
 	if (file::is_file("resources/sav_kb.blk")) {
-		Bulk kb_bulk = bulk::open("resources/sav_kb.blk");
+		Bulk* kb_bulk = bulk::load("resources/sav_kb.blk", DEFLATE);
 		debug::log("Loaded saved keybindings file.");
 		return;
 	}
 	if (file::is_file("resources/def_kb.blk")) {
-		Bulk kb_bulk = bulk::open("resources/def_kb.blk");
+		Bulk* kb_bulk = bulk::load("resources/def_kb.blk", DEFLATE);
 		debug::log("Loaded default keybindings file.");
 		return;
 	}
