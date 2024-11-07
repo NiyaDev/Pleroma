@@ -3,7 +3,7 @@
 	"warnings": ["no-unused"],
 	"dependency-search-paths": ["../.."],
 	"dependencies": ["pleroma"],
-	"authors": ["John Doe <john.doe@example.com>"],
+	"authors": ["NiyaDev"],
 	"version": "0.1.0",
 	"sources": ["src/**"],
 	"output": "build",

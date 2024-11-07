@@ -15,15 +15,23 @@ fn int main(String[] args) {
 	);
 	defer pleroma::close();
 	
-	Bulk* spr_bulk = bulk::init("sprite_new");
-	(void)spr_bulk.add_image("img", image::load("resources/white_units.png"));
+	//Bulk* spr_bulk = bulk::init("sprite_new");
+	//(void)spr_bulk.add_image("img", image::load("resources/white_units.png"));
 	//spr_bulk.save();
 
 	//Bulk* spr_bulk = bulk::load("resources/sprite_new.blk");
 
-	Texture* test = spr_bulk.get_image("img").texture()!!;
-	//Bulk spr_bulk = bulk::open("resources/sprites.blk");
-	//defer spr_bulk.close();
+	//Texture* test = spr_bulk.get_image("img").texture()!!;
+	create_bulk();
+
+	Bulk* spr_bulk = bulk::load("resources/001.blk");
+	defer spr_bulk.close();
+
+	Image* img = spr_bulk.get_image("tiles_1")!!;
+
+	Texture* tex = img.texture();
+	Texture*[] texs = img.cut_sheet(2,1);
+	//io::printfn("%d %d", img.width, img.height);
 	
 	//Sprite* spr1 = spr_bulk.get_sprite("black_units");
 	//spr1.set_animation("pawn");
@@ -98,14 +106,18 @@ fn int main(String[] args) {
 		//if (keybindings::down("left"))  io::printfn("Textures: %d", pleroma::textures_rendered);
 		
 		pleroma::begin_drawing();
+
+		texs[0].draw(0,0, color::WHITE);
+		texs[1].draw(50,0, color::WHITE);
+		tex.draw(100,0, color::WHITE);
 		
-		for (int i = 0; i < (16*16); i++) {
-			test.draw(48 * (i%8), 16 * (i/8), color::WHITE);
+		//for (int i = 0; i < (16*16); i++) {
+		//	test.draw(48 * (i%8), 16 * (i/8), color::WHITE);
 			//if (i%2 == 0 ) { spr3.set_animation("white"); }
 			//else { spr3.set_animation("black"); }
 			
 			//spr3.drawp({32*(float)(i%8),32*(float)(i/8),32,32});
-		}
+		//}
 		
 		//spr1.drawp({0,0,32,32});
 		//spr2.drawp({32,0,32,32});
@@ -115,4 +127,14 @@ fn int main(String[] args) {
 	//*/
 	
 	return 0;
+}
+
+
+fn void create_bulk() {
+	Bulk* kb_bulk = bulk::init("001");
+	kb_bulk.add_image("black_units", image::load("resources/black_units.png"))!!;
+	kb_bulk.add_image("white_units", image::load("resources/white_units.png"))!!;
+	kb_bulk.add_image("border_1", image::load("resources/border_1.png"))!!;
+	kb_bulk.add_image("tiles_1", image::load("resources/tiles_1.png"))!!;
+	kb_bulk.save();
 }
