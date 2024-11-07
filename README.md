@@ -1,1 +1,3 @@
-Welcome to the pleroma library.
+
+### Pleroma
+A game engine developed using C3 and Raylib

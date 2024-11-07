@@ -15,6 +15,12 @@ const char BULK_MINOR = 0;
 const char BULK_PATCH = 0;
 
 
+/*
+	? To add a new filetype to the bulk system
+	? Loading, two in Save
+*/
+
+
 /**
  * Bulk file
  **/
@@ -100,11 +106,9 @@ fn Bulk* load(String filename, Compression compression = NONE) {
 				}
 			case IMAGE: // 01
 				entry.length = (usz)file.read_64();
-				char[] data = file.read_pointer(entry.length);
-				//io::printfn("%s", data);
-				entry.data = image::load_mem(".png", data);
-			case IMAGESHEET: // 02
-
+				
+				entry.data = file.read_pointer(entry.length);
+				//entry.data = (char*)data;
 			case KEYBINDING: // 21
 				//* Get keybind name
 				usz name_length = (usz)file.read_64();
@@ -188,8 +192,6 @@ fn void Bulk.save(&self, Compression compression = NONE) {
 				offset += 8;
 				//* Data
 				offset += ent.data.length;
-			case IMAGESHEET:
-
 			case KEYBINDING:
 				//* Length of name
 				offset += 8;
@@ -241,8 +243,6 @@ fn void Bulk.save(&self, Compression compression = NONE) {
 			case IMAGE:
 				new_file.write_64(ent.data.length);
 				new_file.write_ptr(ent.data.data, ent.data.length);
-			case IMAGESHEET:
-
 			case KEYBINDING:
 				KeybindBulk* kb = (KeybindBulk*)ent.data.data;
 			
@@ -261,7 +261,6 @@ fn void Bulk.save(&self, Compression compression = NONE) {
 
 	String filename = string::tformat("resources/%s.blk", self.name);
 	(void)new_file.save(filename, compression);
-	//(void)new_file.save(self.name);
 }
 
 /**
@@ -328,12 +327,13 @@ fn void! Bulk.add_image(&self, String name, Image* data) {
 
 	int length = 0;
 	char* mem = data.to_mem_ptr(".png", &length);
-	free(mem);
+	data.unload();
+	//free(mem);
 
 	BulkEntry entry = {
 		.type = IMAGE,
 		.length = length,
-		.data = data,
+		.data = mem,
 	};
 	self.entries.set(name, entry);
 }
@@ -350,7 +350,7 @@ fn Image*! Bulk.get_image(&self, String entry_name) {
 		return BulkFault.ENTRY_DOESNT_EXIST?;
 	}
 
-	return entry.data;
+	return image::load_mem_ptr(".png", entry.data, entry.length);
 }
 // TODO
 
@@ -649,8 +649,22 @@ fn String BulkFile.read_string(&self, usz length) {
  * @param length "Amount of data to copy"
  * @return "Array of copied data"
  **/
-fn char[] BulkFile.read_pointer(&self, usz length) {
+fn char[] BulkFile.read_array(&self, usz length) {
 	char[] result = allocator::alloc_array(allocator::heap(), char, length);
+
+	for (int i = 0; i < length; i++) {
+		result[i] = self.data[self.head++];
+	}
+
+	return result;
+}
+/**
+ * Read data at pointer to a pointer
+ * @param length "Amount of data to copy"
+ * @return "Array of copied data"
+ **/
+fn char* BulkFile.read_pointer(&self, usz length) {
+	char* result = malloc(length);
 
 	for (int i = 0; i < length; i++) {
 		result[i] = self.data[self.head++];

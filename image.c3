@@ -3,6 +3,7 @@ module pleroma;
 
 import std::core::mem;
 import raylib;
+import std::io;
 
 
 /**
@@ -489,6 +490,27 @@ fn Image* Image.draw_text(&self, String text, int x, int y, int fontsize, Color 
 fn Image* Image.draw_text_ex(&self, Font font, String text, Vector2 position, float fontsize, float spacing, Color tint) {
 	raylib::image_draw_text_ex(self, font, text, position, fontsize, spacing, tint);
 	return self;
+}
+
+/**
+ * Cut the Image into seperate textures
+ * @param count_x "Number of horizontal sprites"
+ * @param count_y "Number of vertical sprites"
+ * @return "Array of images"
+ **/
+fn Texture*[] Image.cut_sheet(&self, int count_x, int count_y) {
+	int total = count_x * count_y;
+	int width = self.width / count_x;
+	int height = self.height / count_y;
+
+	Texture*[] output = allocator::alloc_array(allocator::heap(), Texture*, total);
+	for (int i = 0; i < total; i++) {
+		Image* img = self.copy_section({(float)(i%count_x) * width, (float)(i/count_x) * height, width, height});
+		output[i] = img.texture();
+		img.unload();
+	}
+
+	return output;
 }
 
 

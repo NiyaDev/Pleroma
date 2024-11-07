@@ -74,8 +74,10 @@ fn void draw_debug_log() {
 	}
 }
 /**
- *
+ * Draws debug stats
  **/
 fn void draw_debug_stats() {
-	raylib::draw_text(string::tformat("FPS: %d\nCamera: %d,%d\nTextures: %d", raylib::get_fps(), -camera::main.cam2d.offset.x, camera::main.cam2d.offset.y, pleroma::textures_rendered), 0, 0, 10, color::BLACK);
+	int fps = raylib::get_fps();
+	Vector2 cam = camera::main.cam2d.offset;
+	raylib::draw_text(string::tformat("FPS: %d\nCamera: %d,%d\nTextures: %d", fps, -cam.x, cam.y, pleroma::textures_rendered), 0, 0, 10, color::BLACK);
 }
