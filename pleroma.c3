@@ -31,6 +31,7 @@ fn void init(
 	raylib::set_trace_log_level(7);
 	raylib::init_window(screen_res.width, screen_res.height, title);
 	raylib::set_target_fps(framerate);
+	raylib::init_audio_device();
 
 	//* Debug
 	debug::debug_state = debug_mode;
@@ -62,6 +63,7 @@ fn void init(
  **/
 fn void close() {
 	render.unload();
+	raylib::close_audio_device();
 	raylib::close_window();
 }
 
