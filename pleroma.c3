@@ -12,6 +12,8 @@ RenderTexture* render;
 int textures_rendered = 0;
 int models_rendered = 0;
 
+Music* music;
+
 
 /**
  * Initialize Pleroma
@@ -74,6 +76,9 @@ fn void begin_drawing() {
 	textures_rendered = 0;
 
 	//* Music
+	if (music != null && music.is_playing()) {
+		music.update();
+	}
 
 	//* Check for texture
 	if (render == null) {

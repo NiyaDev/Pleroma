@@ -47,7 +47,7 @@ fn void log(String desc = "Default", PlErrorLevel level = NONE, args...) {
 	if (level >= lowest) {
 		PlError* err = malloc(PlError.sizeof);
 		*err = {
-			.text = string::tformat("[%s] - %s %s", level, desc, args),
+			.text = string::tformat("[%s] - %s %s\0", level, desc, args),
 			.level = level,
 			.lifespan = LOGTIMER_DEF,
 		};
@@ -79,5 +79,5 @@ fn void draw_debug_log() {
 fn void draw_debug_stats() {
 	int fps = raylib::get_fps();
 	Vector2 cam = camera::main.cam2d.offset;
-	raylib::draw_text(string::tformat("FPS: %d\nCamera: %d,%d\nTextures: %d", fps, -cam.x, cam.y, pleroma::textures_rendered), 0, 0, 10, color::BLACK);
+	raylib::draw_text(string::tformat("FPS: %d\nCamera: %d,%d\nTextures: %d\0", fps, -cam.x, cam.y, pleroma::textures_rendered), 0, 0, 10, color::BLACK);
 }

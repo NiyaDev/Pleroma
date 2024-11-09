@@ -6,6 +6,8 @@ import std::io;
 import std::collections;
 import pleroma::keybindings;
 import pleroma::image;
+import pleroma::wave;
+import pleroma::music;
 import pleroma::debug;
 import raylib;
 
@@ -17,7 +19,7 @@ const char BULK_PATCH = 0;
 
 /*
 	? To add a new filetype to the bulk system
-	? Loading, two in Save
+	? Load, two in Save, and then getter and setter
 */
 
 
@@ -98,18 +100,19 @@ fn Bulk* load(String filename, Compression compression = NONE) {
 		//* Copy data
 		switch (entry.type) {
 			default: break;
-			case STRING: // 00
+			case STRING:		// 00
 				entry.length = (usz)file.read_64();
 				entry.data = malloc(entry.length);
 				for (int j = 0; j < entry.length; j++) {
 					((char*)entry.data)[j] = file.read_8();
 				}
-			case IMAGE: // 01
+			case IMAGE:			// 01
 				entry.length = (usz)file.read_64();
-				
 				entry.data = file.read_pointer(entry.length);
-				//entry.data = (char*)data;
-			case KEYBINDING: // 21
+			case AUDIO:			// 02
+				entry.length = (usz)file.read_64();
+				entry.data = file.read_pointer(entry.length);
+			case KEYBINDING:	// 21
 				//* Get keybind name
 				usz name_length = (usz)file.read_64();
 				String name = file.read_string(name_length);
@@ -133,13 +136,12 @@ fn Bulk* load(String filename, Compression compression = NONE) {
 				entry.data = malloc(entry.length);
 				*(KeybindBulk*)entry.data = kb_b;
 		}
-		
-		
 		self.entries.set(entry_name, entry);
 		
 		//* Return head to old value
 		file.head = old_head;
 	}
+	file.close();
 
 	return self;
 }
@@ -180,19 +182,24 @@ fn void Bulk.save(&self, Compression compression = NONE) {
 		offset++;
 		switch (ent.data.type) {
 			default:
-			case STRING:
+			case STRING:		// 00
 				char* ptr = ent.data.data;
 				//* Length of string
 				offset += 8;
 				//* String
 				for (int j = 0; ptr[j] != '\0'; j++) { offset++; }
 				offset++;
-			case IMAGE:
+			case IMAGE:			// 01
 				//* Length of data
 				offset += 8;
 				//* Data
 				offset += ent.data.length;
-			case KEYBINDING:
+			case AUDIO:			// 02
+				//* Length of data
+				offset += 8;
+				//* Data
+				offset += ent.data.length;
+			case KEYBINDING:	// 21
 				//* Length of name
 				offset += 8;
 				
@@ -230,7 +237,7 @@ fn void Bulk.save(&self, Compression compression = NONE) {
 		new_file.write_8((char)ent.data.type);
 		switch (ent.data.type) {
 			default:
-			case STRING:
+			case STRING:		// 00
 				char* ptr = ent.data.data;
 				
 				//* Length
@@ -240,10 +247,13 @@ fn void Bulk.save(&self, Compression compression = NONE) {
 				
 				//* Data
 				new_file.write_string(ptr);
-			case IMAGE:
+			case IMAGE:			// 01
 				new_file.write_64(ent.data.length);
 				new_file.write_ptr(ent.data.data, ent.data.length);
-			case KEYBINDING:
+			case AUDIO:			// 02
+				new_file.write_64(ent.data.length);
+				new_file.write_ptr(ent.data.data, ent.data.length);
+			case KEYBINDING:	// 21
 				KeybindBulk* kb = (KeybindBulk*)ent.data.data;
 			
 				//* Length of name
@@ -263,6 +273,46 @@ fn void Bulk.save(&self, Compression compression = NONE) {
 	(void)new_file.save(filename, compression);
 }
 
+/**
+ * Add file to Bulk
+ * @param name "Name of entry in Bulk"
+ * @param filename "Name of file to add to Bulk"
+ **/
+fn void! Bulk.add_file(&self, String name, String filename) {
+	//* Checking if it already exists
+	if (self.entries.has_key(name)) {
+		debug::log("Attempted to replace a bulk entry.", LOW);
+		return BulkFault.ENTRY_EXISTS?;
+	}
+
+	File! f = file::open(filename, "rb");
+	if (catch f) {
+		debug::log("File not found", LOW, filename);
+		return BulkFault.FILE_NOT_FOUND?;
+	}
+
+	usz! len = file::get_size(filename);
+	if (catch len) {
+		debug::log("File not found", LOW);
+		return BulkFault.FILE_ZERO_LENGTH?;
+	}
+
+	char[] data = allocator::alloc_array(allocator::heap(), char, len);
+	usz! result = f.read(data);
+	if (catch result) {
+		debug::log("File not found", LOW);
+		return BulkFault.FILE_FAILED_BUFFER?;
+	}
+
+	(void)f.close();
+
+	BulkEntry entry = {
+		.type = AUDIO,
+		.length = data.len,
+		.data = (char*)data,
+	};
+	self.entries.set(name, entry);
+}
 /**
  * Add string to Bulk
  * @param name "Name of entry in Bulk"
@@ -338,9 +388,9 @@ fn void! Bulk.add_image(&self, String name, Image* data) {
 	self.entries.set(name, entry);
 }
 /**
- * Retrieves string from bulk entry
+ * Retrieves image from bulk entry
  * @param entry_name
- * @return "String entry"
+ * @return "Image entry"
  **/
 fn Image*! Bulk.get_image(&self, String entry_name) {
 	//* Entry error checking
@@ -352,6 +402,78 @@ fn Image*! Bulk.get_image(&self, String entry_name) {
 
 	return image::load_mem_ptr(".png", entry.data, entry.length);
 }
+/**
+ * Add audio to Bulk
+ * @param name "Name of entry in Bulk"
+ * @param data "DRaw data to add to Bulk"
+ **/
+fn void! Bulk.add_audio(&self, String name, char[] data) {
+	//* Checking if it already exists
+	if (self.entries.has_key(name)) {
+		debug::log("Attempted to replace a bulk entry.", LOW);
+		return BulkFault.ENTRY_EXISTS?;
+	}
+
+	BulkEntry entry = {
+		.type = AUDIO,
+		.length = data.len,
+		.data = (char*)data,
+	};
+	self.entries.set(name, entry);
+}
+/**
+ * Retrieves audio from bulk entry as Music
+ * @param entry_name
+ * @return "Music"
+ **/
+fn Music*! Bulk.get_music(&self, String entry_name) {
+	//* Entry error checking
+	BulkEntry! entry = self.entries[entry_name];
+	if (catch entry) {
+		debug::log("Failed to find inputted entry in Bulk.", LOW, self.name, entry_name);
+		return BulkFault.ENTRY_DOESNT_EXIST?;
+	}
+
+	return music::load_mem(".mp3", entry.data, (int)entry.length);
+}
+/**
+ * Retrieves audio from bulk entry as Sound
+ * @param entry_name
+ * @return "Sound"
+ **/
+fn Sound*! Bulk.get_sound(&self, String entry_name) {
+	//* Entry error checking
+	BulkEntry! entry = self.entries[entry_name];
+	if (catch entry) {
+		debug::log("Failed to find inputted entry in Bulk.", LOW, self.name, entry_name);
+		return BulkFault.ENTRY_DOESNT_EXIST?;
+	}
+
+	Wave* wave = wave::load_mem(".mp3", entry.data, (int)entry.length)!!;
+	Sound* output = wave.sound()!!;
+	wave.unload();
+	return output;
+}
+/**
+ * Add keybinding to Bulk
+ * @param name "Name of entry in Bulk"
+ * @param data "Keybind to add to Bulk"
+ **/
+fn void! Bulk.add_keybinding(&self, String name, KeybindBulk* data) {
+	//* Checking if it already exists
+	if (self.entries.has_key(name)) {
+		debug::log("Attempted to replace a bulk entry.", LOW);
+		return BulkFault.ENTRY_EXISTS?;
+	}
+
+	BulkEntry entry = {
+		.type = KEYBINDING,
+		.length = KeybindBulk.sizeof,
+		.data = data,
+	};
+	self.entries.set(name, entry);
+}
+
 // TODO
 
 /**
@@ -376,8 +498,8 @@ struct BulkEntry {
  **/
 enum BulkEntryType : char {
 	STRING,
-	IMAGE,
-	IMAGESHEET,
+	IMAGE, // Stored as .png
+	AUDIO, // Stored as .mp3
 
 	PADDING_3,
 	PADDING_4,
@@ -445,7 +567,7 @@ fn void! BulkFile.init_file(&self, String filename, Compression compression = NO
 
 	//* Catch File error
 	if (catch file) {
-		debug::log("Cannot find Bulk file", LOW);
+		debug::log("Cannot find Bulk file", LOW, filename);
 		return BulkFault.FILE_NOT_FOUND?;
 	}
 
@@ -487,7 +609,7 @@ fn void! BulkFile.init_file(&self, String filename, Compression compression = NO
 fn void! BulkFile.save(&self, String filename, Compression compression = NONE) {
 	io::File! file = file::open(filename, "wb");
 	if (catch file) {
-		debug::log("Failed to open file", LOW);
+		debug::log("Failed to open file", LOW, filename);
 		return BulkFault.FILE_NOT_FOUND?;
 	}
 
@@ -505,6 +627,13 @@ fn void! BulkFile.save(&self, String filename, Compression compression = NONE) {
 	}
 
 	(void)file.close();
+	self.close();
+}
+/**
+ * Closes bulk file
+ **/
+fn void BulkFile.close(&self) {
+	free(self.data);
 }
 
 /**

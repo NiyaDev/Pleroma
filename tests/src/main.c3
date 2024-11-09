@@ -3,8 +3,10 @@ module tests;
 
 import pleroma;
 import pleroma::keybindings;
+import pleroma::music;
 import raylib;
 import std::io;
+import std::io::file;
 
 fn int main(String[] args) {
 	pleroma::init(
@@ -14,78 +16,27 @@ fn int main(String[] args) {
 		.debug_level = NONE,
 	);
 	defer pleroma::close();
-	
-	//Bulk* spr_bulk = bulk::init("sprite_new");
-	//(void)spr_bulk.add_image("img", image::load("resources/white_units.png"));
-	//spr_bulk.save();
 
-	//Bulk* spr_bulk = bulk::load("resources/sprite_new.blk");
-
-	//Texture* test = spr_bulk.get_image("img").texture()!!;
 	create_bulk();
+	default_kb_bulk();
 
-	Bulk* spr_bulk = bulk::load("resources/001.blk");
+	//* Sprites
+	Bulk* spr_bulk = bulk::load("resources/001.blk", DEFLATE);
 	defer spr_bulk.close();
 
 	Image* img = spr_bulk.get_image("tiles_1")!!;
-
 	Texture* tex = img.texture();
 	Texture*[] texs = img.cut_sheet(2,1);
-	//io::printfn("%d %d", img.width, img.height);
-	
-	//Sprite* spr1 = spr_bulk.get_sprite("black_units");
-	//spr1.set_animation("pawn");
-	//Sprite* spr2 = spr_bulk.get_sprite("white_units_");
-	//spr2.set_animation("queen");
-	//Sprite* spr3 = spr_bulk.get_sprite("tiles_1");
+
+	//* Audio
+	Bulk* sfx_bulk = bulk::load("resources/002.blk", DEFLATE);
+	defer spr_bulk.close();
+
+	pleroma::music = sfx_bulk.get_music("theme")!!;
+	pleroma::music.play();
 
 	
-	//Bulk kb_bulk = bulk::open("resources/def_keybinds.blk");
-	//keybindings::print();
 	
-	//Bulk bulk = bulk::init("resources/sprites.blk");
-	//Sprite* black_units = sprite::from_file("resources/black_units.png");
-	//black_units.new_animation("pawn", {0});
-	//black_units.new_animation("rook", {1});
-	//black_units.new_animation("knight", {2});
-	//black_units.new_animation("bishop", {3});
-	//black_units.new_animation("queen", {4});
-	//black_units.new_animation("king", {5});
-	//Sprite* white_units = sprite::from_file("resources/white_units.png");
-	//white_units.new_animation("pawn", {0});
-	//white_units.new_animation("rook", {1});
-	//white_units.new_animation("knight", {2});
-	//white_units.new_animation("bishop", {3});
-	//white_units.new_animation("queen", {4});
-	//white_units.new_animation("king", {5});
-	//Sprite* border_1 = sprite::from_file("resources/border_1.png");
-	//Sprite* tiles_1 = sprite::from_file("resources/tiles_1.png");
-	//tiles_1.new_animation("black", {0});
-	//tiles_1.new_animation("white", {1});
-	//bulk.add("black_units", {SPRITE, $sizeof(*black_units), black_units});
-	//bulk.add("white_units", {SPRITE, $sizeof(*white_units), white_units});
-	//bulk.add("border_1", {SPRITE, $sizeof(*border_1), border_1});
-	//bulk.add("tiles_1", {SPRITE, $sizeof(*tiles_1), tiles_1});
-	//bulk.save();
-	
-	//Bulk kb_bulk = bulk::init("resources/def_keybinds.blk");
-	//KeybindBulk* up_bind		= keybindings::new_bulk( .key = "up",   	.value = { .type = KEYBOARD, .index = 0, .key = 87 });
-	//KeybindBulk* down_bind		= keybindings::new_bulk( .key = "down", 	.value = { .type = KEYBOARD, .index = 0, .key = 83 });
-	//KeybindBulk* left_bind		= keybindings::new_bulk( .key = "left", 	.value = { .type = KEYBOARD, .index = 0, .key = 65 });
-	//KeybindBulk* right_bind		= keybindings::new_bulk( .key = "right",	.value = { .type = KEYBOARD, .index = 0, .key = 68 });
-	//KeybindBulk* up_bind_2		= keybindings::new_bulk( .key = "up",   	.value = { .type = KEYBOARD, .index = 0, .key = 265 });
-	//KeybindBulk* down_bind_2	= keybindings::new_bulk( .key = "down", 	.value = { .type = KEYBOARD, .index = 0, .key = 264 });
-	//KeybindBulk* left_bind_2	= keybindings::new_bulk( .key = "left", 	.value = { .type = KEYBOARD, .index = 0, .key = 263 });
-	//KeybindBulk* right_bind_2	= keybindings::new_bulk( .key = "right",	.value = { .type = KEYBOARD, .index = 0, .key = 262 });
-	//kb_bulk.add("kb_up_1",		{KEYBINDING, $sizeof(*up_bind), up_bind});
-	//kb_bulk.add("kb_up_2",		{KEYBINDING, $sizeof(*up_bind_2), up_bind_2});
-	//kb_bulk.add("kb_down_1",	{KEYBINDING, $sizeof(*down_bind), down_bind});
-	//kb_bulk.add("kb_down_2",	{KEYBINDING, $sizeof(*down_bind_2), down_bind_2});
-	//kb_bulk.add("kb_left_1",	{KEYBINDING, $sizeof(*left_bind), left_bind});
-	//kb_bulk.add("kb_left_2",	{KEYBINDING, $sizeof(*left_bind_2), left_bind_2});
-	//kb_bulk.add("kb_right_1",	{KEYBINDING, $sizeof(*right_bind), right_bind});
-	//kb_bulk.add("kb_right_2",	{KEYBINDING, $sizeof(*right_bind_2), right_bind_2});
-	//kb_bulk.save();
 	
 	//keybindings::add("test", KeyType.KEYBOARD, 87);
 
@@ -131,10 +82,27 @@ fn int main(String[] args) {
 
 
 fn void create_bulk() {
-	Bulk* kb_bulk = bulk::init("001");
-	kb_bulk.add_image("black_units", image::load("resources/black_units.png"))!!;
-	kb_bulk.add_image("white_units", image::load("resources/white_units.png"))!!;
-	kb_bulk.add_image("border_1", image::load("resources/border_1.png"))!!;
-	kb_bulk.add_image("tiles_1", image::load("resources/tiles_1.png"))!!;
-	kb_bulk.save();
+	Bulk* spr_bulk = bulk::init("001");
+	spr_bulk.add_image("black_units", image::load("resources/black_units.png"))!!;
+	spr_bulk.add_image("white_units", image::load("resources/white_units.png"))!!;
+	spr_bulk.add_image("border_1", image::load("resources/border_1.png"))!!;
+	spr_bulk.add_image("tiles_1", image::load("resources/tiles_1.png"))!!;
+	spr_bulk.save(DEFLATE);
+
+	Bulk* sfx_bulk = bulk::init("002");
+	sfx_bulk.add_file("theme", "resources/New Bark Town (Lofi Remix).mp3")!!;
+	sfx_bulk.save(DEFLATE);
+}
+
+fn void default_kb_bulk() {
+	Bulk* kb_bulk = bulk::init("def_kb");
+	kb_bulk.add_keybinding("kb_up_1", keybindings::new_bulk( .key = "up",		.value = { .type = KEYBOARD, .index = 0, .key = 87 }))!!;
+	kb_bulk.add_keybinding("kb_up_2", keybindings::new_bulk( .key = "up",		.value = { .type = KEYBOARD, .index = 0, .key = 265}))!!;
+	kb_bulk.add_keybinding("kb_down_1", keybindings::new_bulk( .key = "down",	.value = { .type = KEYBOARD, .index = 0, .key = 83 }))!!;
+	kb_bulk.add_keybinding("kb_down_2", keybindings::new_bulk( .key = "down",	.value = { .type = KEYBOARD, .index = 0, .key = 264}))!!;
+	kb_bulk.add_keybinding("kb_left_1", keybindings::new_bulk( .key = "left",	.value = { .type = KEYBOARD, .index = 0, .key = 65 }))!!;
+	kb_bulk.add_keybinding("kb_left_2", keybindings::new_bulk( .key = "left",	.value = { .type = KEYBOARD, .index = 0, .key = 263}))!!;
+	kb_bulk.add_keybinding("kb_right_1", keybindings::new_bulk( .key = "right",	.value = { .type = KEYBOARD, .index = 0, .key = 68 }))!!;
+	kb_bulk.add_keybinding("kb_right_2", keybindings::new_bulk( .key = "right",	.value = { .type = KEYBOARD, .index = 0, .key = 262}))!!;
+	kb_bulk.save(DEFLATE);
 }
