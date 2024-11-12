@@ -1,7 +1,5 @@
 
 module pleroma;
-
-
 import raylib;
 import pleroma::color;
 
@@ -15,8 +13,7 @@ int models_rendered = 0;
 Music* music;
 
 
-/**
- * Initialize Pleroma
+/** Initialize Pleroma
  **/
 fn void init(
 	String title = "default",
@@ -44,7 +41,7 @@ fn void init(
 	if (try icon) icon.set_icon().unload();
 
 	//* Keybindings
-	keybindings::init();
+	keybindings::init()!!;
 
 	//* Render texture
 	render = rendertexture::load(render_res.width, render_res.height);
@@ -56,12 +53,11 @@ fn void init(
 	//* Camera
 	camera::main = {
 		.type = camera_mode,
-		.cam2d = { {0,0}, {0,0}, 0, 1 },
+		.cam2d = { {(float)render_res.width/2,(float)render_res.height/2}, {0,0}, 0, 1 },
 		.cam3d = { {0,5,-5}, {0,0,0}, {0,1,0}, 70, CAMERA_PERSPECTIVE }
 	};
 }
-/**
- * Free all data associated with Pleroma
+/** Free all data associated with Pleroma
  **/
 fn void close() {
 	render.unload();
@@ -69,8 +65,7 @@ fn void close() {
 	raylib::close_window();
 }
 
-/**
- * Start drawing to render texture buffer
+/** Start drawing to render texture buffer
  **/
 fn void begin_drawing() {
 	textures_rendered = 0;
@@ -91,8 +86,7 @@ fn void begin_drawing() {
 	camera::main.start();
 	raylib::clear_background(color::GRAY);
 }
-/**
- * Finish drawing to render texture
+/** Finish drawing to render texture
  **/
 fn void end_drawing() {
 	camera::main.end();
@@ -107,7 +101,7 @@ fn void end_drawing() {
 	render.end();
 	
 	raylib::begin_drawing_rl();
-	render.texture.draw_pro(
+	render.texture.draw_forced(
 		{0, 0, (float)render_size.width, (float)-render_size.height},
 		{0, 0, (float)screen_size.width, (float)screen_size.height},
 		{0, 0},
@@ -117,15 +111,13 @@ fn void end_drawing() {
 	raylib::end_drawing_rl();
 }
 
-/**
- * Change screen resolution
+/** Change screen resolution
  **/
 fn void set_screen_resolution(Resolution screen_resolution = {1280, 720}) {
 	screen_size = screen_resolution;
 	raylib::set_window_size(screen_resolution.width, screen_resolution.height);
 }
-/**
- * Change render resolution
+/** Change render resolution
  **/
 fn void set_render_resolution(Resolution render_resolution = {1280, 720}) {
 	render_size = render_resolution;

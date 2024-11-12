@@ -1,6 +1,5 @@
+
 module pleroma::camera;
-
-
 import std::io;
 import raylib;
 
@@ -8,8 +7,7 @@ import raylib;
 Camera main;
 
 
-/**
- * Combined camera structure for both 2D and 3D
+/** Combined camera structure for both 2D and 3D
  **/
 struct Camera {
 	CameraType type;
@@ -18,31 +16,27 @@ struct Camera {
 	Camera2D cam2d;
 	Camera3D cam3d;
 }
-
-/**
- * Current camera mode
+/** Current camera mode
  **/
 enum CameraType {
 	CAMERA3D,
 	CAMERA2D,
 }
 
-/**
- * Checks if input Rectngle representing a texture should be rendered
- * @param rec "Dimensions of texture"
- * @return "Is rendered"
+/** Checks if input Rectngle representing a texture should be rendered
+ @param rec "Dimensions of texture"
+ @return "Is rendered"
  **/
 fn bool Camera.texture_rendered(&self, Rectangle rec) {
-	bool x_min = (float)(rec.x + rec.width) < -self.cam2d.offset.x;
-	bool x_max = (float)(rec.x) > (-self.cam2d.offset.x + pleroma::render_size.width);
-	bool y_min = (float)(rec.y + rec.height) < -self.cam2d.offset.y;
-	bool y_max = (float)(rec.y) > (-self.cam2d.offset.y + pleroma::render_size.height);
+	bool left	= (float)(rec.x + rec.width)	> (self.cam2d.target.x - (self.cam2d.offset.x));
+	bool right	= (float)(rec.x)				< (self.cam2d.target.x + (self.cam2d.offset.x));
+	bool top	= (float)(rec.y + rec.height)	> (self.cam2d.target.y - (self.cam2d.offset.y));
+	bool bottom	= (float)(rec.y)				< (self.cam2d.target.y + (self.cam2d.offset.y));
 
-	return x_min || x_max || y_min || y_max;
+	return !(left && right && top && bottom);
 }
 
-/**
- * Start using camera to render
+/** Start using camera to render
  **/
 fn void Camera.start(&self) {
 	switch (self.type) {
@@ -50,8 +44,7 @@ fn void Camera.start(&self) {
 		case CAMERA3D: raylib::begin_3d_mode(self.cam3d);
 	}
 }
-/**
- * Exit rendering mode
+/** Exit rendering mode
  **/
 fn void Camera.end(&self) {
 	switch (self.type) {
@@ -60,24 +53,22 @@ fn void Camera.end(&self) {
 	}
 }
 
-/**
- * Move camera a set distance depending on type
- * @param movement "Distance moved in space"
+/** Move camera a set distance depending on type
+ @param movement "Distance moved in space"
  **/
 fn void Camera.move(&self, Vector3 movement) {
 	switch (self.type) {
 		case CAMERA2D:
-			self.cam2d.offset.x += movement.x;
-			self.cam2d.offset.y += movement.y;
+			self.cam2d.target.x += movement.x;
+			self.cam2d.target.y += movement.y;
 		case CAMERA3D:
 			self.cam3d.position.x += movement.x;
 			self.cam3d.position.y += movement.y;
 			self.cam3d.position.z += movement.z;
 	}
 }
-/**
- * Set camera position
- * @param position "Position in space"
+/** Set camera position
+ @param position "Position in space"
  **/
 fn void Camera.set(&self, Vector3 position) {
 	switch (self.type) {
@@ -91,8 +82,7 @@ fn void Camera.set(&self, Vector3 position) {
 	}
 }
 
-/**
- * Prints camera data to console
+/** Prints camera data to console
  **/
 fn void Camera.print(&self) {
 	io::printf("Camera Mode:%s\n", self.type);

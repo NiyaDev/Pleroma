@@ -1,6 +1,5 @@
+
 module pleroma::debug;
-
-
 import std::collections;
 import std::io;
 import raylib;
@@ -8,8 +7,7 @@ import pleroma::color;
 import pleroma::camera;
 
 
-/**
- * Error structure for displaying errors on screen
+/** Error structure for displaying errors on screen
  **/
 struct PlError {
 	String text;
@@ -18,8 +16,7 @@ struct PlError {
 	int lifespan;
 }
 
-/**
- * Error levels
+/** Error levels
  **/
 enum PlErrorLevel {
 	NONE,
@@ -37,11 +34,10 @@ bool debug_state = true;
 PlErrorLevel lowest = NONE;
 List(<PlError*>) error_list;
 
-/**
- * Error logging
- * @param desc "Description of the error"
- * @param level "How problematic the error is"
- * @param args "Any additional info that can be supplied"
+/** Error logging
+ @param desc "Description of the error"
+ @param level "How problematic the error is"
+ @param args "Any additional info that can be supplied"
  **/
 fn void log(String desc = "Default", PlErrorLevel level = NONE, args...) {
 	if (level >= lowest) {
@@ -57,8 +53,7 @@ fn void log(String desc = "Default", PlErrorLevel level = NONE, args...) {
 	}
 }
 
-/**
- *
+/** 
  **/
 fn void draw_debug_log() {
 	List(<int>) values;
@@ -73,11 +68,10 @@ fn void draw_debug_log() {
 		if (err.lifespan <= 0) { error_list.remove_at(i); }
 	}
 }
-/**
- * Draws debug stats
+/** Draws debug stats
  **/
 fn void draw_debug_stats() {
 	int fps = raylib::get_fps();
-	Vector2 cam = camera::main.cam2d.offset;
-	raylib::draw_text(string::tformat("FPS: %d\nCamera: %d,%d\nTextures: %d\0", fps, -cam.x, cam.y, pleroma::textures_rendered), 0, 0, 10, color::BLACK);
+	Vector2 cam = camera::main.cam2d.target;
+	raylib::draw_text(string::tformat("FPS: %d\nCamera: %d,%d\nTextures: %d\0", fps, cam.x, -cam.y, pleroma::textures_rendered), 0, 0, 10, color::WHITE);
 }

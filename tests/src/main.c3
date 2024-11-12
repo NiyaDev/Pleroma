@@ -1,12 +1,12 @@
+
 module tests;
-
-
 import pleroma;
 import pleroma::keybindings;
 import pleroma::music;
 import raylib;
 import std::io;
 import std::io::file;
+
 
 fn int main(String[] args) {
 	pleroma::init(
@@ -36,46 +36,20 @@ fn int main(String[] args) {
 	pleroma::music.play();
 
 	
-	
-	
-	//keybindings::add("test", KeyType.KEYBOARD, 87);
-
-	///*
-
-	//Texture* tex = texture::load("resources/black_units.png");
-	//Texture* tex = image::load("resources/black_units.png").texture()!!;
-	
 	while (!raylib::window_should_close()) {
-		//if (keybindings::pressed("up")) pleroma::set_render_resolution({640,360});
-		//if (keybindings::pressed("down")) pleroma::set_render_resolution({1280,720});
-		//if (keybindings::pressed("left")) pleroma::set_render_resolution({1920,1080});
-		//if (keybindings::pressed("right")) { io::printn("right"); }
-		if (keybindings::down("up"))    camera::main.move({ 0, 1, 0});
-		if (keybindings::down("down"))  camera::main.move({ 0,-1, 0});
-		if (keybindings::down("left"))  camera::main.move({ 1, 0, 0});
-		if (keybindings::down("right")) camera::main.move({-1, 0, 0});
-		//if (keybindings::down("left"))  io::printfn("Textures: %d", pleroma::textures_rendered);
+		if (keybindings::down("up")!!)    camera::main.move({ 0,-1, 0});
+		if (keybindings::down("down")!!)  camera::main.move({ 0, 1, 0});
+		if (keybindings::down("left")!!)  camera::main.move({-1, 0, 0});
+		if (keybindings::down("right")!!) camera::main.move({ 1, 0, 0});
 		
 		pleroma::begin_drawing();
 
 		texs[0].draw(0,0, color::WHITE);
 		texs[1].draw(50,0, color::WHITE);
 		tex.draw(100,0, color::WHITE);
-		
-		//for (int i = 0; i < (16*16); i++) {
-		//	test.draw(48 * (i%8), 16 * (i/8), color::WHITE);
-			//if (i%2 == 0 ) { spr3.set_animation("white"); }
-			//else { spr3.set_animation("black"); }
-			
-			//spr3.drawp({32*(float)(i%8),32*(float)(i/8),32,32});
-		//}
-		
-		//spr1.drawp({0,0,32,32});
-		//spr2.drawp({32,0,32,32});
 
 		pleroma::end_drawing();
 	}
-	//*/
 	
 	return 0;
 }

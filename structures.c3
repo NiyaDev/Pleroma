@@ -1,6 +1,5 @@
+
 module pleroma;
-
-
 import pleroma::camera;
 import raylib;
 import std::math;
@@ -10,15 +9,13 @@ import std::io;
 const float EPSILON = 1.1920929E-7;
 
 
-/**
- * Bounding box for hitboxes and collisions
+/** Bounding box for hitboxes and collisions
  **/
 struct BoundingBox {
 	Vector3 min, max;
 }
-/**
- * Draws the bounding box
- * @param color "Color to draw the bounds"
+/** Draws the bounding box
+ @param color "Color to draw the bounds"
  **/
 fn void BoundingBox.draw(&self, Color color) {
 	raylib::draw_bounding_box(*self, color);
@@ -26,16 +23,14 @@ fn void BoundingBox.draw(&self, Color color) {
 
 
 
-/**
- * 2D Camera
+/** 2D Camera
  **/
 struct Camera2D {
 	Vector2 offset, target;
 	float rotation, zoom;
 }
 
-/**
- * 3D Camera
+/** 3D Camera
  **/
 struct Camera3D {
 	Vector3 position, target, up;
@@ -43,6 +38,8 @@ struct Camera3D {
 	CameraProjection projection;
 }
 
+/** Camera Projection
+ **/
 enum CameraProjection : int {
 	CAMERA_PERSPECTIVE,		// Perspective projection
 	CAMERA_ORTHOGRAPHIC,	// Orthographic projection
@@ -50,30 +47,26 @@ enum CameraProjection : int {
 
 
 
-/**
- * Color
+/** Color
  **/
 struct Color {
 	char r, g, b, a;
 }
-/**
- * Apply alpha to color
- * @param alpha "Value to change alpha to"
- * @require alpha <= 1, alpha >= 0, "Alpha not withing proper range of 0 -> 1"
+/** Apply alpha to color
+ @param alpha "Value to change alpha to"
+ @require alpha <= 1, alpha >= 0, "Alpha not withing proper range of 0 -> 1"
  **/
 fn void Color.fade(&self, float alpha) {
 	self.a = (char)(255 * alpha);
 }
-/**
- * Converts color to hexadecimal representation
- * @return "Hex version of color"
+/** Converts color to hexadecimal representation
+ @return "Hex version of color"
  **/
 fn uint Color.to_int(&self) {
 	return self.r << 24 | self.g << 16 | self.b << 8 | self.a;
 }
-/**
- * Converts color into Vector4 representation
- * @return "Vector4 version of color with each value being a float between 0 and 1"
+/** Converts color into Vector4 representation
+ @return "Vector4 version of color with each value being a float between 0 and 1"
  **/
 fn Vector4 Color.normalize(&self) {
 	return {
@@ -83,9 +76,8 @@ fn Vector4 Color.normalize(&self) {
 		.w = (float)self.a / 255,
 	};
 }
-/**
- * Converts color into HSV
- * @return "Hue, Saturation, and Value version of color as a Vector3"
+/** Converts color into HSV
+ @return "Hue, Saturation, and Value version of color as a Vector3"
  **/
 fn Vector3 Color.hsv(&self) {
 	float r = (float)self.r / 255;
@@ -110,10 +102,9 @@ fn Vector3 Color.hsv(&self) {
 		.z = cmax,
 	};
 }
-/**
- * Multiplies color by input
- * @param tint "Color to tint"
- * @return "Tinted color"
+/** Multiplies color by input
+ @param tint "Color to tint"
+ @return "Tinted color"
  **/
 fn Color Color.tint(&self, Color tint) {
 	Color result = *self;
@@ -130,11 +121,10 @@ fn Color Color.tint(&self, Color tint) {
 
 	return result;
 }
-/**
- * Corrects color for brightness
- * @param factor "Percentage to increase brightness"
- * @require factor <= 1, factor >= -1, "Brightness factor not within range"
- * @return "Brightened / Darkened color"
+/** Corrects color for brightness
+ @param factor "Percentage to increase brightness"
+ @require factor <= 1, factor >= -1, "Brightness factor not within range"
+ @return "Brightened / Darkened color"
  **/
 fn Color Color.brightness(&self, float factor) {
 	Color result = *self;
@@ -160,11 +150,10 @@ fn Color Color.brightness(&self, float factor) {
 
 	return result;
 }
-/**
- * Corrects color for contrast
- * @param contrast "Percentage to change brightness"
- * @require contrast <= 1, contrast >= -1, "Contrast not within proper range"
- * @return "Color changed by contrast"
+/** Corrects color for contrast
+ @param contrast "Percentage to change brightness"
+ @require contrast <= 1, contrast >= -1, "Contrast not within proper range"
+ @return "Color changed by contrast"
  **/
 fn Color Color.contrast(&self, float contrast) {
 	Color result = *self;
@@ -202,11 +191,10 @@ fn Color Color.contrast(&self, float contrast) {
 
 	return result;
 }
-/**
- * Get color with alpha applied
- * @param alpha "Alpha to apply to color"
- * @require alpha >= 0, alpha <= 1, "Alpha not within proper range"
- * @return "Color with alpha applied"
+/** Get color with alpha applied
+ @param alpha "Alpha to apply to color"
+ @require alpha >= 0, alpha <= 1, "Alpha not within proper range"
+ @return "Color with alpha applied"
  **/
 fn Color Color.alpha(&self, float alpha) {
 	Color result = *self;
@@ -215,11 +203,10 @@ fn Color Color.alpha(&self, float alpha) {
 
 	return result;
 }
-/**
- * Get src alpha-blended into dst color with tint
- * @param src
- * @param tint
- * @return "Color with Alpha blend applied"
+/** Get src alpha-blended into dst color with tint
+ @param src
+ @param tint
+ @return "Color with Alpha blend applied"
  **/
 fn Color Color.alpha_blend(&self, Color src, Color tint) {
 	return raylib::color_alpha_blend(*self, src, tint);
@@ -227,8 +214,7 @@ fn Color Color.alpha_blend(&self, Color src, Color tint) {
 
 
 
-/**
- * Font
+/** Font
  **/
 struct Font {
 	int base_size;
@@ -239,8 +225,7 @@ struct Font {
 	GlyphInfo* glyphs;
 }
 
-/**
- * Glyph Information
+/** Glyph Information
  **/
 struct GlyphInfo {
 	int value;
@@ -250,8 +235,7 @@ struct GlyphInfo {
 	Image image;
 }
 
-/**
- * File path list
+/** File path list
  **/
 struct FilePathList {
 	uint capacity, count;
@@ -259,13 +243,15 @@ struct FilePathList {
 }
 
 
-//= Materials
+/** Materials
+ **/
 struct Material {
 	Shader shader;
 	MaterialMap* maps;
 	float[4] params;
 }
-
+/** Material Maps
+ **/
 struct MaterialMap {
 	Texture texture;
 	Color color;
@@ -274,47 +260,46 @@ struct MaterialMap {
 
 
 
-//= Rectangle
+/** Rectangle
+ **/
 struct Rectangle {
 	float x, y, width, height;
 }
 
 
 
-//= Resolution
+/** Resolution
+ **/
 struct Resolution {
 	int width, height;
 }
 
 
 
-//= Shader
+/** Shader
+ **/
 struct Shader {
 	uint id;
 	int* locs;
 }
-/**
- * Wrapper for Raylib::UnloadShader(shader: ShaderRl)
+/** Wrapper for Raylib::UnloadShader(shader: ShaderRl)
  **/
 fn void Shader.unload(&self) {
 	raylib::unload_shader(*self);
 }
-/**
- * Wrapper for bool Raylib::IsShaderReady(shader: ShaderRl)
+/** Wrapper for bool Raylib::IsShaderReady(shader: ShaderRl)
  **/
 fn bool Shader.ready(&self) {
 	return raylib::is_shader_ready(*self);
 }
-/**
- * Wrapper for raylib::BeginShaderMode()
+/** Wrapper for raylib::BeginShaderMode()
  **/
 fn Shader* Shader.begin(&self) {
 	raylib::begin_shader_mode(*self);
 
 	return self;
 }
-/**
- * Wrapper for raylib::EndShaderMode()
+/** Wrapper for raylib::EndShaderMode()
  **/
 fn Shader* Shader.end(&self) {
 	raylib::end_shader_mode();
@@ -324,7 +309,8 @@ fn Shader* Shader.end(&self) {
 
 
 
-//= Pixel Format
+/** Pixel Format
+ **/
 enum PixelFormat : int {
 	GRAYSCALE,
 	GRAYALPHA,
@@ -352,8 +338,7 @@ enum PixelFormat : int {
 	ASTC8X8RGBA,
 	UNKNOWN,
 }
-/**
- * Wrapper for Raylib::GetPixelDataSize().
+/** Wrapper for Raylib::GetPixelDataSize().
  **/
 fn PixelFormat PixelFormat.fade(&self, int width, int height) {
 	return (PixelFormat)raylib::get_pixel_data_size(width, height, (int)*self);
@@ -361,12 +346,13 @@ fn PixelFormat PixelFormat.fade(&self, int width, int height) {
 
 
 
-
-//= Ray
+/** Ray
+ **/
 struct Ray {
 	Vector3 position, direction;
 }
-
+/** Ray Collision
+ **/
 struct RayCollision {
 	bool hit;
 	float distance;
@@ -375,43 +361,46 @@ struct RayCollision {
 
 
 
-//= Vector2
+/** Vector2
+ **/
 struct Vector2 {
 	float x;
 	float y;
 }
-/**
- * Calculate vector length
+/** Calculate vector length
+ @return "Length of vector"
  **/
 fn float Vector2.length(&self) {
 	return math::sqrt(self.x.pow(2) + self.y.pow(2));
 }
-/**
- * Calculate vector square length
+/** Calculate vector square length
+ @return "Length of Vector squared"
  **/
 fn float Vector2.length_sqr(&self) {
 	return self.x.pow(2) + self.y.pow(2);
 }
-/**
- * Calculate two vectors dot product
+/** Calculate two vectors dot product
+ @param v2 "Second vector"
+ @return "Dot product of two vectors"
  **/
 fn float Vector2.dot_product(&self, Vector2 v2) {
 	return (self.x * v2.x) + (self.y * v2.y);
 }
-/**
- * Calculate distance between two vectors
+/** Calculate distance between two vectors
+ @param v2 "Second vector"
+ @return "Distance between two points in vector space"
  **/
 fn float Vector2.distance(&self, Vector2 v2) {
 	return math::sqrt((self.x - v2.x).pow(2) + (self.y - v2.y).pow(2));
 }
-/**
- * Calculate square distance between two vectors
+/** Calculate square distance between two vectors
+ @param v2 "Second vector"
+ @return "Distance between two points in vector space squared"
  **/
 fn float Vector2.distance_sr(&self, Vector2 v2) {
 	return (self.x - v2.x).pow(2) + (self.y - v2.y).pow(2);
 }
-/**
- * Calculate angle between two vectors
+/** Calculate angle between two vectors
  **/
 fn float Vector2.angle(&self, Vector2 v2) {
 	float dot = self.dot_product(v2);
@@ -419,14 +408,12 @@ fn float Vector2.angle(&self, Vector2 v2) {
 
 	return math::atan2(dot,det);
 }
-/**
- * Calculate angle defined by a line made by two vectors
+/** Calculate angle defined by a line made by two vectors
  **/
 fn float Vector2.angle_line(&self, Vector2 end) {
 	return -math::atan2(end.y - self.y,end.x - self.x);
 }
-/**
- * Normalize provided vector
+/** Normalize provided vector
  **/
 fn Vector2 Vector2.normalize(&self) {
 	float length = self.length();
@@ -438,8 +425,7 @@ fn Vector2 Vector2.normalize(&self) {
 
 	return *self;
 }
-/**
- * Transform a Vector2 by a given Matrix
+/** Transform a Vector2 by a given Matrix
  **/
 fn Vector2 Vector2.transform(&self, Matrix mat) {
 	float x = self.x;
@@ -451,8 +437,7 @@ fn Vector2 Vector2.transform(&self, Matrix mat) {
 		.y = (mat.m1 * x) + (mat.m5 * y) + (mat.m9 * z) + mat.m13,
 	};
 }
-/**
- * Calculate linear interpolation between two vectors
+/** Calculate linear interpolation between two vectors
  **/
 fn Vector2 Vector2.lerp(&self, Vector2 v2, float amount) {
 	return {
@@ -460,8 +445,7 @@ fn Vector2 Vector2.lerp(&self, Vector2 v2, float amount) {
 		.y = self.y + (amount * (v2.y - self.y)),
 	};
 }
-/**
- * Calculate reflected vector to normal
+/** Calculate reflected vector to normal
  **/
 fn Vector2 Vector2.reflect(&self, Vector2 normal) {
 	float dot = self.dot_product(normal);
@@ -471,8 +455,7 @@ fn Vector2 Vector2.reflect(&self, Vector2 normal) {
 		.y = self.y - (2 * normal.y) * dot,
 	};
 }
-/**
- * Rotate vecotr by angle
+/** Rotate vecotr by angle
  **/
 fn Vector2 Vector2.rotate(&self, float angle) {
 	float cosres = math::cos(angle);
@@ -483,8 +466,7 @@ fn Vector2 Vector2.rotate(&self, float angle) {
 		.y = (self.x * sinres) + (self.y * cosres),
 	};
 }
-/**
- * Move vector towards target
+/** Move vector towards target
  **/
 fn Vector2 Vector2.move_towards(&self, Vector2 target, float max_distance) {
 	float dx = target.x - self.x;
@@ -499,8 +481,7 @@ fn Vector2 Vector2.move_towards(&self, Vector2 target, float max_distance) {
 		.y = self.y + (dy / dist) * max_distance,
 	};
 }
-/**
- * Invert given vector
+/** Invert given vector
  **/
 fn Vector2 Vector2.invert(&self) {
 	return {
@@ -508,8 +489,7 @@ fn Vector2 Vector2.invert(&self) {
 		.y = 1 / self.y,
 	};
 }
-/**
- * Clamp the components of the vector between min and max values specified byt the given vectors.
+/** Clamp the components of the vector between min and max values specified byt the given vectors.
  **/
 fn Vector2 Vector2.clamp(&self, Vector2 min, Vector2 max) {
 	return {
@@ -517,9 +497,8 @@ fn Vector2 Vector2.clamp(&self, Vector2 min, Vector2 max) {
 		.y = math::clamp(self.y, min.y, max.y),
 	};
 }
-/**
- * Clamp the magnitude of the vector between two min ans max values
- * @require min < max
+/** Clamp the magnitude of the vector between two min ans max values
+ @require min < max
  **/
 fn Vector2 Vector2.clamp_mag(&self, float min, float max) {
 	float length = self.length();
@@ -547,14 +526,14 @@ fn Vector2 Vector2.clamp_mag(&self, float min, float max) {
 }
 
 
-//= Vector3
+/** Vector3
+ **/
 struct Vector3 {
 	float x;
 	float y;
 	float z;
 }
-/**
- * Add two Vector3s returning the result
+/** Add two Vector3s returning the result
  **/
 fn Vector3 Vector3.add(&self, Vector3 rhs) {
 	return {
@@ -563,8 +542,7 @@ fn Vector3 Vector3.add(&self, Vector3 rhs) {
 		.z = self.z + rhs.z,
 	};
 }
-/**
- * Subtract two Vector3s returning the result
+/** Subtract two Vector3s returning the result
  **/
 fn Vector3 Vector3.sub(&self, Vector3 rhs) {
 	return {
@@ -573,8 +551,7 @@ fn Vector3 Vector3.sub(&self, Vector3 rhs) {
 		.z = self.z - rhs.z,
 	};
 }
-/**
- * Multiply two Vector3s returning the result
+/** Multiply two Vector3s returning the result
  **/
 fn Vector3 Vector3.mul(&self, Vector3 rhs) {
 	return {
@@ -583,8 +560,7 @@ fn Vector3 Vector3.mul(&self, Vector3 rhs) {
 		.z = self.z * rhs.z,
 	};
 }
-/**
- * Divide two Vector3s returning the result
+/** Divide two Vector3s returning the result
  **/
 fn Vector3 Vector3.div(&self, Vector3 rhs) {
 	return {
@@ -593,8 +569,7 @@ fn Vector3 Vector3.div(&self, Vector3 rhs) {
 		.z = self.z / rhs.z,
 	};
 }
-/**
- * Calculate two vectors cross product
+/** Calculate two vectors cross product
  **/
 fn Vector3 Vector3.cross_product(&self, Vector3 v2) {
 	return {
@@ -603,8 +578,7 @@ fn Vector3 Vector3.cross_product(&self, Vector3 v2) {
 		.z = self.x * v2.y - self.y * v2.x,
 	};
 }
-/**
- * Calculate one vector perpendicular vector
+/** Calculate one vector perpendicular vector
  **/
 fn Vector3 Vector3.perpendicular(&self) {
 	float min = math::abs(self.x);
@@ -620,26 +594,22 @@ fn Vector3 Vector3.perpendicular(&self) {
 
 	return self.cross_product(cardinal_axis);
 }
-/**
- * Calculate vector length
+/** Calculate vector length
  **/
 fn float Vector3.length(&self) {
 	return math::sqrt(self.x.pow(2) + self.y.pow(2) + self.z.pow(2));
 }
-/**
- * Calculate vector square length
+/** Calculate vector square length
  **/
 fn float Vector3.length_sqr(&self) {
 	return self.x.pow(2) + self.y.pow(2) + self.z.pow(2);
 }
-/**
- * Calculate two vectors dot product
+/** Calculate two vectors dot product
  **/
 fn float Vector3.dot_product(&self, Vector3 v2) {
 	return self.x * v2.x + self.y * v2.y + self.z * v2.z;
 }
-/**
- * Calculate distance between two vectors
+/** Calculate distance between two vectors
  **/
 fn float Vector3.distance(&self, Vector3 v2) {
 	return Vector3{
@@ -648,8 +618,7 @@ fn float Vector3.distance(&self, Vector3 v2) {
 		.z = v2.z - self.z,
 	}.length();
 }
-/**
- * Calculate square distance between two vectors
+/** Calculate square distance between two vectors
  **/
 fn float Vector3.distance_sqr(&self, Vector3 v2) {
 	return Vector3{
@@ -658,8 +627,7 @@ fn float Vector3.distance_sqr(&self, Vector3 v2) {
 		.z = v2.z - self.z,
 	}.length_sqr();
 }
-/**
- * Calculate angle between two vectors
+/** Calculate angle between two vectors
  **/
 fn float Vector3.angle(&self, Vector3 v2) {
 	Vector3 cross = self.cross_product(v2);
@@ -668,8 +636,7 @@ fn float Vector3.angle(&self, Vector3 v2) {
 
 	return math::atan2(len, dot);
 }
-/**
- * Normalize provided vector
+/** Normalize provided vector
  **/
 fn Vector3 Vector3.normalize(&self) {
 	float len = self.length();
@@ -683,8 +650,7 @@ fn Vector3 Vector3.normalize(&self) {
 		};
 	} else { return *self; }
 }
-/**
- * Calculate the projection of the vector v1 on to v2
+/** Calculate the projection of the vector v1 on to v2
  **/
 fn Vector3 Vector3.project(&self, Vector3 v2) {
 	float v1dv2 = self.x*v2.x + self.y*v2.y + self.z*v2.z;
@@ -698,8 +664,7 @@ fn Vector3 Vector3.project(&self, Vector3 v2) {
 		.z = v2.z * mag,
 	};
 }
-/**
- * Calculate the rejection of the vector v1 on to v2
+/** Calculate the rejection of the vector v1 on to v2
  **/
 fn Vector3 Vector3.reject(&self, Vector3 v2) {
 	float v1dv2 = self.x*v2.x + self.y*v2.y + self.z*v2.z;
@@ -713,8 +678,7 @@ fn Vector3 Vector3.reject(&self, Vector3 v2) {
 		.z = self.z - (v2.z * mag),
 	};
 }
-/**
- * Orthonormalize provided vectors. Makes vectors normalized and orthogonal to each other. Gram-Schmidt function implementation.
+/** Orthonormalize provided vectors. Makes vectors normalized and orthogonal to each other. Gram-Schmidt function implementation.
  **/
 fn void Vector3.orthinormalize(&self, Vector3* v2) {
 	float len;
@@ -746,8 +710,7 @@ fn void Vector3.orthinormalize(&self, Vector3* v2) {
 	v2.y = vn2.y;
 	v2.z = vn2.z;
 }
-/**
- * Transforms a Vector3 by a given Matrix
+/** Transforms a Vector3 by a given Matrix
  **/
 fn Vector3 Vector3.transform(&self, Matrix mat) {
 	return {
@@ -756,8 +719,7 @@ fn Vector3 Vector3.transform(&self, Matrix mat) {
 		.z = mat.m2 * self.x + mat.m6 * self.y + mat.m10 * self.z + mat.m14,
 	};
 }
-/**
- * Transform a vector by quaternion rotation
+/** Transform a vector by quaternion rotation
  **/
 fn Vector3 Vector3.rotate_quaternion(&self, Quaternion q) {
 	return {
@@ -766,8 +728,7 @@ fn Vector3 Vector3.rotate_quaternion(&self, Quaternion q) {
 		.z = self.x * (-2.0 * q.w * q.y + 2.0 * q.x * q.z) + self.y * (2.0 * q.w * q.x + 2.0 * q.y * q.z) + self.z * (double)(q.w.pow(2) - q.x.pow(2) - q.y.pow(2) + q.z.pow(2)),
 	};
 }
-/**
- * Rotates a vector around an axis Using Euler-Rodrigues Formula
+/** Rotates a vector around an axis Using Euler-Rodrigues Formula
  **/
 fn Vector3 Vector3.rotate_axis(&self, Vector3 axis, float angle) {
 	//* normalize
@@ -810,8 +771,7 @@ fn Vector3 Vector3.rotate_axis(&self, Vector3 axis, float angle) {
 		.z = self.z + wv.z + wwv.z,
 	};
 }
-/**
- * Move Vector towards target
+/** Move Vector towards target
  **/
 fn Vector3 Vector3.move_towards(&self, Vector3 target, float max_distance) {
 	float dx = target.x - self.x;
@@ -829,8 +789,7 @@ fn Vector3 Vector3.move_towards(&self, Vector3 target, float max_distance) {
 		.z = self.z + dz / dist * max_distance,
 	};
 }
-/**
- * Calculate linear interpolation between two vectors
+/** Calculate linear interpolation between two vectors
  **/
 fn Vector3 Vector3.lerp(&self, Vector3 target, float amount) {
 	return {
@@ -839,8 +798,7 @@ fn Vector3 Vector3.lerp(&self, Vector3 target, float amount) {
 		.z = self.z + amount * (target.z - self.z),
 	};
 }
-/**
- * Calculate reflected vector to normal
+/** Calculate reflected vector to normal
  **/
 fn Vector3 Vector3.reflect(&self, Vector3 normal) {
 	float dot = self.dot_product(normal);
@@ -851,8 +809,7 @@ fn Vector3 Vector3.reflect(&self, Vector3 normal) {
 		.z = self.z - (2.0 * normal.z) * dot,
 	};
 }
-/**
- * Get min value for each pair of components
+/** Get min value for each pair of components
  **/
 fn Vector3 Vector3.min(&self, Vector3 v2) {
 	return {
@@ -861,8 +818,7 @@ fn Vector3 Vector3.min(&self, Vector3 v2) {
 		.z = math::min(self.z, v2.z),
 	};
 }
-/**
- * Get max value for each pair of components
+/** Get max value for each pair of components
  **/
 fn Vector3 Vector3.max(&self, Vector3 v2) {
 	return {
@@ -871,8 +827,7 @@ fn Vector3 Vector3.max(&self, Vector3 v2) {
 		.z = math::max(self.z, v2.z),
 	};
 }
-/**
- * Compute barycenter coordinates (u, v, w) for point p with respect to triangle (a, b, c)
+/** Compute barycenter coordinates (u, v, w) for point p with respect to triangle (a, b, c)
  **/
 fn Vector3 Vector3.barycenter(&self, Vector3 a, Vector3 b, Vector3 c) {
 	Vector3 v0 = {
@@ -907,8 +862,7 @@ fn Vector3 Vector3.barycenter(&self, Vector3 a, Vector3 b, Vector3 c) {
 		.z = z,
 	};
 }
-/**
- * Projects a Vector3 from screen space into object space
+/** Projects a Vector3 from screen space into object space
  **/
 fn Vector3 Vector3.unproject(&self, Matrix projection, Matrix view) {
 	//* Calculate unprojected matrix (multiply view matrix by projection matrix) and invert it
@@ -980,14 +934,12 @@ fn Vector3 Vector3.unproject(&self, Matrix projection, Matrix view) {
 		.z = q_tranformed.z / q_tranformed.w,
 	};
 }
-/**
- * Invert the given vector
+/** Invert the given vector
  **/
 fn Vector3 Vector3.invert(&self) {
 	return {.x = 1 / self.x, .y = 1 / self.y, .z = 1 / self.z };
 }
-/**
- * Clamp the components of the vector between min and max values specified by the given vectors
+/** Clamp the components of the vector between min and max values specified by the given vectors
  **/
 fn Vector3 Vector3.clamp(&self, Vector3 min, Vector3 max) {
 	return {
@@ -996,8 +948,7 @@ fn Vector3 Vector3.clamp(&self, Vector3 min, Vector3 max) {
 		.z = math::min(max.z, math::max(min.z, self.z)),
 	};
 }
-/**
- * Clamp the magnitude of the vector between two values
+/** Clamp the magnitude of the vector between two values
  **/
 fn Vector3 Vector3.clamp_value(&self, float min, float max) {
 	Vector3 result = *self;
@@ -1024,8 +975,7 @@ fn Vector3 Vector3.clamp_value(&self, float min, float max) {
 		.z = result.z,
 	};
 }
-/**
- * Compute the direction of a refracted ray
+/** Compute the direction of a refracted ray
  **/
 fn Vector3 Vector3.refract(Vector3 v, Vector3 n, float r) {
 	Vector3 result = {};
@@ -1045,8 +995,7 @@ fn Vector3 Vector3.refract(Vector3 v, Vector3 n, float r) {
 
 	return result;
 }
-/**
- * Converts input HSV into  it's equivalent color
+/** Converts input HSV into  it's equivalent color
  **/
 fn Color Vector3.to_color(&self) {
 	Color result = {
@@ -1084,12 +1033,12 @@ fn Color Vector3.to_color(&self) {
 }
 
 
-//= Vector4
+/** Vector4
+ **/
 struct Vector4 {
 	float x, y, z, w;
 }
-/**
- * Add two matrices returning the result
+/** Add two matrices returning the result
  **/
 fn Vector4 Vector4.add(&self, Vector4 rhs) {
 	return {
@@ -1099,8 +1048,7 @@ fn Vector4 Vector4.add(&self, Vector4 rhs) {
 		.w = self.w + rhs.w,
 	};
 }
-/**
- * Subtract two matrices returning the result
+/** Subtract two matrices returning the result
  **/
 fn Vector4 Vector4.sub(&self, Vector4 rhs) {
 	return {
@@ -1110,8 +1058,7 @@ fn Vector4 Vector4.sub(&self, Vector4 rhs) {
 		.w = self.w - rhs.w,
 	};
 }
-/**
- * Multiply two matrices returning the result
+/** Multiply two matrices returning the result
  **/
 fn Vector4 Vector4.mul(&self, Vector4 rhs) {
 	return {
@@ -1121,8 +1068,7 @@ fn Vector4 Vector4.mul(&self, Vector4 rhs) {
 		.w = self.w * rhs.w,
 	};
 }
-/**
- * Divide two matrices returning the result
+/** Divide two matrices returning the result
  **/
 fn Vector4 Vector4.div(&self, Vector4 rhs) {
 	return {
@@ -1132,38 +1078,32 @@ fn Vector4 Vector4.div(&self, Vector4 rhs) {
 		.w = self.w / rhs.w,
 	};
 }
-/**
- * Calculate vector length
+/** Calculate vector length
  **/
 fn float Vector4.length(&self) {
 	return math::sqrt(self.x.pow(2) + self.y.pow(2) + self.z.pow(2) + self.w.pow(2));
 }
-/**
- * Calculate vector square length
+/** Calculate vector square length
  **/
 fn float Vector4.length_square(&self) {
 	return self.x.pow(2) + self.y.pow(2) + self.z.pow(2) + self.w.pow(2);
 }
-/**
- * Calculate two vectors dot product
+/** Calculate two vectors dot product
  **/
 fn float Vector4.dot_product(&self, Vector4 v2) {
 	return self.x * v2.x + self.y * v2.y + self.z * v2.z + self.w * v2.w;
 }
-/**
- * Calculate distance between two vectors
+/** Calculate distance between two vectors
  **/
 fn float Vector4.distance(&self, Vector4 v2) {
 	return math::sqrt((self.x - v2.x).pow(2) + (self.y - v2.y).pow(2) + (self.z - v2.z).pow(2) + (self.w - v2.w).pow(2));
 }
-/**
- * Calculate square distance between two vectors
+/** Calculate square distance between two vectors
  **/
 fn float Vector4.distance_square(&self, Vector4 v2) {
 	return (self.x - v2.x).pow(2) + (self.y - v2.y).pow(2) + (self.z - v2.z).pow(2) + (self.w - v2.w).pow(2);
 }
-/**
- * Normalize provided vector
+/** Normalize provided vector
  **/
 fn Vector4 Vector4.normalize(&self) {
 	Vector4 result = {};
@@ -1181,8 +1121,7 @@ fn Vector4 Vector4.normalize(&self) {
 
 	return result;
 }
-/**
- * Get min value for each pair of components
+/** Get min value for each pair of components
  **/
 fn Vector4 Vector4.min(&self, Vector4 v2) {
 	return {
@@ -1192,8 +1131,7 @@ fn Vector4 Vector4.min(&self, Vector4 v2) {
 		.w = math::min(self.w, v2.w),
 	};
 }
-/**
- * Get max value for each pair of components
+/** Get max value for each pair of components
  **/
 fn Vector4 Vector4.max(&self, Vector4 v2) {
 	return {
@@ -1203,8 +1141,7 @@ fn Vector4 Vector4.max(&self, Vector4 v2) {
 		.w = math::max(self.w, v2.w),
 	};
 }
-/**
- * Calculate linear interpolation between two vectors
+/** Calculate linear interpolation between two vectors
  **/
 fn Vector4 Vector4.lerp(&self, Vector4 target, float amount) {
 	return {
@@ -1214,8 +1151,7 @@ fn Vector4 Vector4.lerp(&self, Vector4 target, float amount) {
 		.w = self.w + amount * (target.w - self.w),
 	};
 }
-/**
- * Move Vector towards target
+/** Move Vector towards target
  **/
 fn Vector4 Vector4.move_towards(&self, Vector4 target, float max_distance) {
 	float dx = target.x - self.x;
@@ -1235,8 +1171,7 @@ fn Vector4 Vector4.move_towards(&self, Vector4 target, float max_distance) {
 		.w = self.w + dw / dist * max_distance,
 	};
 }
-/**
- * Invert the given vector
+/** Invert the given vector
  **/
 fn Vector4 Vector4.invert(&self) {
 	return {
@@ -1246,8 +1181,7 @@ fn Vector4 Vector4.invert(&self) {
 		.w = 1 / self.w,
 	};
 }
-/**
- * Converts normaized Vector4 into a color.
+/** Converts normaized Vector4 into a color.
  **/
 fn Color Vector4.to_color(&self) {
 	return {
@@ -1259,22 +1193,20 @@ fn Color Vector4.to_color(&self) {
 }
 
 
-//= Quaternion
+/** Quaternion
+ **/
 distinct Quaternion = Vector4;
-/**
- * Computes the length of a quaternion
+/** Computes the length of a quaternion
  **/
 fn float Quaternion.length(&self) {
 	return math::sqrt(self.x.pow(2) + self.y.pow(2) + self.z.pow(2) + self.w.pow(2));
 }
-/**
- * Calculate two quaternions dot product
+/** Calculate two quaternions dot product
  **/
 fn float Quaternion.dot_product(&self, Quaternion v2) {
 	return self.x * v2.x + self.y * v2.y + self.z * v2.z + self.w * v2.w;
 }
-/**
- * Normalize provided quaternion
+/** Normalize provided quaternion
  **/
 fn Quaternion Quaternion.normalize(&self) {
 	Quaternion result = {};
@@ -1292,8 +1224,7 @@ fn Quaternion Quaternion.normalize(&self) {
 
 	return result;
 }
-/**
- * Invert provided quaternion
+/** Invert provided quaternion
  **/
 fn Quaternion Quaternion.invert(&self) {
 	return {
@@ -1303,8 +1234,7 @@ fn Quaternion Quaternion.invert(&self) {
 		.w = 1 / self.w,
 	};
 }
-/**
- * Calculate linear interpolation between two quaternions
+/** Calculate linear interpolation between two quaternions
  **/
 fn Quaternion Quaternion.lerp(&self, Quaternion target, float amount) {
 	return {
@@ -1314,8 +1244,7 @@ fn Quaternion Quaternion.lerp(&self, Quaternion target, float amount) {
 		.w = self.w + amount * (target.w - self.w),
 	};
 }
-/**
- * Calculate slerp-optimized interpolation between two quaternions
+/** Calculate slerp-optimized interpolation between two quaternions
  **/
 fn Quaternion Quaternion.n_lerp(&self, Quaternion target, float amount) {
 	Quaternion result = {
@@ -1336,8 +1265,7 @@ fn Quaternion Quaternion.n_lerp(&self, Quaternion target, float amount) {
 		.w = result.w * ilen,
 	};
 }
-/**
- * Calculates spherical linear interpolation between two quaternions
+/** Calculates spherical linear interpolation between two quaternions
  **/
 fn Quaternion Quaternion.slerp(&self, Quaternion target, float amount) {
 	Quaternion result = {};
@@ -1380,8 +1308,7 @@ fn Quaternion Quaternion.slerp(&self, Quaternion target, float amount) {
 
 	return result;
 }
-/**
- * Get the rotation angle and axis for a given quaternion
+/** Get the rotation angle and axis for a given quaternion
  **/
 fn AxisAngle Quaternion.to_axis_angle(&self) {
 	Quaternion new_quat = *self;
@@ -1411,8 +1338,7 @@ fn AxisAngle Quaternion.to_axis_angle(&self) {
 
 	return { .axis = res_axis, .angle = res_angle };
 }
-/**
- * Get the Euler angles equivalent to quaternion (roll, pitch, yaw)
+/** Get the Euler angles equivalent to quaternion (roll, pitch, yaw)
  **/
 fn Vector3 Quaternion.to_euler(&self) {
 	float pitch;
@@ -1437,8 +1363,7 @@ fn Vector3 Quaternion.to_euler(&self) {
 
 	return { .x = pitch, .y = yaw, .z = roll };
 }
-/**
- * Transform a quaternion given a transformation matrix
+/** Transform a quaternion given a transformation matrix
  **/
 fn Quaternion Quaternion.transform(&self, Matrix mat) {
 	return {
@@ -1449,15 +1374,15 @@ fn Quaternion Quaternion.transform(&self, Matrix mat) {
 	};
 }
 
-//= Matrix
+/** Matrix
+ **/
 struct Matrix {
 	float m0, m4, m8,  m12;
 	float m1, m5, m9,  m13;
 	float m2, m6, m10, m14;
 	float m3, m7, m11, m15;
 }
-/**
- * Add two matrices returning the result
+/** Add two matrices returning the result
  **/
 fn Matrix Matrix.add(&self, Matrix rhs) {
 	Matrix result = {};
@@ -1480,8 +1405,7 @@ fn Matrix Matrix.add(&self, Matrix rhs) {
 
 	return result;
 }
-/**
- * Subtract two matrices returning the result
+/** Subtract two matrices returning the result
  **/
 fn Matrix Matrix.sub(&self, Matrix rhs) {
 	Matrix result = {};
@@ -1505,8 +1429,7 @@ fn Matrix Matrix.sub(&self, Matrix rhs) {
 
 	return result;
 }
-/**
- * Multiply two matrices returning the result
+/** Multiply two matrices returning the result
  **/
 fn Matrix Matrix.mul(&self, Matrix rhs) {
 	Matrix result = {};
@@ -1530,8 +1453,7 @@ fn Matrix Matrix.mul(&self, Matrix rhs) {
 
 	return result;
 }
-/**
- * Compute matrix determinant
+/** Compute matrix determinant
  **/
 fn float Matrix.determinant(&self) {
 	return self.m12 * self.m9 * self.m6*self.m3 - self.m8 * self.m13 * self.m6 * self.m3 - self.m12 * self.m5 * self.m10 * self.m3 + self.m4 * self.m13 * self.m10 * self.m3 +
@@ -1541,14 +1463,12 @@ fn float Matrix.determinant(&self) {
 		self.m4  *self.m1 * self.m14 * self.m11 - self.m0 * self.m5  * self.m14 * self.m11 - self.m8  * self.m5 * self.m2  * self.m15 + self.m4 * self.m9  * self.m2  * self.m15 +
 		self.m8  *self.m1 * self.m6  * self.m15 - self.m0 * self.m9  * self.m6  * self.m15 - self.m4  * self.m1 * self.m10 * self.m15 + self.m0 * self.m5  * self.m10 * self.m15;
 }
-/**
- * Get the trace of the matrix (Sum of the values along the diagonal)
+/** Get the trace of the matrix (Sum of the values along the diagonal)
  **/
 fn float Matrix.trace(&self) {
 	return self.m0 + self.m5 + self.m10 + self.m15;
 }
-/**
- * Tansposes provided matrix
+/** Tansposes provided matrix
  **/
 fn Matrix Matrix.transpose(&self) {
 	Matrix result = {};
@@ -1572,8 +1492,7 @@ fn Matrix Matrix.transpose(&self) {
 
 	return result;
 }
-/**
- * Invert provided matrix
+/** Invert provided matrix
  **/
 fn Matrix Matrix.invert(&self) {
 	Matrix result = {};
@@ -1631,8 +1550,7 @@ fn Matrix Matrix.invert(&self) {
 
 	return result;
 }
-/**
- * Transform a quaternion given a transformation matrix
+/** Transform a quaternion given a transformation matrix
  **/
 fn Vector4 Matrix.quaternion_transform(&self, Quaternion q) {
 	return {
@@ -1642,8 +1560,7 @@ fn Vector4 Matrix.quaternion_transform(&self, Quaternion q) {
 		.w = self.m3 * q.x + self.m7 * q.y + self.m11 * q.z + self.m15 * q.w,
 	};
 }
-/**
- * Prints matrix to console
+/** Prints matrix to console
  **/
 fn void Matrix.print(&self) {
 	io::printfn("[\n\t%d, %d, %d, %d,\n\t%d, %d, %d, %d,\n\t%d, %d, %d, %d,\n\t%d, %d, %d, %d,\n]",
@@ -1656,7 +1573,8 @@ fn void Matrix.print(&self) {
 
 
 
-//= Axis + Angle
+/** Axis and Angle tuple
+ **/
 struct AxisAngle {
 	Vector3 axis;
 	float angle;
@@ -1664,7 +1582,8 @@ struct AxisAngle {
 
 
 
-//= VR
+/** VR stuff
+ **/
 struct VrDeviceInfo {
 	int h_resolution, v_resolution;
 	float h_screen_size, v_screen_size;
@@ -1674,7 +1593,6 @@ struct VrDeviceInfo {
 	float[4] lens_distortion_values;
 	float[4] chroma_aberration_correction;
 }
-
 struct VrStereoConfig {
 	Matrix[2] projection, view_offset;
 	float[2] left_lens_center, right_lens_center;
@@ -1715,8 +1633,7 @@ const Color MAGENTA		= {255,   0, 255, 255};
 const Color RAYWHITE	= {245, 245, 245, 255};
 const Color PALETTE_30	= { 48,  56,  67, 255};
 
-/**
- * Convert hexcode into color
+/** Convert hexcode into color
  **/
 fn Color hex(uint hex_value) {
 	return {
@@ -1731,15 +1648,18 @@ fn Color hex(uint hex_value) {
 
 //= Matrix module
 module pleroma::matrix;
-
 import std::math;
 
+/** Zero matrix
+ **/
 const Matrix ZERO = {
 	0.0, 0.0, 0.0, 0.0,
 	0.0, 0.0, 0.0, 0.0,
 	0.0, 0.0, 0.0, 0.0,
 	0.0, 0.0, 0.0, 0.0,
 };
+/** Identity Matrix
+ **/
 const Matrix IDENTITY = {
 	1.0, 0.0, 0.0, 0.0,
 	0.0, 1.0, 0.0, 0.0,
@@ -1747,8 +1667,7 @@ const Matrix IDENTITY = {
 	0.0, 0.0, 0.0, 1.0,
 };
 
-/**
- * Get translation matrix
+/** Create translation matrix
  **/
 fn Matrix translate(Vector3 v) {
 	return {
@@ -1758,8 +1677,7 @@ fn Matrix translate(Vector3 v) {
 		0.0, 0.0, 0.0, 1.0,
 	};
 }
-/**
- * Create rotation matrix from axis and angle
+/** Create rotation matrix from axis and angle
  **/
 fn Matrix rotate(Vector3 axis, float angle) {
 	Matrix result = {};
@@ -1802,8 +1720,7 @@ fn Matrix rotate(Vector3 axis, float angle) {
 
 	return result;
 }
-/**
- * Get x-rotation matrix
+/** Get x-rotation matrix
  **/
 fn Matrix rotate_x(float angle) {
 	Matrix result = {};
@@ -1818,8 +1735,7 @@ fn Matrix rotate_x(float angle) {
 
 	return result;
 }
-/**
- * Get y-rotation matrix
+/** Get y-rotation matrix
  **/
 fn Matrix rotate_y(float angle) {
 	Matrix result = {};
@@ -1834,8 +1750,7 @@ fn Matrix rotate_y(float angle) {
 
 	return result;
 }
-/**
- * Get z-rotation matrix
+/** Get z-rotation matrix
  **/
 fn Matrix rotate_z(float angle) {
 	Matrix result = {};
@@ -1850,8 +1765,7 @@ fn Matrix rotate_z(float angle) {
 
 	return result;
 }
-/**
- * Get xyz-rotation matrix
+/** Get xyz-rotation matrix
  **/
 fn Matrix rotate_xyz(Vector3 angle) {
 	Matrix result = {};
@@ -1877,8 +1791,7 @@ fn Matrix rotate_xyz(Vector3 angle) {
 
 	return result;
 }
-/**
- * Get xyz-rotation matrix
+/** Get xyz-rotation matrix
  **/
 fn Matrix rotate_zyx(Vector3 angle) {
 	Matrix result = {};
@@ -1912,8 +1825,7 @@ fn Matrix rotate_zyx(Vector3 angle) {
 
 	return result;
 }
-/**
- * Get scaling matrix
+/** Get scaling matrix
  **/
 fn Matrix scale(Vector3 scale) {
 	return {
@@ -1923,8 +1835,7 @@ fn Matrix scale(Vector3 scale) {
 		    0.0,     0.0,     0.0, 1.0,
 	};
 }
-/**
- * Get perspective projection matrix
+/** Get perspective projection matrix
  **/
 fn Matrix frustum(double left, double right, double bottom, double top, double near, double far) {
 	Matrix result = {};
@@ -1955,8 +1866,7 @@ fn Matrix frustum(double left, double right, double bottom, double top, double n
 
 	return result;
 }
-/**
- * Get perspective projection matrix
+/** Get perspective projection matrix
  **/
 fn Matrix perspective(double fov_y, double aspect, double near_plane, double far_plane) {
 	Matrix result = {};
@@ -1981,8 +1891,7 @@ fn Matrix perspective(double fov_y, double aspect, double near_plane, double far
 
 	return result;
 }
-/**
- * Get orthographic projection matrix
+/** Get orthographic projection matrix
  **/
 fn Matrix ortho(double left, double right, double bottom, double top, double near_plane, double far_plane) {
 	Matrix result = ZERO;
@@ -2010,8 +1919,7 @@ fn Matrix ortho(double left, double right, double bottom, double top, double nea
 
 	return result;
 }
-/**
- * Get camera look-at matrix (view matrix)
+/** Get camera look-at matrix (view matrix)
  **/
 fn Matrix look_at(Vector3 eye, Vector3 target, Vector3 up) {
 	Matrix result = {};
@@ -2069,12 +1977,10 @@ fn Matrix look_at(Vector3 eye, Vector3 target, Vector3 up) {
 
 //= Quaternion module
 module pleroma::quaternion;
-
 import pleroma;
 import std::math;
 
-/**
- * Calculate quaternion based on the rotation from one vector to another
+/** Calculate quaternion based on the rotation from one vector to another
  **/
 fn pleroma::Quaternion from_v3_to_v3(Vector3 from, Vector3 to) {
 	pleroma::Quaternion result = {};
@@ -2100,8 +2006,7 @@ fn pleroma::Quaternion from_v3_to_v3(Vector3 from, Vector3 to) {
 		.w = result.w * ilen,
 	};
 }
-/**
- * Get rotation quaternion for an angle and axis
+/** Get rotation quaternion for an angle and axis
  **/
 fn pleroma::Quaternion quaternion_from_axis_angle(Vector3 axis, float angle) {
 	pleroma::Quaternion result = {}; //Matrix.identity()
@@ -2141,8 +2046,7 @@ fn pleroma::Quaternion quaternion_from_axis_angle(Vector3 axis, float angle) {
 
 	return result;
 }
-/**
- * Get the quaternion equivalent to Euler angles
+/** Get the quaternion equivalent to Euler angles
  **/
 fn pleroma::Quaternion from_euler(float pitch, float yaw, float roll) {
 	pleroma::Quaternion result = {};

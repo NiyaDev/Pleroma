@@ -1,28 +1,24 @@
 
 module pleroma;
-
 import std::io;
 import raylib;
 import pleroma::debug;
 
 
-/**
- * Texture stored in VRAM
+/** Texture stored in VRAM
  **/
 struct Texture {
 	uint id;
 	int width, height, mipmaps;
 	PixelFormat format;
 }
-/**
- * Texture faults
+/** Texture faults
  **/
 fault TextureFault {
 	FAILED_FIND_FILE,
 }
 
-/**
- * Data to tile image
+/** Data to tile image
  **/
 struct NPatchInfo {
 	Rectangle source;
@@ -33,8 +29,7 @@ struct NPatchInfo {
 	int layout;
 }
 
-/**
- * Texture filter modes
+/** Texture filter modes
  **/
 enum TextureFilter {
 	// No filter, just pixel approximation
@@ -50,8 +45,7 @@ enum TextureFilter {
 	// Anisotropic filtering 16x
 	FILTER_ANISOTROPIC_16X,
 }
-/**
- * Texture wrapping modes
+/** Texture wrapping modes
  **/
 enum TextureWrap {
 	// Repeats texture in tiled mode
@@ -64,64 +58,57 @@ enum TextureWrap {
     WRAP_MIRROR_CLAMP
 }
 
-/**
- * Unloads texture from VRAM
+/** Unloads texture from VRAM
  **/
 fn void Texture.unload(&self) {
 	raylib::unload_texture(*self);
 	free(self);
 }
-/**
- * Checks if texture is ready to be used
- * @return "Is ready"
+/** Checks if texture is ready to be used
+ @return "Is ready"
  **/
 fn bool Texture.ready(&self) {
 	return raylib::is_texture_ready(*self);
 }
-/**
- * Update Texture with new data
- * @param pixels "Pixel data to apply"
- * @return "Self"
+/** Update Texture with new data
+ @param pixels "Pixel data to apply"
+ @return "Self"
  **/
 fn Texture* Texture.update(&self, void* pixels) {
 	raylib::update_texture(*self, pixels);
 
 	return self;
 }
-/**
- * Update Texture with new data in a rectangle
- * @param rec "Rectangle to change"
- * @param pixels "Pixel data to apply"
- * @return "Self"
+/** Update Texture with new data in a rectangle
+ @param rec "Rectangle to change"
+ @param pixels "Pixel data to apply"
+ @return "Self"
  **/
 fn Texture* Texture.update_rec(&self, Rectangle rec, void* pixels) {
 	raylib::update_texture_rec(*self, rec, pixels);
 
 	return self;
 }
-/**
- * Generate mipmaps for a Texture
- * @return "Self"
+/** Generate mipmaps for a Texture
+ @return "Self"
  **/
 fn Texture* Texture.gen_mipmaps(&self) {
 	raylib::gen_texture_mipmaps(self);
 
 	return self;
 }
-/**
- * Set Texture scaling filter mode
- * @param filter "Filter to apply"
- * @return "Self"
+/** Set Texture scaling filter mode
+ @param filter "Filter to apply"
+ @return "Self"
  **/
 fn Texture* Texture.set_filter(&self, TextureFilter filter) {
 	raylib::set_texture_filter(*self, (int)filter);
 
 	return self;
 }
-/**
- * Set texture wrapping mode
- * @param wrap "Wrapping mode to apply"
- * @return "Self"
+/** Set texture wrapping mode
+ @param wrap "Wrapping mode to apply"
+ @return "Self"
  **/
 fn Texture* Texture.set_wrap(&self, TextureWrap wrap) {
 	raylib::set_texture_wrap(*self, (int)wrap);
@@ -129,12 +116,11 @@ fn Texture* Texture.set_wrap(&self, TextureWrap wrap) {
 	return self;
 }
 
-/**
- * Draws Texture to screen
- * @param pos_x "X position to draw at"
- * @param pos_y "Y position to draw at"
- * @param tint "Color to tint texture"
- * @return "Self"
+/** Draws Texture to screen
+ @param pos_x "X position to draw at"
+ @param pos_y "Y position to draw at"
+ @param tint "Color to tint texture"
+ @return "Self"
  **/
 fn Texture* Texture.draw(&self, int pos_x, int pos_y, Color tint) {
 	if (camera::main.texture_rendered({pos_x, pos_y, self.width, self.height})) return self;
@@ -144,11 +130,10 @@ fn Texture* Texture.draw(&self, int pos_x, int pos_y, Color tint) {
 
 	return self;
 }
-/**
- * Draws Texture to screen
- * @param position "Vector position to draw at"
- * @param tint "Color to tint texture"
- * @return "Self"
+/** Draws Texture to screen
+ @param position "Vector position to draw at"
+ @param tint "Color to tint texture"
+ @return "Self"
  **/
 fn Texture* Texture.draw_v(&self, Vector2 position, Color tint) {
 	if (camera::main.texture_rendered({position.x, position.y, self.width, self.height})) return self;
@@ -158,13 +143,12 @@ fn Texture* Texture.draw_v(&self, Vector2 position, Color tint) {
 
 	return self;
 }
-/**
- * Draws Texture to screen
- * @param position "Vector position to draw at"
- * @param rotation "Rotation of Texture"
- * @param scale "Scale of Texture"
- * @param tint "Color to tint texture"
- * @return "Self"
+/** Draws Texture to screen
+ @param position "Vector position to draw at"
+ @param rotation "Rotation of Texture"
+ @param scale "Scale of Texture"
+ @param tint "Color to tint texture"
+ @return "Self"
  **/
 fn Texture* Texture.draw_ex(&self, Vector2 position, float rotation, float scale, Color tint) {
 	if (camera::main.texture_rendered({position.x, position.y, self.width * scale, self.height * scale})) return self;
@@ -174,12 +158,11 @@ fn Texture* Texture.draw_ex(&self, Vector2 position, float rotation, float scale
 
 	return self;
 }
-/**
- * Draws Texture to screen
- * @param source "Source rectangle of Texture"
- * @param position "Vector position to draw at"
- * @param tint "Color to tint texture"
- * @return "Self"
+/** Draws Texture to screen
+ @param source "Source rectangle of Texture"
+ @param position "Vector position to draw at"
+ @param tint "Color to tint texture"
+ @return "Self"
  **/
 fn Texture* Texture.draw_rec(&self, Rectangle source, Vector2 position, Color tint) {
 	if (camera::main.texture_rendered({position.x, position.y, source.width, source.height})) return self;
@@ -189,14 +172,13 @@ fn Texture* Texture.draw_rec(&self, Rectangle source, Vector2 position, Color ti
 
 	return self;
 }
-/**
- * Draws Texture to screen
- * @param source "Source rectangle of Texture"
- * @param dest "Destination rectangle for Texture"
- * @param origin "Vector origin of Texture"
- * @param rotation "Rotation of Texture"
- * @param tint "Color to tint texture"
- * @return "Self"
+/** Draws Texture to screen
+ @param source "Source rectangle of Texture"
+ @param dest "Destination rectangle for Texture"
+ @param origin "Vector origin of Texture"
+ @param rotation "Rotation of Texture"
+ @param tint "Color to tint texture"
+ @return "Self"
  **/
 fn Texture* Texture.draw_pro(&self, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint) {
 	if (camera::main.texture_rendered(dest)) return self;
@@ -206,13 +188,12 @@ fn Texture* Texture.draw_pro(&self, Rectangle source, Rectangle dest, Vector2 or
 
 	return self;
 }
-/**
- * Draws Texture to screen
- * @param dest "Destination rectangle for Texture"
- * @param origin "Vector origin of Texture"
- * @param rotation "Rotation of Texture"
- * @param tint "Color to tint texture"
- * @return "Self"
+/** Draws Texture to screen
+ @param dest "Destination rectangle for Texture"
+ @param origin "Vector origin of Texture"
+ @param rotation "Rotation of Texture"
+ @param tint "Color to tint texture"
+ @return "Self"
  **/
 fn Texture* Texture.draw_npatch(&self, Rectangle dest, Vector2 origin, float rotation, Color tint) {
 	if (camera::main.texture_rendered(dest)) return self;
@@ -224,10 +205,22 @@ fn Texture* Texture.draw_npatch(&self, Rectangle dest, Vector2 origin, float rot
 
 	return self;
 }
+/** Force draw to screen
+ @param source "Source rectangle of Texture"
+ @param dest "Destination rectangle for Texture"
+ @param origin "Vector origin of Texture"
+ @param rotation "Rotation of Texture"
+ @param tint "Color to tint texture"
+ @return "Self"
+ **/
+fn Texture* Texture.draw_forced(&self, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint) {
+	raylib::draw_texture_pro(*self, source, dest, origin, rotation, tint);
 
-/**
- * Create NPatch for use
- * @return "NPatchInfo to use"
+	return self;
+}
+
+/** Create NPatch for use
+ @return "NPatchInfo to use"
  **/
 fn NPatchInfo Texture.npatch(&self) {
 	return {
@@ -239,8 +232,7 @@ fn NPatchInfo Texture.npatch(&self) {
 		.layout = 0,
 	};
 }
-/**
- * Prints information of texture
+/** Prints information of texture
  **/
 fn void Texture.print(&self) {
 	io::printf(
@@ -255,17 +247,15 @@ fn void Texture.print(&self) {
 
 
 module pleroma::texture;
-
 import std::io;
 import raylib;
 import pleroma::debug;
 
 
-/**
- * Loads texture from file
- * Unneeded due to bulk loading, but exists jic.
- * @param filename "Name of file to be loaded"
- * @return "Pointer to loader Texture"
+/** Loads texture from file
+ Unneeded due to bulk loading, but exists jic.
+ @param filename "Name of file to be loaded"
+ @return "Pointer to loader Texture"
  **/
 fn Texture*! load(String filename) {
 	Texture* result = malloc(Texture.sizeof);

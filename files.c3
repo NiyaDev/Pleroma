@@ -1,6 +1,5 @@
 
 module pleroma::bulk;
-
 import libc;
 import std::io;
 import std::collections;
@@ -23,16 +22,14 @@ const char BULK_PATCH = 0;
 */
 
 
-/**
- * Bulk file
+/** Bulk file
  **/
 struct Bulk {
 	String name;
 	char major, minor, patch;
 	HashMap(<String, BulkEntry>) entries;
 }
-/**
- * Bulk file faults
+/** Bulk file faults
  **/
 fault BulkFault {
 	FILE_NOT_FOUND,
@@ -41,9 +38,8 @@ fault BulkFault {
 	ENTRY_EXISTS,
 	ENTRY_DOESNT_EXIST,
 }
-/**
- * Initialize a blank Bulk
- * @return "Pointer to new Bulk"
+/** Initialize a blank Bulk
+ @return "Pointer to new Bulk"
  **/
 fn Bulk* init(String name) {
 	Bulk* result = malloc(Bulk.sizeof);
@@ -57,10 +53,9 @@ fn Bulk* init(String name) {
 
 	return result;
 }
-/**
- * Loads bulk from file
- * @param filename "Name of file to load"
- * @param compression "Compression of file"
+/** Loads bulk from file
+ @param filename "Name of file to load"
+ @param compression "Compression of file"
  **/
 fn Bulk* load(String filename, Compression compression = NONE) {
 	//* Grab name of file
@@ -125,7 +120,7 @@ fn Bulk* load(String filename, Compression compression = NONE) {
 				};
 				
 				//* add to list
-				keybindings::add(name, kb);
+				keybindings::add(name, kb)!!;
 				
 				//* Save
 				KeybindBulk kb_b = {
@@ -145,8 +140,7 @@ fn Bulk* load(String filename, Compression compression = NONE) {
 
 	return self;
 }
-/**
- * Closes Bulk
+/** Closes Bulk
  **/
 fn void Bulk.close(&self) {
 	self.entries.@each(; String key, BulkEntry value) {
@@ -154,8 +148,7 @@ fn void Bulk.close(&self) {
 	};
 	self.entries.free();
 }
-/**
- * Save Bulk to file
+/** Save Bulk to file
  **/
 fn void Bulk.save(&self, Compression compression = NONE) {
 	//* Building table of contents
@@ -273,10 +266,9 @@ fn void Bulk.save(&self, Compression compression = NONE) {
 	(void)new_file.save(filename, compression);
 }
 
-/**
- * Add file to Bulk
- * @param name "Name of entry in Bulk"
- * @param filename "Name of file to add to Bulk"
+/** Add file to Bulk
+ @param name "Name of entry in Bulk"
+ @param filename "Name of file to add to Bulk"
  **/
 fn void! Bulk.add_file(&self, String name, String filename) {
 	//* Checking if it already exists
@@ -313,10 +305,9 @@ fn void! Bulk.add_file(&self, String name, String filename) {
 	};
 	self.entries.set(name, entry);
 }
-/**
- * Add string to Bulk
- * @param name "Name of entry in Bulk"
- * @param data "String to add to Bulk"
+/** Add string to Bulk
+ @param name "Name of entry in Bulk"
+ @param data "String to add to Bulk"
  **/
 fn void! Bulk.add_string(&self, String name, String data) {
 	//* Checking if it already exists
@@ -339,10 +330,9 @@ fn void! Bulk.add_string(&self, String name, String data) {
 	};
 	self.entries.set(name, entry);
 }
-/**
- * Retrieves string from bulk entry
- * @param entry_name
- * @return "String entry"
+/** Retrieves string from bulk entry
+ @param entry_name
+ @return "String entry"
  **/
 fn String! Bulk.get_string(&self, String entry_name) {
 	//* Entry error checking
@@ -363,10 +353,9 @@ fn String! Bulk.get_string(&self, String entry_name) {
 		
 	return (String)result;
 }
-/**
- * Add image to Bulk
- * @param name "Name of entry in Bulk"
- * @param data "Image to add to Bulk"
+/** Add image to Bulk
+ @param name "Name of entry in Bulk"
+ @param data "Image to add to Bulk"
  **/
 fn void! Bulk.add_image(&self, String name, Image* data) {
 	//* Checking if it already exists
@@ -387,10 +376,9 @@ fn void! Bulk.add_image(&self, String name, Image* data) {
 	};
 	self.entries.set(name, entry);
 }
-/**
- * Retrieves image from bulk entry
- * @param entry_name
- * @return "Image entry"
+/** Retrieves image from bulk entry
+ @param entry_name
+ @return "Image entry"
  **/
 fn Image*! Bulk.get_image(&self, String entry_name) {
 	//* Entry error checking
@@ -402,10 +390,9 @@ fn Image*! Bulk.get_image(&self, String entry_name) {
 
 	return image::load_mem_ptr(".png", entry.data, entry.length);
 }
-/**
- * Add audio to Bulk
- * @param name "Name of entry in Bulk"
- * @param data "DRaw data to add to Bulk"
+/** Add audio to Bulk
+ @param name "Name of entry in Bulk"
+ @param data "DRaw data to add to Bulk"
  **/
 fn void! Bulk.add_audio(&self, String name, char[] data) {
 	//* Checking if it already exists
@@ -421,10 +408,9 @@ fn void! Bulk.add_audio(&self, String name, char[] data) {
 	};
 	self.entries.set(name, entry);
 }
-/**
- * Retrieves audio from bulk entry as Music
- * @param entry_name
- * @return "Music"
+/** Retrieves audio from bulk entry as Music
+ @param entry_name
+ @return "Music"
  **/
 fn Music*! Bulk.get_music(&self, String entry_name) {
 	//* Entry error checking
@@ -436,10 +422,9 @@ fn Music*! Bulk.get_music(&self, String entry_name) {
 
 	return music::load_mem(".mp3", entry.data, (int)entry.length);
 }
-/**
- * Retrieves audio from bulk entry as Sound
- * @param entry_name
- * @return "Sound"
+/** Retrieves audio from bulk entry as Sound
+ @param entry_name
+ @return "Sound"
  **/
 fn Sound*! Bulk.get_sound(&self, String entry_name) {
 	//* Entry error checking
@@ -454,10 +439,9 @@ fn Sound*! Bulk.get_sound(&self, String entry_name) {
 	wave.unload();
 	return output;
 }
-/**
- * Add keybinding to Bulk
- * @param name "Name of entry in Bulk"
- * @param data "Keybind to add to Bulk"
+/** Add keybinding to Bulk
+ @param name "Name of entry in Bulk"
+ @param data "Keybind to add to Bulk"
  **/
 fn void! Bulk.add_keybinding(&self, String name, KeybindBulk* data) {
 	//* Checking if it already exists
@@ -476,8 +460,7 @@ fn void! Bulk.add_keybinding(&self, String name, KeybindBulk* data) {
 
 // TODO
 
-/**
- * Entry for bulk table
+/** Entry for bulk table
  **/
 struct BulkTableEntry {
 	String name;
@@ -485,16 +468,14 @@ struct BulkTableEntry {
 	BulkEntry data;
 }
 
-/**
- * Entry for bulk
+/** Entry for bulk
  **/
 struct BulkEntry {
 	BulkEntryType type;
 	usz length;
 	void* data;
 }
-/**
- * Different types of files stored in Bulk
+/** Different types of files stored in Bulk
  **/
 enum BulkEntryType : char {
 	STRING,
@@ -522,15 +503,13 @@ enum BulkEntryType : char {
 	
 	KEYBINDING,
 }
-/**
- * Prints bulk entry to console
+/** Prints bulk entry to console
  **/
 fn void BulkEntry.print(&self) {
 	io::printf("%s - %p", self.type, self.data);
 }
 
 /**
- *
  **/
 struct BulkFile {
 	Compression compression;
@@ -538,17 +517,15 @@ struct BulkFile {
 	usz head;
 	usz length;
 }
-/**
- * Different compression methods
+/** Different compression methods
  **/
 enum Compression {
 	NONE,
 	DEFLATE,
 }
-/**
- * Initializes a new Bulk file using the desired length
- * @param length "Length of file"
- * @require length > 0
+/** Initializes a new Bulk file using the desired length
+ @param length "Length of file"
+ @require length > 0
  **/
 fn void BulkFile.init_len(&self, usz length) {
 	self.data = malloc(length);
@@ -557,10 +534,9 @@ fn void BulkFile.init_len(&self, usz length) {
 	self.length = length;
 	self.head = 0;
 }
-/**
- * Initializes a new Bulk file using a saved file
- * @param filename "Name of file to load"
- * @param compression "Compression type"
+/** Initializes a new Bulk file using a saved file
+ @param filename "Name of file to load"
+ @param compression "Compression type"
  **/
 fn void! BulkFile.init_file(&self, String filename, Compression compression = NONE) {
 	io::File! file = file::open(filename, "rb");
@@ -601,10 +577,9 @@ fn void! BulkFile.init_file(&self, String filename, Compression compression = NO
 	(void)file.close();
 	self.head = 0;
 }
-/**
- * Saves bulk to inputted filename
- * @param filename "Name of file to load"
- * @param compression "Compression type"
+/** Saves bulk to inputted filename
+ @param filename "Name of file to load"
+ @param compression "Compression type"
  **/
 fn void! BulkFile.save(&self, String filename, Compression compression = NONE) {
 	io::File! file = file::open(filename, "wb");
@@ -629,31 +604,27 @@ fn void! BulkFile.save(&self, String filename, Compression compression = NONE) {
 	(void)file.close();
 	self.close();
 }
-/**
- * Closes bulk file
+/** Closes bulk file
  **/
 fn void BulkFile.close(&self) {
 	free(self.data);
 }
 
-/**
- * Writes inputted byte to the bulkfile at the head
- * @param input "Byte to write"
+/** Writes inputted byte to the bulkfile at the head
+ @param input "Byte to write"
  **/
 fn void BulkFile.write_8(&self, char input) {
 	self.data[self.head++] = input;
 }
-/**
- * Writes inputted int to the bulkfile at the head
- * @param input "Short to write"
+/** Writes inputted int to the bulkfile at the head
+ @param input "Short to write"
  **/
 fn void BulkFile.write_16(&self, short input) {
 	self.data[self.head++] = (char)(input >>  0);
 	self.data[self.head++] = (char)(input >>  8);
 }
-/**
- * Writes inputted int to the bulkfile at the head
- * @param input "Int to write"
+/** Writes inputted int to the bulkfile at the head
+ @param input "Int to write"
  **/
 fn void BulkFile.write_32(&self, int input) {
 	self.data[self.head++] = (char)(input >>  0);
@@ -661,9 +632,8 @@ fn void BulkFile.write_32(&self, int input) {
 	self.data[self.head++] = (char)(input >> 16);
 	self.data[self.head++] = (char)(input >> 24);
 }
-/**
- * Writes inputted long to the bulkfile at the head
- * @param input "Long to write"
+/** Writes inputted long to the bulkfile at the head
+ @param input "Long to write"
  **/
 fn void BulkFile.write_64(&self, long input) {
 	self.data[self.head++] = (char)(input >>  0);
@@ -675,12 +645,11 @@ fn void BulkFile.write_64(&self, long input) {
 	self.data[self.head++] = (char)(input >> 48);
 	self.data[self.head++] = (char)(input >> 56);
 }
-/**
- * Writes contents of inputted ptr to the bulkfile at the head
- * @param ptr "Pointer to data to write"
- * @require ptr != null
- * @param length "Amount to copy from data"
- * @require length > 0
+/** Writes contents of inputted ptr to the bulkfile at the head
+ @param ptr "Pointer to data to write"
+ @require ptr != null
+ @param length "Amount to copy from data"
+ @require length > 0
  **/
 fn void BulkFile.write_ptr(&self, void* ptr, usz length) {
 	for (int i = 0; i < length; i++) {
@@ -688,9 +657,8 @@ fn void BulkFile.write_ptr(&self, void* ptr, usz length) {
 	}
 	self.head += length;
 }
-/**
- * Writes contents of inputted array to the bulkfile at the head
- * @param array "Array to write"
+/** Writes contents of inputted array to the bulkfile at the head
+ @param array "Array to write"
  **/
 fn void BulkFile.write_array(&self, char[] array) {
 	for (int i = 0; i < array.len; i++) {
@@ -698,10 +666,9 @@ fn void BulkFile.write_array(&self, char[] array) {
 	}
 	self.head += array.len;
 }
-/**
- * Writes contents of inputted null-terminated string to the bulkfile at the head
- * @param str "String to write"
- * @require str != null
+/** Writes contents of inputted null-terminated string to the bulkfile at the head
+ @param str "String to write"
+ @require str != null
  **/
 fn void BulkFile.write_string(&self, char* str) {
 	int length = 0;
@@ -712,27 +679,24 @@ fn void BulkFile.write_string(&self, char* str) {
 	self.head += length;
 }
 
-/**
- * Reads byte from the bulkfile at the head, moving it forward
- * @return "Char read"
+/** Reads byte from the bulkfile at the head, moving it forward
+ @return "Char read"
  **/
 fn char BulkFile.read_8(&self) {
 	char result = self.data[self.head];
 	self.head++;
 	return result;
 }
-/**
- * Reads short from the bulkfile at the head, moving it forward
- * @return "Short read"
+/** Reads short from the bulkfile at the head, moving it forward
+ @return "Short read"
  **/
 fn short BulkFile.read_16(&self) {
 	short result = self.data[self.head] + ((long)self.data[self.head + 1] <<  8);
 	self.head += 2;
 	return result;
 }
-/**
- * Reads int from the bulkfile at the head, moving it forward
- * @return "Int read"
+/** Reads int from the bulkfile at the head, moving it forward
+ @return "Int read"
  **/
 fn int BulkFile.read_32(&self) {
 	int result = self.data[self.head]
@@ -742,9 +706,8 @@ fn int BulkFile.read_32(&self) {
 	self.head += 4;
 	return result;
 }
-/**
- * Reads long from the bulkfile at the head, moving it forward
- * @return "Long read"
+/** Reads long from the bulkfile at the head, moving it forward
+ @return "Long read"
  **/
 fn long BulkFile.read_64(&self) {
 	long result = self.data[self.head]
@@ -758,10 +721,9 @@ fn long BulkFile.read_64(&self) {
 	self.head += 8;
 	return result;
 }
-/**
- * Reads string from the bulkfile at the head, moving it forward
- * @require length > 0
- * @return "String read"
+/** Reads string from the bulkfile at the head, moving it forward
+ @require length > 0
+ @return "String read"
  **/
 fn String BulkFile.read_string(&self, usz length) {
 	char[] result = allocator::alloc_array(allocator::heap(), char, length);
@@ -773,10 +735,9 @@ fn String BulkFile.read_string(&self, usz length) {
 	
 	return (String)result;
 }
-/**
- * Read data at pointer to array
- * @param length "Amount of data to copy"
- * @return "Array of copied data"
+/** Read data at pointer to array
+ @param length "Amount of data to copy"
+ @return "Array of copied data"
  **/
 fn char[] BulkFile.read_array(&self, usz length) {
 	char[] result = allocator::alloc_array(allocator::heap(), char, length);
@@ -787,10 +748,9 @@ fn char[] BulkFile.read_array(&self, usz length) {
 
 	return result;
 }
-/**
- * Read data at pointer to a pointer
- * @param length "Amount of data to copy"
- * @return "Array of copied data"
+/** Read data at pointer to a pointer
+ @param length "Amount of data to copy"
+ @return "Array of copied data"
  **/
 fn char* BulkFile.read_pointer(&self, usz length) {
 	char* result = malloc(length);
@@ -801,9 +761,8 @@ fn char* BulkFile.read_pointer(&self, usz length) {
 
 	return result;
 }
-/**
- * Gets a pointer to where the head is in the data
- * @return "Data from pointer"
+/** Gets a pointer to where the head is in the data
+ @return "Data from pointer"
  **/
 fn void* BulkFile.get_cur_ptr(&self) {
 	return self.data + self.head;
