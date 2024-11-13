@@ -235,7 +235,7 @@ fn NPatchInfo Texture.npatch(&self) {
 /** Prints information of texture
  **/
 fn void Texture.print(&self) {
-	io::printf(
+	io::printfn(
 		"%d - %dx%d - m:%d - f:%s",
 		self.id,
 		self.width, self.height,

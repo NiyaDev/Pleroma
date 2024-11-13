@@ -3,6 +3,7 @@ module tests;
 import pleroma;
 import pleroma::keybindings;
 import pleroma::music;
+import pleroma::sprite;
 import raylib;
 import std::io;
 import std::io::file;
@@ -20,17 +21,24 @@ fn int main(String[] args) {
 	create_bulk();
 	default_kb_bulk();
 
-	//* Sprites
-	Bulk* spr_bulk = bulk::load("resources/001.blk", DEFLATE);
-	defer spr_bulk.close();
+	//* Textures
+	Bulk* tex_bulk = bulk::load("resources/001.blk", DEFLATE);
+	defer tex_bulk.close();
 
-	Image* img = spr_bulk.get_image("tiles_1")!!;
+	Image* img = tex_bulk.get_image("tiles_1")!!;
 	Texture* tex = img.texture();
 	Texture*[] texs = img.cut_sheet(2,1);
 
+	//* Sprites
+	Bulk* spr_bulk = bulk::load("resources/003.blk", DEFLATE);
+	defer spr_bulk.close();
+	Sprite* spr = spr_bulk.get_sprite("test")!!;
+	spr.set_animation("not_def")!!;
+	spr.textures = texs;
+
 	//* Audio
 	Bulk* sfx_bulk = bulk::load("resources/002.blk", DEFLATE);
-	defer spr_bulk.close();
+	defer sfx_bulk.close();
 
 	pleroma::music = sfx_bulk.get_music("theme")!!;
 	pleroma::music.play();
@@ -48,6 +56,8 @@ fn int main(String[] args) {
 		texs[1].draw(50,0, color::WHITE);
 		tex.draw(100,0, color::WHITE);
 
+		spr.draw({-100, -100});
+
 		pleroma::end_drawing();
 	}
 	
@@ -56,16 +66,26 @@ fn int main(String[] args) {
 
 
 fn void create_bulk() {
-	Bulk* spr_bulk = bulk::init("001");
-	spr_bulk.add_image("black_units", image::load("resources/black_units.png"))!!;
-	spr_bulk.add_image("white_units", image::load("resources/white_units.png"))!!;
-	spr_bulk.add_image("border_1", image::load("resources/border_1.png"))!!;
-	spr_bulk.add_image("tiles_1", image::load("resources/tiles_1.png"))!!;
-	spr_bulk.save(DEFLATE);
+	Bulk* tex_bulk = bulk::init("001");
+	tex_bulk.add_image("black_units", image::load("resources/black_units.png"))!!;
+	tex_bulk.add_image("white_units", image::load("resources/white_units.png"))!!;
+	tex_bulk.add_image("border_1", image::load("resources/border_1.png"))!!;
+	tex_bulk.add_image("tiles_1", image::load("resources/tiles_1.png"))!!;
+	tex_bulk.save(DEFLATE);
 
 	Bulk* sfx_bulk = bulk::init("002");
 	sfx_bulk.add_file("theme", "resources/New Bark Town (Lofi Remix).mp3")!!;
 	sfx_bulk.save(DEFLATE);
+
+
+	Bulk* spr_bulk = bulk::init("003");
+	Sprite* test = sprite::new();
+	int[] not_def = allocator::alloc_array(allocator::heap(), int, 2);
+	not_def[0] = 0;
+	not_def[1] = 1;
+	test.new_animation("not_def", not_def, 10)!!;
+	spr_bulk.add_sprite("test", test)!!;
+	spr_bulk.save(DEFLATE);
 }
 
 fn void default_kb_bulk() {

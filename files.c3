@@ -7,6 +7,7 @@ import pleroma::keybindings;
 import pleroma::image;
 import pleroma::wave;
 import pleroma::music;
+import pleroma::sprite;
 import pleroma::debug;
 import raylib;
 
@@ -107,6 +108,29 @@ fn Bulk* load(String filename, Compression compression = NONE) {
 			case AUDIO:			// 02
 				entry.length = (usz)file.read_64();
 				entry.data = file.read_pointer(entry.length);
+			case SPRITE:		// 03
+				Sprite* spr = sprite::new();
+
+				//* Number of animations
+				usz number_of_ani = (usz)file.read_64();
+
+				for (int k = 0; k < number_of_ani; k++) {
+					//* Name of animation
+					usz ani_name_len = (usz)file.read_64();
+					String key = file.read_string(ani_name_len);
+					//* Frames
+					usz number_frames = (usz)file.read_64();
+					int[] frames = allocator::alloc_array(allocator::heap(), int, number_frames);
+					for (int j = 0; j < number_frames; j++) {
+						frames[j] = file.read_32();
+					}
+					//* Speed
+					usz speed = (usz)file.read_64();
+
+					//* Compile
+					SpriteAnimation* ani = sprite::new_animation(frames, (int)speed);
+					spr.animations.set(key, ani);
+				}
 			case KEYBINDING:	// 21
 				//* Get keybind name
 				usz name_length = (usz)file.read_64();
@@ -144,7 +168,11 @@ fn Bulk* load(String filename, Compression compression = NONE) {
  **/
 fn void Bulk.close(&self) {
 	self.entries.@each(; String key, BulkEntry value) {
-		free(value.data);
+		switch (value.type) {
+			default: free(value.data);
+			case SPRITE:		// 03
+				((Sprite*)value.data).close();
+		}
 	};
 	self.entries.free();
 }
@@ -192,6 +220,23 @@ fn void Bulk.save(&self, Compression compression = NONE) {
 				offset += 8;
 				//* Data
 				offset += ent.data.length;
+			case SPRITE:		// 03
+				Sprite* spr = (Sprite*)ent.data.data;
+				
+				//* Number of animations
+				offset += 8;
+
+				//* Loop through all animations
+				spr.animations.@each(; String key, SpriteAnimation* ani) {
+					//* Name of animation
+					offset += 8;
+					offset += key.len;
+					//* Frames
+					offset += 8;
+					offset += (4 * ani.frames.len);
+					//* Speed
+					offset += 8;
+				};
 			case KEYBINDING:	// 21
 				//* Length of name
 				offset += 8;
@@ -246,6 +291,24 @@ fn void Bulk.save(&self, Compression compression = NONE) {
 			case AUDIO:			// 02
 				new_file.write_64(ent.data.length);
 				new_file.write_ptr(ent.data.data, ent.data.length);
+			case SPRITE:		// 03
+				Sprite* spr = (Sprite*)ent.data.data;
+
+				//* Number of animations
+				new_file.write_64(spr.animations.len());
+
+				spr.animations.@each(; String key, SpriteAnimation* ani) {
+					//* Name of animation
+					new_file.write_64(key.len);
+					new_file.write_string(key);
+					//* Frames
+					new_file.write_64(ani.frames.len);
+					for (int i = 0; i < ani.frames.len; i++) {
+						new_file.write_32(ani.frames[i]);
+					}
+					//* Speed
+					new_file.write_64(ani.speed);
+				};
 			case KEYBINDING:	// 21
 				KeybindBulk* kb = (KeybindBulk*)ent.data.data;
 			
@@ -457,6 +520,38 @@ fn void! Bulk.add_keybinding(&self, String name, KeybindBulk* data) {
 	};
 	self.entries.set(name, entry);
 }
+/** Add Sprite to bulk
+ @param name "Name of entry in Bulk"
+ @param data "Sprite data to add to Bulk"
+ **/
+fn void! Bulk.add_sprite(&self, String name, Sprite* data) {
+	//* Checking if it already exists
+	if (self.entries.has_key(name)) {
+		debug::log("Attempted to replace a bulk entry.", LOW);
+		return BulkFault.ENTRY_EXISTS?;
+	}
+
+	BulkEntry entry = {
+		.type = AUDIO,
+		.length = Sprite.sizeof,
+		.data = data,
+	};
+	self.entries.set(name, entry);
+}
+/** Retrieves audio from bulk entry as Music
+ @param entry_name
+ @return "Sprite"
+ **/
+fn Sprite*! Bulk.get_sprite(&self, String entry_name) {
+	//* Entry error checking
+	BulkEntry! entry = self.entries[entry_name];
+	if (catch entry) {
+		debug::log("Failed to find inputted entry in Bulk.", LOW, self.name, entry_name);
+		return BulkFault.ENTRY_DOESNT_EXIST?;
+	}
+
+	return entry.data;
+}
 
 // TODO
 
@@ -479,10 +574,10 @@ struct BulkEntry {
  **/
 enum BulkEntryType : char {
 	STRING,
-	IMAGE, // Stored as .png
-	AUDIO, // Stored as .mp3
+	IMAGE,	// Stored as .png
+	AUDIO,	// Stored as .mp3
+	SPRITE,	// Animation data only
 
-	PADDING_3,
 	PADDING_4,
 	PADDING_5,
 	PADDING_6,
