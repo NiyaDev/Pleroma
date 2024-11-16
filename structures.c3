@@ -214,27 +214,6 @@ fn Color Color.alpha_blend(&self, Color src, Color tint) {
 
 
 
-/** Font
- **/
-struct Font {
-	int base_size;
-	int glyph_count;
-	int glyph_padding;
-	Texture texture;
-	Rectangle* recs;
-	GlyphInfo* glyphs;
-}
-
-/** Glyph Information
- **/
-struct GlyphInfo {
-	int value;
-	int offset_x;
-	int offset_y;
-	int advance_x;
-	Image image;
-}
-
 /** File path list
  **/
 struct FilePathList {

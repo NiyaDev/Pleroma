@@ -604,26 +604,6 @@ extern fn Rectangle get_glyph_atlas_rec(Font font, int codepoint) @extern("GetGl
 extern fn void draw_bounding_box(BoundingBox bounds, Color color) @extern("DrawBoundingBox");
 
 
-
-// Text font info functions
-//void SetTextLineSpacing(int spacing);                                                 // Set vertical line spacing when drawing with line-breaks
-//int MeasureText(const char *text, int fontSize);                                      // Measure string width for default font
-//Vector2 MeasureTextEx(Font font, const char *text, float fontSize, float spacing);    // Measure string size for Font
-//int GetGlyphIndex(Font font, int codepoint);                                          // Get glyph index position in font for a codepoint (unicode character), fallback to '?' if not found
-//GlyphInfo GetGlyphInfo(Font font, int codepoint);                                     // Get glyph font info data for a codepoint (unicode character), fallback to '?' if not found
-//Rectangle GetGlyphAtlasRec(Font font, int codepoint);                                 // Get glyph rectangle in font atlas for a codepoint (unicode character), fallback to '?' if not found
-
-// Text codepoints management functions (unicode characters)
-//char *LoadUTF8(const int *codepoints, int length);                // Load UTF-8 text encoded from codepoints array
-//void UnloadUTF8(char *text);                                      // Unload UTF-8 text encoded from codepoints array
-//int *LoadCodepoints(const char *text, int *count);                // Load all codepoints from a UTF-8 text string, codepoints count returned by parameter
-//void UnloadCodepoints(int *codepoints);                           // Unload codepoints data from memory
-//int GetCodepointCount(const char *text);                          // Get total number of codepoints in a UTF-8 encoded string
-//int GetCodepoint(const char *text, int *codepointSize);           // Get next codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
-//int GetCodepointNext(const char *text, int *codepointSize);       // Get next codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
-//int GetCodepointPrevious(const char *text, int *codepointSize);   // Get previous codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
-//const char *CodepointToUTF8(int codepoint, int *utf8Size);        // Encode one codepoint into UTF-8 byte array (array length returned as parameter)
-
 // Text strings management functions (no UTF-8 strings, only byte chars)
 // NOTE: Some strings allocate memory internally for returned strings, just be careful!
 //int TextCopy(char *dst, const char *src);                                             // Copy one string to another, returns bytes copied

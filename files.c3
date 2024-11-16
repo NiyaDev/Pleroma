@@ -8,6 +8,7 @@ import pleroma::image;
 import pleroma::wave;
 import pleroma::music;
 import pleroma::sprite;
+import pleroma::font;
 import pleroma::debug;
 import raylib;
 
@@ -131,6 +132,9 @@ fn Bulk* load(String filename, Compression compression = NONE) {
 					SpriteAnimation* ani = sprite::new_animation(frames, (int)speed);
 					spr.animations.set(key, ani);
 				}
+			case FONT:			// 04
+				entry.length = (usz)file.read_64();
+				entry.data = file.read_pointer(entry.length);
 			case KEYBINDING:	// 21
 				//* Get keybind name
 				usz name_length = (usz)file.read_64();
@@ -237,6 +241,11 @@ fn void Bulk.save(&self, Compression compression = NONE) {
 					//* Speed
 					offset += 8;
 				};
+			case FONT:			// 04
+				//* Length of data
+				offset += 8;
+				//* Data
+				offset += ent.data.length;
 			case KEYBINDING:	// 21
 				//* Length of name
 				offset += 8;
@@ -309,6 +318,9 @@ fn void Bulk.save(&self, Compression compression = NONE) {
 					//* Speed
 					new_file.write_64(ani.speed);
 				};
+			case FONT:			// 04
+				new_file.write_64(ent.data.length);
+				new_file.write_ptr(ent.data.data, ent.data.length);
 			case KEYBINDING:	// 21
 				KeybindBulk* kb = (KeybindBulk*)ent.data.data;
 			
@@ -538,7 +550,7 @@ fn void! Bulk.add_sprite(&self, String name, Sprite* data) {
 	};
 	self.entries.set(name, entry);
 }
-/** Retrieves audio from bulk entry as Music
+/** Retrieves sprite from bulk entry
  @param entry_name
  @return "Sprite"
  **/
@@ -551,6 +563,21 @@ fn Sprite*! Bulk.get_sprite(&self, String entry_name) {
 	}
 
 	return entry.data;
+}
+/** Retrieves font from bulk entry
+ @param entry_name
+ @return "Font"
+ **/
+fn Font*! Bulk.get_font(&self, String entry_name) {
+	//* Entry error checking
+	BulkEntry! entry = self.entries[entry_name];
+	if (catch entry) {
+		debug::log("Failed to find inputted entry in Bulk.", LOW, self.name, entry_name);
+		return BulkFault.ENTRY_DOESNT_EXIST?;
+	}
+
+	Font* output = font::load_memory(".ttf", entry.data, (int)entry.length, 16, {})!!;
+	return output;
 }
 
 // TODO
@@ -577,8 +604,8 @@ enum BulkEntryType : char {
 	IMAGE,	// Stored as .png
 	AUDIO,	// Stored as .mp3
 	SPRITE,	// Animation data only
+	FONT,	// Stored as .ttf
 
-	PADDING_4,
 	PADDING_5,
 	PADDING_6,
 	PADDING_7,

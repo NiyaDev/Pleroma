@@ -258,13 +258,12 @@ import pleroma::debug;
  @return "Pointer to loader Texture"
  **/
 fn Texture*! load(String filename) {
-	Texture* result = malloc(Texture.sizeof);
-	
-	if (file::is_file(filename)) {
-		*result = raylib::load_texture(filename);
-		return result;
-	} else {
+	if (!file::is_file(filename)) {
 		debug::log("Failed to load Texture", NONE, filename);
 		return TextureFault.FAILED_FIND_FILE?;
 	}
+
+	Texture* result = malloc(Texture.sizeof);
+		*result = raylib::load_texture(filename);
+		return result;
 }
