@@ -4,12 +4,20 @@ import pleroma;
 import pleroma::keybindings;
 import pleroma::music;
 import pleroma::sprite;
+import pleroma::settings;
 import raylib;
 import std::io;
 import std::io::file;
 
 
 fn int main(String[] args) {
+	//* Bulk creation
+	create_bulk();
+	default_kb_bulk();
+	default_st_bulk();
+
+
+	//* Init pleroma
 	pleroma::init(
 		.title = "Testing",
 		.render_res = {640, 360},
@@ -18,8 +26,6 @@ fn int main(String[] args) {
 	);
 	defer pleroma::close();
 
-	create_bulk();
-	default_kb_bulk();
 
 	//* Textures
 	Bulk* tex_bulk = bulk::load("resources/001.blk", DEFLATE);
@@ -42,7 +48,6 @@ fn int main(String[] args) {
 
 	pleroma::music = sfx_bulk.get_music("theme")!!;
 	pleroma::music.play();
-
 	
 	while (!raylib::window_should_close()) {
 		if (keybindings::down("up")!!)    camera::main.move({ 0,-1, 0});
@@ -99,4 +104,17 @@ fn void default_kb_bulk() {
 	kb_bulk.add_keybinding("kb_right_1", keybindings::new_bulk( .key = "right",	.value = { .type = KEYBOARD, .index = 0, .key = 68 }))!!;
 	kb_bulk.add_keybinding("kb_right_2", keybindings::new_bulk( .key = "right",	.value = { .type = KEYBOARD, .index = 0, .key = 262}))!!;
 	kb_bulk.save(DEFLATE);
+}
+
+fn void default_st_bulk() {
+	Bulk* st_bulk = bulk::init("def_st");
+	float def_value = 6;
+	Resolution def_res = {1280,720};
+	Resolution def_ren = {640,360};
+	st_bulk.add_setting("volume_master", settings::new_setting(FLOAT, &def_value))!!;
+	st_bulk.add_setting("volume_music", settings::new_setting(FLOAT, &def_value))!!;
+	st_bulk.add_setting("volume_sound", settings::new_setting(FLOAT, &def_value))!!;
+	st_bulk.add_setting("resolution_screen", settings::new_setting(RESOLUTION, &def_res))!!;
+	st_bulk.add_setting("resolution_render", settings::new_setting(RESOLUTION, &def_ren))!!;
+	st_bulk.save(DEFLATE);
 }

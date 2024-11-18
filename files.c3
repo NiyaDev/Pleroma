@@ -9,6 +9,7 @@ import pleroma::wave;
 import pleroma::music;
 import pleroma::sprite;
 import pleroma::font;
+import pleroma::settings;
 import pleroma::debug;
 import raylib;
 
@@ -158,6 +159,15 @@ fn Bulk* load(String filename, Compression compression = NONE) {
 				entry.length = $sizeof(kb_b);
 				entry.data = malloc(entry.length);
 				*(KeybindBulk*)entry.data = kb_b;
+			case SETTING:		// 22
+				SettingsValue* out = malloc(SettingsValue.sizeof);
+				*out = {
+					.type = (SettingValueType)file.read_8(),
+					.lo = file.read_64(),
+				};
+				pleroma::settings[entry_name] = *out;
+				entry.length = SettingsValue.sizeof;
+				entry.data = out;
 		}
 		self.entries.set(entry_name, entry);
 		
@@ -258,6 +268,12 @@ fn void Bulk.save(&self, Compression compression = NONE) {
 				offset += 1; // Type
 				offset += 4; // ID
 				offset += 1; // Gamepad index
+			case SETTING:		// 22
+				//* Type
+				offset += 1;
+
+				//* Value
+				offset += 8;
 		}
 	}
 
@@ -334,6 +350,13 @@ fn void Bulk.save(&self, Compression compression = NONE) {
 				new_file.write_8((char)kb.value.type);
 				new_file.write_32(kb.value.key);
 				new_file.write_8(kb.value.index);
+			case SETTING:		// 22
+				SettingsValue* sv = (SettingsValue*)ent.data.data;
+
+				//* Type
+				new_file.write_8((char)sv.type);
+				//* Value
+				new_file.write_64((usz)sv.lo);
 		}
 	}
 
@@ -579,6 +602,38 @@ fn Font*! Bulk.get_font(&self, String entry_name) {
 	Font* output = font::load_memory(".ttf", entry.data, (int)entry.length, 16, {})!!;
 	return output;
 }
+/** Add setting to bulk
+ @param name "Name of entry in Bulk"
+ @param data "Setting data to add to Bulk"
+ **/
+fn void! Bulk.add_setting(&self, String name, SettingsValue* data) {
+	//* Checking if it already exists
+	if (self.entries.has_key(name)) {
+		debug::log("Attempted to replace a bulk entry.", LOW);
+		return BulkFault.ENTRY_EXISTS?;
+	}
+
+	BulkEntry entry = {
+		.type = SETTING,
+		.length = SettingsValue.sizeof,
+		.data = data,
+	};
+	self.entries.set(name, entry);
+}
+/** Retrieves setting from bulk entry
+ @param entry_name
+ @return "Setting"
+ **/
+fn SettingsValue*! Bulk.get_setting(&self, String entry_name) {
+	//* Entry error checking
+	BulkEntry! entry = self.entries[entry_name];
+	if (catch entry) {
+		debug::log("Failed to find inputted entry in Bulk.", LOW, self.name, entry_name);
+		return BulkFault.ENTRY_DOESNT_EXIST?;
+	}
+
+	return entry.data;
+}
 
 // TODO
 
@@ -624,6 +679,7 @@ enum BulkEntryType : char {
 	PADDING_20,
 	
 	KEYBINDING,
+	SETTING,
 }
 /** Prints bulk entry to console
  **/

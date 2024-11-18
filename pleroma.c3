@@ -2,6 +2,7 @@
 module pleroma;
 import raylib;
 import pleroma::color;
+import pleroma::settings;
 
 
 Resolution screen_size;
@@ -12,12 +13,14 @@ int models_rendered = 0;
 
 Music* music;
 
+Settings settings;
+
 
 /** Initialize Pleroma
  **/
 fn void init(
 	String title = "default",
-	Resolution screen_res = {1280, 720},
+	//Resolution screen_res = {1280, 720},
 	Resolution render_res = {1280, 720},
 	int framerate = 60,
 	CameraType camera_mode = CAMERA2D,
@@ -26,6 +29,11 @@ fn void init(
 	bool debug_mode = true,
 	PlErrorLevel debug_level = NONE,
 ) {
+	//* Settings
+	settings.init()!!;
+
+	Resolution screen_res = settings["resolution_screen"]!!.re;
+
 	//* Init Raylib
 	raylib::set_trace_log_level(7);
 	raylib::init_window(screen_res.width, screen_res.height, title);
