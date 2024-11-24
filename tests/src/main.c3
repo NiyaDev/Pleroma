@@ -20,9 +20,6 @@ fn int main(String[] args) {
 	//* Init pleroma
 	pleroma::init(
 		.title = "Testing",
-		.render_res = {640, 360},
-		.debug_mode = true,
-		.debug_level = NONE,
 	);
 	defer pleroma::close();
 
@@ -108,7 +105,7 @@ fn void default_kb_bulk() {
 
 fn void default_st_bulk() {
 	Bulk* st_bulk = bulk::init("def_st");
-	float def_value = 6;
+	float def_value = 0.6;
 	Resolution def_res = {1280,720};
 	Resolution def_ren = {640,360};
 	st_bulk.add_setting("volume_master", settings::new_setting(FLOAT, &def_value))!!;
@@ -117,4 +114,12 @@ fn void default_st_bulk() {
 	st_bulk.add_setting("resolution_screen", settings::new_setting(RESOLUTION, &def_res))!!;
 	st_bulk.add_setting("resolution_render", settings::new_setting(RESOLUTION, &def_ren))!!;
 	st_bulk.save(DEFLATE);
+
+	Bulk* st_bulk_un = bulk::init("def_st_unflated");
+	st_bulk_un.add_setting("volume_master", settings::new_setting(FLOAT, &def_value))!!;
+	st_bulk_un.add_setting("volume_music", settings::new_setting(FLOAT, &def_value))!!;
+	st_bulk_un.add_setting("volume_sound", settings::new_setting(FLOAT, &def_value))!!;
+	st_bulk_un.add_setting("resolution_screen", settings::new_setting(RESOLUTION, &def_res))!!;
+	st_bulk_un.add_setting("resolution_render", settings::new_setting(RESOLUTION, &def_ren))!!;
+	st_bulk_un.save();
 }

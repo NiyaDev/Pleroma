@@ -160,12 +160,50 @@ fn Bulk* load(String filename, Compression compression = NONE) {
 				entry.data = malloc(entry.length);
 				*(KeybindBulk*)entry.data = kb_b;
 			case SETTING:		// 22
-				SettingsValue* out = malloc(SettingsValue.sizeof);
-				*out = {
-					.type = (SettingValueType)file.read_8(),
-					.lo = file.read_64(),
-				};
+				SettingsValue* out = mem::new(SettingsValue);
+				out.type = (SettingValueType)file.read_8();
+
+				switch (out.type) {
+					case BOOL:
+						out.as_bool = (bool)file.read_8();
+						file.head += (SettingsValue.sizeof - SettingValueType.sizeof - bool.sizeof);
+					case BYTE:
+						out.as_char = file.read_8();
+						file.head += (SettingsValue.sizeof - SettingValueType.sizeof - char.sizeof);
+					case SHORT:
+						out.as_short = file.read_16();
+						file.head += (SettingsValue.sizeof - SettingValueType.sizeof - short.sizeof);
+					case INT:
+						out.as_int = file.read_32();
+						file.head += (SettingsValue.sizeof - SettingValueType.sizeof - int.sizeof);
+					case LONG:
+						out.as_long = file.read_64();
+						file.head += (SettingsValue.sizeof - SettingValueType.sizeof - long.sizeof);
+					case FLOAT:
+						out.as_float = file.read_float();
+						file.head += (SettingsValue.sizeof - SettingValueType.sizeof - float.sizeof);
+					case DOUBLE:
+						out.as_double = (double)file.read_64();
+						file.head += (SettingsValue.sizeof - SettingValueType.sizeof - double.sizeof);
+					case VECTOR2:
+						out.as_vector2.x = (float)file.read_32();
+						out.as_vector2.y = (float)file.read_32();
+						file.head += (SettingsValue.sizeof - SettingValueType.sizeof - Vector2.sizeof);
+					case VECTOR3:
+						out.as_vector3.x = (float)file.read_32();
+						out.as_vector3.y = (float)file.read_32();
+						out.as_vector3.z = (float)file.read_32();
+						file.head += (SettingsValue.sizeof - SettingValueType.sizeof - Vector3.sizeof);
+					case RESOLUTION:
+						out.as_resolution.width = file.read_32();
+						out.as_resolution.height = file.read_32();
+						file.head += (SettingsValue.sizeof - SettingValueType.sizeof - Resolution.sizeof);
+					default:
+						file.head += (SettingsValue.sizeof - SettingValueType.sizeof);
+				}
 				pleroma::settings[entry_name] = *out;
+				//pleroma::settings[entry_name] = out;
+				//io::printfn("%s - ",entry_name);
 				entry.length = SettingsValue.sizeof;
 				entry.data = out;
 		}
@@ -273,7 +311,8 @@ fn void Bulk.save(&self, Compression compression = NONE) {
 				offset += 1;
 
 				//* Value
-				offset += 8;
+				offset += (SettingsValue.sizeof - SettingValueType.sizeof);
+				io::printfn("size: %d - %d = %d", SettingsValue.sizeof, Vector3.sizeof, SettingsValue.sizeof - SettingValueType.sizeof);
 		}
 	}
 
@@ -355,8 +394,46 @@ fn void Bulk.save(&self, Compression compression = NONE) {
 
 				//* Type
 				new_file.write_8((char)sv.type);
+				
 				//* Value
-				new_file.write_64((usz)sv.lo);
+				switch (sv.type) {
+					case BOOL:
+						new_file.write_8((char)sv.as_bool);
+						new_file.head += (SettingsValue.sizeof - SettingValueType.sizeof - bool.sizeof);
+					case BYTE:
+						new_file.write_8(sv.as_char);
+						new_file.head += (SettingsValue.sizeof - SettingValueType.sizeof - char.sizeof);
+					case SHORT:
+						new_file.write_16(sv.as_short);
+						new_file.head += (SettingsValue.sizeof - SettingValueType.sizeof - short.sizeof);
+					case INT:
+						new_file.write_32(sv.as_int);
+						new_file.head += (SettingsValue.sizeof - SettingValueType.sizeof - int.sizeof);
+					case LONG:
+						new_file.write_64(sv.as_long);
+						new_file.head += (SettingsValue.sizeof - SettingValueType.sizeof - long.sizeof);
+					case FLOAT:
+						new_file.write_float(sv.as_float);
+						new_file.head += (SettingsValue.sizeof - SettingValueType.sizeof - float.sizeof);
+					case DOUBLE:
+						new_file.write_64((long)sv.as_double);
+						new_file.head += (SettingsValue.sizeof - SettingValueType.sizeof - double.sizeof);
+					case VECTOR2:
+						new_file.write_32((int)sv.as_vector2.x);
+						new_file.write_32((int)sv.as_vector2.y);
+						new_file.head += (SettingsValue.sizeof - SettingValueType.sizeof - Vector2.sizeof);
+					case VECTOR3:
+						new_file.write_32((int)sv.as_vector3.x);
+						new_file.write_32((int)sv.as_vector3.y);
+						new_file.write_32((int)sv.as_vector3.z);
+						new_file.head += (SettingsValue.sizeof - SettingValueType.sizeof - Vector3.sizeof);
+					case RESOLUTION:
+						new_file.write_32(sv.as_resolution.width);
+						new_file.write_32(sv.as_resolution.height);
+						new_file.head += (SettingsValue.sizeof - SettingValueType.sizeof - Resolution.sizeof);
+					default:
+						new_file.head += (SettingsValue.sizeof - SettingValueType.sizeof);
+				}
 		}
 	}
 
@@ -823,6 +900,18 @@ fn void BulkFile.write_64(&self, long input) {
 	self.data[self.head++] = (char)(input >> 48);
 	self.data[self.head++] = (char)(input >> 56);
 }
+/** Writes inputted float to the bulkfile at the head
+ @param input "Float to write"
+ **/
+fn void BulkFile.write_float(&self, float input) {
+	float* fl = mem::new(float);
+	*fl = input;
+
+	self.data[self.head++] = *((char*)fl);
+	self.data[self.head++] = *(((char*)fl)+1);
+	self.data[self.head++] = *(((char*)fl)+2);
+	self.data[self.head++] = *(((char*)fl)+3);
+}
 /** Writes contents of inputted ptr to the bulkfile at the head
  @param ptr "Pointer to data to write"
  @require ptr != null
@@ -898,6 +987,14 @@ fn long BulkFile.read_64(&self) {
 		+ ((long)self.data[self.head + 7] << 56);
 	self.head += 8;
 	return result;
+}
+/** Reads float from the bulkfile at the head, moving it forward
+ @return "Float read"
+ **/
+fn float BulkFile.read_float(&self) {
+	float* result = (float*)&self.data[self.head];
+	self.head += 4;
+	return *result;
 }
 /** Reads string from the bulkfile at the head, moving it forward
  @require length > 0

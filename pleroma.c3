@@ -1,5 +1,6 @@
 
 module pleroma;
+import std::collections;
 import raylib;
 import pleroma::color;
 import pleroma::settings;
@@ -13,15 +14,14 @@ int models_rendered = 0;
 
 Music* music;
 
-Settings settings;
+//Settings settings;
+HashMap(<String,SettingsValue>) settings;
 
 
 /** Initialize Pleroma
  **/
 fn void init(
 	String title = "default",
-	//Resolution screen_res = {1280, 720},
-	Resolution render_res = {1280, 720},
 	int framerate = 60,
 	CameraType camera_mode = CAMERA2D,
 	
@@ -30,9 +30,10 @@ fn void init(
 	PlErrorLevel debug_level = NONE,
 ) {
 	//* Settings
-	settings.init()!!;
+	settings::init()!!;
 
-	Resolution screen_res = settings["resolution_screen"]!!.re;
+	Resolution screen_res = settings["resolution_screen"]!!.as_resolution;
+	Resolution render_res = settings["resolution_render"]!!.as_resolution;
 
 	//* Init Raylib
 	raylib::set_trace_log_level(7);

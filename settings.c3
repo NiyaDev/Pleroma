@@ -1,3 +1,4 @@
+
 module pleroma::settings;
 import std::collections;
 import std::io;
@@ -12,6 +13,7 @@ distinct Settings = HashMap(<String,SettingsValue>);
  **/
 fault SettingsFault {
 	ALREADY_INIT,
+	NOT_INIT,
 	NO_FILES,
 	NO_ENTRY,
 	HAS_ENTRY,
@@ -21,16 +23,16 @@ fault SettingsFault {
 struct SettingsValue {
 	SettingValueType type;
 	union {
-		bool bl;
-		char by;
-		short sh;
-		int in;
-		long lo;
-		float fl;
-		double du;
-		Vector2 v2;
-		Vector3 v3;
-		Resolution re;
+		bool		as_bool;
+		char		as_char;
+		short		as_short;
+		int			as_int;
+		long		as_long;
+		float		as_float;
+		double		as_double;
+		Vector2		as_vector2;
+		Vector3		as_vector3;
+		Resolution	as_resolution;
 	}
 }
 /** Value types
@@ -93,13 +95,20 @@ fn SettingsValue! Settings.get(&self, String i) @operator([]) {
  @param i "Key for entry"
  @param val "Value for entry"
  **/
-fn void Settings.set(&self, String i, SettingsValue val) @operator([]=) {
+fn void! Settings.set(&self, String i, SettingsValue val) @operator([]=) {
+	if (!((HashMap(<String,SettingsValue>)*)self).is_initialized()) {
+		debug::log("Setting member without initializing");
+		return SettingsFault.NOT_INIT?;
+	}
+	
 	if (((HashMap(<String,SettingsValue>)*)self).has_key(i)) {
 		debug::log("Settings missing entry", NONE, i);
-	//	return SettingsFault.HAS_ENTRY?;
+		return SettingsFault.HAS_ENTRY?;
 	}
 
-	return self.set(i, val);
+	((HashMap(<String,SettingsValue>)*)self).set(i, val);
+
+	return;
 }
 /** Create a new setting
  **/
@@ -110,9 +119,48 @@ fn SettingsValue*! new_setting(SettingValueType type, any value) {
 	};
 
 	switch (value.type) {
-		default:
-		case bool: output.bl = *((bool*)value);
+		default: debug::log("Entered a settings variable that is not a type accepted");
+		case bool:			output.as_bool			= *((bool*)value);
+		case char:			output.as_char			= *((char*)value);
+		case short:			output.as_short			= *((short*)value);
+		case int:			output.as_int			= *((int*)value);
+		case long:			output.as_long			= *((long*)value);
+		case float:			output.as_float			= *((float*)value);
+		case double:		output.as_double		= *((double*)value);
+		case Vector2:		output.as_vector2		= *((Vector2*)value);
+		case Vector3:		output.as_vector3		= *((Vector3*)value);
+		case Resolution:	output.as_resolution	= *((Resolution*)value);
 	}
 
 	return output;
+}
+
+
+/** Initialize settings
+ **/
+fn void! init() {
+	if (pleroma::settings.is_initialized()) {
+		debug::log("Attempted to initialize settings while it was already initialized");
+		return SettingsFault.ALREADY_INIT?;
+	}
+
+	pleroma::settings.new_init();
+
+	//* Checks for Saved keybinds
+	if (file::is_file("resources/sav_st.blk")) {
+		Bulk* kb_bulk = bulk::load("resources/sav_st.blk", DEFLATE);
+		debug::log("Loaded saved settings file.");
+		return;
+	}
+
+	//* Checks for Default keybinds
+	if (file::is_file("resources/def_st.blk")) {
+		Bulk* kb_bulk = bulk::load("resources/def_st.blk", DEFLATE);
+		debug::log("Loaded default settings file.");
+		return;
+	}
+
+	//* Return error
+	debug::log("Failed to find saved or default settings file.", LOW);
+	return SettingsFault.NO_FILES?;
 }
