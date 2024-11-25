@@ -284,7 +284,7 @@ struct KeybindBulk {
 /** Create a new KeybindBulk file for saving
  **/
 fn KeybindBulk* new_bulk(String key, Keybind value) {
-	KeybindBulk* result = malloc(KeybindBulk.sizeof);
+	KeybindBulk* result = mem::new(KeybindBulk);
 	*result = { key, value };
 	
 	return result;

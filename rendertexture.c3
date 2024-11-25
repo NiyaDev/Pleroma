@@ -60,7 +60,7 @@ import pleroma::debug;
  @return "Pointer to RenderTexture data"
  **/
 fn RenderTexture* load(int width, int height) {
-	RenderTexture* result = malloc(RenderTexture.sizeof);
+	RenderTexture* result = mem::new(RenderTexture);
 	
 	*result = raylib::load_render_texture(width, height);
 

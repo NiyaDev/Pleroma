@@ -35,6 +35,7 @@ fn bool Font.ready(&self) {
  **/
 fn void Font.unload(&self) {
 	raylib::unload_font(*self);
+	free(self);
 }
 /** Draw text to screen using font
  @param text "Text to draw"
@@ -85,7 +86,7 @@ import pleroma::debug;
 /** Get the default Raylib Font
  **/
 fn Font* get_default() {
-	Font* output = malloc(Font.sizeof);
+	Font* output = mem::new(Font);
 	*output = raylib::get_font_default();
 
 	return output;
@@ -101,7 +102,7 @@ fn Font*! load(String filename) {
 		return FontFault.FILE_NOT_FOUND?;
 	}
 
-	Font* output = malloc(Font.sizeof);
+	Font* output = mem::new(Font);
 	*output = raylib::load_font(filename);
 
 	return output;
@@ -119,7 +120,7 @@ fn Font*! load_ex(String filename, int fontsize, int[] codepoints) {
 		return FontFault.FILE_NOT_FOUND?;
 	}
 
-	Font* output = malloc(Font.sizeof);
+	Font* output = mem::new(Font);
 	*output = raylib::load_font_ex(filename, fontsize, codepoints, codepoints.len);
 
 	return output;
@@ -131,7 +132,7 @@ fn Font*! load_ex(String filename, int fontsize, int[] codepoints) {
  **/
 fn Font*! Image.font(&self, Color key, int firstchar) {
 
-	Font* output = malloc(Font.sizeof);
+	Font* output = mem::new(Font);
 	*output = raylib::load_font_from_image(*self, key, firstchar);
 
 	return output;
@@ -146,7 +147,7 @@ fn Font*! Image.font(&self, Color key, int firstchar) {
  **/
 fn Font*! load_memory(String filetype, char* data, int datasize, int fontsize, int[] codepoints) {
 
-	Font* output = malloc(Font.sizeof);
+	Font* output = mem::new(Font);
 	*output = raylib::load_font_from_memory(filetype, data, datasize, fontsize, codepoints, codepoints.len);
 
 	return output;

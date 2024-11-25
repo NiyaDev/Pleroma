@@ -41,7 +41,7 @@ List(<PlError*>) error_list;
  **/
 fn void log(String desc = "Default", PlErrorLevel level = NONE, args...) {
 	if (level >= lowest) {
-		PlError* err = malloc(PlError.sizeof);
+		PlError* err = mem::new(PlError);
 		*err = {
 			.text = string::tformat("[%s] - %s %s\0", level, desc, args),
 			.level = level,

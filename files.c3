@@ -45,7 +45,7 @@ fault BulkFault {
  @return "Pointer to new Bulk"
  **/
 fn Bulk* init(String name) {
-	Bulk* result = malloc(Bulk.sizeof);
+	Bulk* result = mem::new(Bulk);
 	*result = {
 		.name = name,
 		.major = BULK_MAJOR,
@@ -202,8 +202,6 @@ fn Bulk* load(String filename, Compression compression = NONE) {
 						file.head += (SettingsValue.sizeof - SettingValueType.sizeof);
 				}
 				pleroma::settings[entry_name] = *out;
-				//pleroma::settings[entry_name] = out;
-				//io::printfn("%s - ",entry_name);
 				entry.length = SettingsValue.sizeof;
 				entry.data = out;
 		}
@@ -662,7 +660,10 @@ fn Sprite*! Bulk.get_sprite(&self, String entry_name) {
 		return BulkFault.ENTRY_DOESNT_EXIST?;
 	}
 
-	return entry.data;
+	Sprite* spr = mem::new(Sprite);
+	*spr = *((Sprite*)entry.data);
+
+	return spr;
 }
 /** Retrieves font from bulk entry
  @param entry_name

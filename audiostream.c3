@@ -28,7 +28,7 @@ fn bool Wave.ready(&self) {
  @return "Pointer to new Sound"
  **/
 fn Sound*! Wave.sound(&self) {
-	Sound* output = malloc(Sound.sizeof);
+	Sound* output = mem::new(Sound);
 	*output = raylib::load_sound_wave(*self);
 	if (output.stream.buffer == null) { return SoundFault.LOAD_FAILED?; }
 	return output;
@@ -37,6 +37,7 @@ fn Sound*! Wave.sound(&self) {
  **/
 fn void Wave.unload(&self) {
 	raylib::unload_wave(*self);
+	free(self);
 }
 /** Save wave as file
  @param filename "Name to save as"
@@ -44,7 +45,7 @@ fn void Wave.unload(&self) {
  **/
 fn Wave*! Wave.save(&self, String filename) {
 	bool result = raylib::export_wave(*self, filename);
-	if (result) { return WaveFault.FAILED_EXPORT?; }
+	if (!result) { return WaveFault.FAILED_EXPORT?; }
 	return self;
 }
 /** Save wave as .h file
@@ -53,14 +54,14 @@ fn Wave*! Wave.save(&self, String filename) {
  **/
 fn Wave*! Wave.save_as_code(&self, String filename) {
 	bool result = raylib::export_wave_as_code(*self, filename);
-	if (result) { return WaveFault.FAILED_EXPORT?; }
+	if (!result) { return WaveFault.FAILED_EXPORT?; }
 	return self;
 }
 /** Copies Wave
  @return "Copy of wave"
  **/
 fn Wave* Wave.copy(&self) {
-	Wave* output = malloc(Wave.sizeof);
+	Wave* output = mem::new(Wave);
 	*output = raylib::wave_copy(*self);
 	return output;
 }
@@ -117,6 +118,7 @@ fn bool AudioStream.ready(&self) {
  **/
 fn void AudioStream.unload(&self) {
 	raylib::unload_audiostream(*self);
+	free(self);
 }
 /** Updates the buffer with new data
  @param data "New data"
@@ -215,7 +217,7 @@ fault SoundFault {
  @return "Pointer to new Sound"
  **/
 fn Sound* Sound.alias(&self) {
-	Sound* output = malloc(Sound.sizeof);
+	Sound* output = mem::new(Sound);
 	*output = raylib::load_sound_alias(*self);
 	return output;
 }
@@ -238,6 +240,7 @@ fn Sound* Sound.update(&self, void* data, int sample_count) {
  **/
 fn void Sound.unload(&self) {
 	raylib::unload_sound(*self);
+	free(self);
 }
 /** Unload Sound Alias
  **/
@@ -328,7 +331,6 @@ struct Music {
 fault MusicFault {
 	LOAD_FAILED,
 }
-
 /** Checks whether the Music is ready to be used
  @return "Result"
  **/
@@ -339,6 +341,7 @@ fn bool Music.ready(&self) {
  **/
 fn void Music.unload(&self) {
 	raylib::unload_music(*self);
+	free(self);
 }
 /** Updates buffers for streaming
  @return "Self"
@@ -448,7 +451,7 @@ import raylib;
  @return "Wave file"
  **/
 fn Wave*! load(String filename) {
-	Wave* output = malloc(Wave.sizeof);
+	Wave* output = mem::new(Wave);
 	*output = raylib::load_wave(filename);
 	if (output.data == null) { return WaveFault.LOAD_FAILED?; }
 	return output;
@@ -460,7 +463,7 @@ fn Wave*! load(String filename) {
  @return "Wave file"
  **/
 fn Wave*! load_mem(String filetype, char* data, int data_len) {
-	Wave* output = malloc(Wave.sizeof);
+	Wave* output = mem::new(Wave);
 	*output = raylib::load_wave_memory(filetype, data, data_len);
 	if (output.data == null) { return WaveFault.LOAD_FAILED?; }
 	return output;
@@ -481,7 +484,7 @@ import raylib;
  @return "Sound file"
  **/
 fn Sound*! load(String filename) {
-	Sound* output = malloc(Sound.sizeof);
+	Sound* output = mem::new(Sound);
 	*output = raylib::load_sound(filename);
 	if (output.stream.buffer == null) { return SoundFault.LOAD_FAILED?; }
 	return output;
@@ -499,7 +502,7 @@ import raylib;
  @return "Pointer to new audio stream"
  **/
 fn AudioStream* load(uint sample_rate, uint sample_size, uint channels) {
-	AudioStream* output = malloc(AudioStream.sizeof);
+	AudioStream* output = mem::new(AudioStream);
 	*output = raylib::load_audiostream(sample_rate, sample_size, channels);
 	return output;
 }
@@ -514,7 +517,7 @@ import raylib;
  @return "Pointer to music"
  **/
 fn Music*! load(String filename) {
-	Music* output = malloc(Music.sizeof);
+	Music* output = mem::new(Music);
 	*output = raylib::load_music(filename);
 	if (output.stream.buffer == null) { return MusicFault.LOAD_FAILED?; }
 	return output;
@@ -526,7 +529,7 @@ fn Music*! load(String filename) {
  @return "Pointer to music"
  **/
 fn Music*! load_mem(String filetype, char* data, int data_size) {
-	Music* output = malloc(Music.sizeof);
+	Music* output = mem::new(Music);
 	*output = raylib::load_music_from_memory(filetype, data, data_size);
 	if (output.stream.buffer == null) { return MusicFault.LOAD_FAILED?; }
 	return output;

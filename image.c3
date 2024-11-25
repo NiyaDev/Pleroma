@@ -63,7 +63,7 @@ fn char* Image.to_mem_ptr(&self, String filetype, int* length) {
  @return "Pointer to exported texture info"
  **/
 fn Texture* Image.texture(&self) {
-	Texture* result = malloc(Texture.sizeof);
+	Texture* result = mem::new(Texture);
 	*result = raylib::load_texture_from_image(*self);
 	return result;
 }
@@ -71,7 +71,7 @@ fn Texture* Image.texture(&self) {
  @return "Pointer to duplicate of image"
  **/
 fn Image* Image.copy(&self) {
-	Image* result = malloc(Image.sizeof);
+	Image* result = mem::new(Image);
 	*result = raylib::image_copy(*self);
 	return result;
 }
@@ -80,7 +80,7 @@ fn Image* Image.copy(&self) {
  @return "Pointer to duplicate of image"
  **/
 fn Image* Image.copy_section(&self, Rectangle rec) {
-	Image* result = malloc(Image.sizeof);
+	Image* result = mem::new(Image);
 	*result = raylib::image_from_image(*self, rec);
 	return result;
 }
@@ -475,7 +475,7 @@ import pleroma::debug;
  @return "Pointer to loaded Image"
  **/
 fn Image*! load(String filename) {
-	Image* result = malloc(Image.sizeof);
+	Image* result = mem::new(Image);
 	
 	if (file::is_file(filename)) {
 		*result = raylib::load_image(filename);
@@ -496,7 +496,7 @@ fn Image*! load(String filename) {
  @return "Pointer to loaded Image"
  **/
 fn Image*! load_raw(String filename, int width, int height, PixelFormat format, int headersize) {
-	Image* result = malloc(Image.sizeof);
+	Image* result = mem::new(Image);
 	
 	if (file::is_file(filename)) {
 		*result = raylib::load_image_raw(filename, width, height, format, headersize);
@@ -515,7 +515,7 @@ fn Image*! load_raw(String filename, int width, int height, PixelFormat format, 
  @return "Pointer to loaded image"
  **/
 fn Image*! load_svg(String filename, int width, int height) {
-	Image* result = malloc(Image.sizeof);
+	Image* result = mem::new(Image);
 	
 	if (file::is_file(filename)) {
 		*result = raylib::load_image_svg(filename, width, height);
@@ -532,7 +532,7 @@ fn Image*! load_svg(String filename, int width, int height) {
  @return "Pointer to loaded image"
  **/
 fn Image*! load_anim(String filename, int* frames) {
-	Image* result = malloc(Image.sizeof);
+	Image* result = mem::new(Image);
 	
 	if (file::is_file(filename)) {
 		*result = raylib::load_image_anim(filename, frames);
@@ -548,7 +548,7 @@ fn Image*! load_anim(String filename, int* frames) {
  @return "Pointer to loaded image"
  **/
 fn Image* load_mem(String filetype, char[] data) {
-	Image* result = malloc(Image.sizeof);
+	Image* result = mem::new(Image);
 	*result = raylib::load_image_from_memory(filetype, (char*)data, data.len);
 	return result;
 }
@@ -559,7 +559,7 @@ fn Image* load_mem(String filetype, char[] data) {
  @return "Pointer to loaded image"
  **/
 fn Image* load_mem_ptr(String filetype, char* data, usz length) {
-	Image* result = malloc(Image.sizeof);
+	Image* result = mem::new(Image);
 	*result = raylib::load_image_from_memory(filetype, data, (int)length);
 	return result;
 }
@@ -567,7 +567,7 @@ fn Image* load_mem_ptr(String filetype, char* data, usz length) {
  @return "Pointer to loaded image"
  **/
 fn Image* Texture.to_image(&self) {
-	Image* result = malloc(Image.sizeof);
+	Image* result = mem::new(Image);
 	*result = raylib::load_image_from_texture(*self);
 	return result;
 }
@@ -575,7 +575,7 @@ fn Image* Texture.to_image(&self) {
  @return "Pointer to loaded image"
  **/
 fn Image* load_screen() {
-	Image* result = malloc(Image.sizeof);
+	Image* result = mem::new(Image);
 	*result = raylib::load_image_from_screen();
 	return result;
 }
@@ -588,7 +588,7 @@ fn Image* load_screen() {
  @return "Pointer to loaded image"
  **/
 fn Image*! gen_color(int width, int height, Color color) {
-	Image* result = malloc(Image.sizeof);
+	Image* result = mem::new(Image);
 	*result = raylib::gen_image_color(width, height, color);
 	
 	if (result.data != null) { return result; }
@@ -607,7 +607,7 @@ fn Image*! gen_color(int width, int height, Color color) {
  @return "Pointer to loaded image"
  **/
 fn Image*! gen_linear_gradient(int width, int height, int direction, Color start, Color end) {
-	Image* result = malloc(Image.sizeof);
+	Image* result = mem::new(Image);
 	*result = raylib::gen_image_gradient_linear(width, height, direction, start, end);
 	
 	if (result.data != null) { return result; }
@@ -626,7 +626,7 @@ fn Image*! gen_linear_gradient(int width, int height, int direction, Color start
  @return "Pointer to loaded image"
  **/
 fn Image*! gen_radial_gradient(int width, int height, float density, Color inner, Color outer) {
-	Image* result = malloc(Image.sizeof);
+	Image* result = mem::new(Image);
 	*result = raylib::gen_image_gradient_radial(width, height, density, inner, outer);
 	
 	if (result.data != null) { return result; }
@@ -645,7 +645,7 @@ fn Image*! gen_radial_gradient(int width, int height, float density, Color inner
  @return "Pointer to loaded image"
  **/
 fn Image*! gen_square_gradient(int width, int height, float density, Color inner, Color outer) {
-	Image* result = malloc(Image.sizeof);
+	Image* result = mem::new(Image);
 	*result = raylib::gen_image_gradient_square(width, height, density, inner, outer);
 	
 	if (result.data != null) { return result; }
@@ -665,7 +665,7 @@ fn Image*! gen_square_gradient(int width, int height, float density, Color inner
  @return "Pointer to loaded image"
  **/
 fn Image*! gen_checker(int width, int height, int checksx, int checksy, Color col1, Color col2) {
-	Image* result = malloc(Image.sizeof);
+	Image* result = mem::new(Image);
 	*result = raylib::gen_image_checked(width, height, checksx, checksy, col1, col2);
 	
 	if (result.data != null) { return result; }
@@ -682,7 +682,7 @@ fn Image*! gen_checker(int width, int height, int checksx, int checksy, Color co
  @return "Pointer to loaded image"
  **/
 fn Image*! gen_white_noise(int width, int height, float factor) {
-	Image* result = malloc(Image.sizeof);
+	Image* result = mem::new(Image);
 	*result = raylib::gen_image_white_noise(width, height, factor);
 	
 	if (result.data != null) { return result; }
@@ -701,7 +701,7 @@ fn Image*! gen_white_noise(int width, int height, float factor) {
  @return "Pointer to loaded image"
  **/
 fn Image*! gen_perlin_noise(int width, int height, int offsetx, int offsety, float scale) {
-	Image* result = malloc(Image.sizeof);
+	Image* result = mem::new(Image);
 	*result = raylib::gen_image_perlin_noise(width, height, offsetx, offsety, scale);
 	
 	if (result.data != null) { return result; }
@@ -718,7 +718,7 @@ fn Image*! gen_perlin_noise(int width, int height, int offsetx, int offsety, flo
  @return "Pointer to loaded image"
  **/
 fn Image*! gen_cellular(int width, int height, int tilesize) {
-	Image* result = malloc(Image.sizeof);
+	Image* result = mem::new(Image);
 	*result = raylib::gen_image_cellular(width, height, tilesize);
 	
 	if (result.data != null) { return result; }
@@ -735,7 +735,7 @@ fn Image*! gen_cellular(int width, int height, int tilesize) {
  @return "Pointer to generated image"
  **/
 fn Image*! text(String text, int fontsize, Color color) {
-	Image* result = malloc(Image.sizeof);
+	Image* result = mem::new(Image);
 	*result = raylib::image_text(text, fontsize, color);
 	
 	if (result.data != null) { return result; }
@@ -753,7 +753,7 @@ fn Image*! text(String text, int fontsize, Color color) {
  @return "Pointer to generated image"
  **/
 fn Image*! text_ex(Font font, String text, float fontsize, float spacing, Color tint) {
-	Image* result = malloc(Image.sizeof);
+	Image* result = mem::new(Image);
 	*result = raylib::image_text_ex(font, text, fontsize, spacing, tint);
 	
 	if (result.data != null) { return result; }

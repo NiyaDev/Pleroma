@@ -263,7 +263,7 @@ fn Texture*! load(String filename) {
 		return TextureFault.FAILED_FIND_FILE?;
 	}
 
-	Texture* result = malloc(Texture.sizeof);
+	Texture* result = mem::new(Texture);
 		*result = raylib::load_texture(filename);
 		return result;
 }

@@ -113,7 +113,7 @@ fn void! Settings.set(&self, String i, SettingsValue val) @operator([]=) {
 /** Create a new setting
  **/
 fn SettingsValue*! new_setting(SettingValueType type, any value) {
-	SettingsValue* output = malloc(SettingsValue.sizeof);
+	SettingsValue* output = mem::new(SettingsValue);
 	*output = {
 		.type = type,
 	};

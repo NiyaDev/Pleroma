@@ -44,6 +44,7 @@ fn int main(String[] args) {
 	defer sfx_bulk.close();
 
 	pleroma::music = sfx_bulk.get_music("theme")!!;
+	defer pleroma::music.unload();
 	pleroma::music.play();
 	
 	while (!raylib::window_should_close()) {

@@ -133,11 +133,11 @@ import std::io;
  @return "Pointer to Sprite"
  **/
 fn Sprite* new() {
-	Sprite* output = malloc(Sprite.sizeof);
+	Sprite* output = mem::new(Sprite);
 	*output = {};
 	output.animations.new_init();
 
-	SpriteAnimation* ani = malloc(SpriteAnimation.sizeof);
+	SpriteAnimation* ani = mem::new(SpriteAnimation);
 	*ani = {};
 
 	ani.frames = allocator::alloc_array(allocator::heap(), int, 1);
@@ -158,7 +158,7 @@ fn Sprite* new() {
  @return "Pointer to Sprite Animation"
  **/
 fn SpriteAnimation* new_animation(int[] frames, int speed) {
-	SpriteAnimation* ani = malloc(SpriteAnimation.sizeof);
+	SpriteAnimation* ani = mem::new(SpriteAnimation);
 	*ani = {};
 	ani.frames = frames;
 	ani.speed = speed;
