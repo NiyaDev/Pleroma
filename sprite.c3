@@ -59,7 +59,10 @@ fn void! Sprite.new_animation(&self, String name, int[] frames, int speed) {
 		return SpriteFault.ANIM_EXISTS?;
 	}
 
-	SpriteAnimation* ani = sprite::new_animation(frames, speed);
+	int[] new_frames = mem::new_array(int, frames.len);
+	foreach (index, val : frames) new_frames[index] = frames[index];
+
+	SpriteAnimation* ani = sprite::new_animation(new_frames, speed);
 	self.animations.set(name, ani);
 }
 /** Sets current animations and resets previous
@@ -81,6 +84,29 @@ fn void! Sprite.reset_animation(&self) {
 	ani.frame = 0;
 	ani.counter = 0;
 }
+/** 
+ **/
+fn Sprite* Sprite.copy(&self) {
+	Sprite* output = mem::new(Sprite);
+	output.animations.new_init();
+
+	if (self.textures.ptr != null && self.textures.len > 0) {
+		Texture*[] tex_arr = mem::new_array(Texture*, self.textures.len);
+		foreach (index, value : self.textures) {
+			Texture* tex = mem::new(Texture);
+			*tex = *value;
+			tex_arr[index] = tex;
+		}
+		output.textures = tex_arr;
+	}
+
+	self.animations.@each(; String key, SpriteAnimation* val) {
+		output.new_animation(key, val.frames, val.speed)!!;
+	};
+	output.current_animation = self.current_animation;
+
+	return output;
+}
 /** Closes sprite and frees all resources
  **/
 fn void Sprite.close(&self) {
@@ -97,9 +123,11 @@ fn void Sprite.close(&self) {
  **/
 fn void Sprite.print(&self) {
 	io::printn("[\n\t[");
-	for (int i = 0; i < self.textures.len; i++) {
-		io::print("\t\t");
-		self.textures[i].print();
+	if (self.textures.ptr != null) {
+		for (int i = 0; i < self.textures.len; i++) {
+			io::print("\t\t");
+			self.textures[i].print();
+		}
 	}
 	io::printf("\t],\n\tCurrent Animation: %s", self.current_animation);
 	self.animations.@each(; String key, SpriteAnimation* ani) {
@@ -134,7 +162,6 @@ import std::io;
  **/
 fn Sprite* new() {
 	Sprite* output = mem::new(Sprite);
-	*output = {};
 	output.animations.new_init();
 
 	SpriteAnimation* ani = mem::new(SpriteAnimation);

@@ -21,7 +21,7 @@ const char BULK_PATCH = 0;
 
 /*
 	? To add a new filetype to the bulk system
-	? Load, two in Save, and then getter and setter
+	? One in Load, Two in Save, Then One i both .get / .add
 */
 
 
@@ -40,6 +40,8 @@ fault BulkFault {
 	FILE_FAILED_BUFFER,
 	ENTRY_EXISTS,
 	ENTRY_DOESNT_EXIST,
+	ENTRY_NOT_CORRECT_TYPE,
+	ENTRY_NO_TYPE,
 }
 /** Initialize a blank Bulk
  @return "Pointer to new Bulk"
@@ -132,6 +134,8 @@ fn Bulk* load(String filename, Compression compression = NONE) {
 					//* Compile
 					SpriteAnimation* ani = sprite::new_animation(frames, (int)speed);
 					spr.animations.set(key, ani);
+
+					entry.data = spr;
 				}
 			case FONT:			// 04
 				entry.length = (usz)file.read_64();
@@ -443,277 +447,201 @@ fn void Bulk.save(&self, Compression compression = NONE) {
  @param name "Name of entry in Bulk"
  @param filename "Name of file to add to Bulk"
  **/
-fn void! Bulk.add_file(&self, String name, String filename) {
+fn void! Bulk.add_file(&self, String name, String filename, BulkEntryType type) {
 	//* Checking if it already exists
 	if (self.entries.has_key(name)) {
 		debug::log("Attempted to replace a bulk entry.", LOW);
 		return BulkFault.ENTRY_EXISTS?;
 	}
 
+	//* Open File
 	File! f = file::open(filename, "rb");
 	if (catch f) {
 		debug::log("File not found", LOW, filename);
 		return BulkFault.FILE_NOT_FOUND?;
 	}
 
+	//* Get length of file
 	usz! len = file::get_size(filename);
 	if (catch len) {
 		debug::log("File not found", LOW);
 		return BulkFault.FILE_ZERO_LENGTH?;
 	}
 
-	char[] data = allocator::alloc_array(allocator::heap(), char, len);
+	//* Allocate data
+	char[] data = mem::new_array(char, len);
 	usz! result = f.read(data);
 	if (catch result) {
 		debug::log("File not found", LOW);
 		return BulkFault.FILE_FAILED_BUFFER?;
 	}
 
+	//* Close file
 	(void)f.close();
 
 	BulkEntry entry = {
-		.type = AUDIO,
+		.type = type,
 		.length = data.len,
-		.data = (char*)data,
+		.data = data,
 	};
 	self.entries.set(name, entry);
 }
-/** Add string to Bulk
+/** Add data to bulk
  @param name "Name of entry in Bulk"
- @param data "String to add to Bulk"
+ @param data "Data to add to Bulk"
  **/
-fn void! Bulk.add_string(&self, String name, String data) {
+fn void! Bulk.add(&self, String name, any data) {
 	//* Checking if it already exists
 	if (self.entries.has_key(name)) {
 		debug::log("Attempted to replace a bulk entry.", LOW);
 		return BulkFault.ENTRY_EXISTS?;
 	}
 
-	//* Convert String to pointer
-	usz length = data.len+1;
-	char* data_ptr = malloc(length);
-	for (usz i = 0; i < length; i++) {
-		data_ptr[i] = data[i];
+	//* 
+	BulkEntry entry;
+
+	switch (data.type) {
+		case String:
+			String str = *(String*)data;
+			usz length = str.len + 1;
+			char* data_ptr = malloc(length);
+
+			for (usz i = 0; i < length-2; i++) data_ptr[i] = str[i];
+			data_ptr[length-1] = 0;
+
+			entry = {
+				.type = STRING,
+				.length = length,
+				.data = data_ptr,
+			};
+		case Image:
+			int length = 0;
+			char* mem = ((Image*)data).to_mem_ptr(".png", &length);
+
+			((Image*)data).unload();
+
+			entry = {
+				.type = IMAGE,
+				.length = length,
+				.data = mem,
+			};
+		case char[]:
+			entry = {
+				.type = AUDIO,
+				.length = ((char[]*)data).len,
+				.data = (char[]*)data,
+			};
+		case KeybindBulk:
+			entry = {
+				.type = KEYBINDING,
+				.length = KeybindBulk.sizeof,
+				.data = data,
+			};
+		case Sprite:
+			entry = {
+				.type = SPRITE,
+				.length = Sprite.sizeof,
+				.data = data,
+			};
+		case SettingsValue:
+			entry = {
+				.type = SETTING,
+				.length = SettingsValue.sizeof,
+				.data = data,
+			};
 	}
 
-	BulkEntry entry = {
-		.type = STRING,
-		.length = length,
-		.data = (void*)data_ptr,
-	};
 	self.entries.set(name, entry);
 }
-/** Retrieves string from bulk entry
- @param entry_name
- @return "String entry"
+/** Retrieves value from bulk entry
+ @param name "Name of desired entry"
+ @param type "Type of the desired entry"
+ @return "Value"
  **/
-fn String! Bulk.get_string(&self, String entry_name) {
+fn void*! Bulk.get(&self, String name, typeid type) {
 	//* Entry error checking
-	BulkEntry! entry = self.entries[entry_name];
+	BulkEntry! entry = self.entries[name];
 	if (catch entry) {
-		debug::log("Failed to find inputted entry in Bulk.", LOW, self.name, entry_name);
+		debug::log("Failed to find inputted entry in Bulk.", LOW, self.name, name);
 		return BulkFault.ENTRY_DOESNT_EXIST?;
 	}
+
+	//* Make sure input type lines up with actual type
+	switch (type) {
+		case String:
+			//* Ensure it's the correct type
+			if (entry.type != STRING) {
+				debug::log("Tried to load a non-String bulk item as a String.", LOW, name);
+				return BulkFault.ENTRY_NOT_CORRECT_TYPE?;
+			}
 	
-	//* Get string length
-	usz length = 0;
-	for (int i = 0; ((char*)entry.data)[i] != '\0'; i++) { length++; }
-	length++;
-	
-	//* Copy to actual string
-	char[] result = allocator::alloc_array(allocator::heap(), char, length);
-	for (int i = 0; i < length; i++) { result[i] = ((char*)entry.data)[i]; }
+			//* Copy to actual string
+			char[] result = mem::new_array(char, entry.length);
+			for (int i = 0; i < entry.length; i++) { result[i] = ((char*)entry.data)[i]; }
 		
-	return (String)result;
-}
-/** Add image to Bulk
- @param name "Name of entry in Bulk"
- @param data "Image to add to Bulk"
- **/
-fn void! Bulk.add_image(&self, String name, Image* data) {
-	//* Checking if it already exists
-	if (self.entries.has_key(name)) {
-		debug::log("Attempted to replace a bulk entry.", LOW);
-		return BulkFault.ENTRY_EXISTS?;
+			return (String*)&result;
+		case Image:
+			//* Ensure it's the correct type
+			if (entry.type != IMAGE) {
+				debug::log("Tried to load a non-Image bulk item as an Image.", LOW, name);
+				return BulkFault.ENTRY_NOT_CORRECT_TYPE?;
+			}
+
+			return image::load_mem_ptr(".png", entry.data, entry.length);
+		case Music:
+			//* Ensure it's the correct type
+			if (entry.type != AUDIO) {
+				debug::log("Tried to load a non-Audio bulk item as Music.", LOW, name);
+				return BulkFault.ENTRY_NOT_CORRECT_TYPE?;
+			}
+
+			return music::load_mem(".mp3", entry.data, (int)entry.length);
+		case Sound:
+			//* Ensure it's the correct type
+			if (entry.type != AUDIO) {
+				debug::log("Tried to load a non-Audio bulk item as a Sound.", LOW, name);
+				return BulkFault.ENTRY_NOT_CORRECT_TYPE?;
+			}
+
+			Wave* wave = wave::load_mem(".mp3", entry.data, (int)entry.length)!!;
+			Sound* output = wave.sound()!!;
+			wave.unload();
+			return output;
+		case Sprite:
+			//* Ensure it's the correct type
+			if (entry.type != SPRITE) {
+				debug::log("Tried to load a non-Sprite bulk item as a Sprite.", LOW, name);
+				return BulkFault.ENTRY_NOT_CORRECT_TYPE?;
+			}
+
+			io::printfn("%p", entry.data);
+			Sprite* spr = mem::new(Sprite);
+			spr = ((Sprite*)entry.data).copy();
+			//*spr = *((Sprite*)entry.data);
+
+			return spr;
+		case Font:
+			//* Ensure it's the correct type
+			if (entry.type != FONT) {
+				debug::log("Tried to load a non-Font bulk item as a Font.", LOW, name);
+				return BulkFault.ENTRY_NOT_CORRECT_TYPE?;
+			}
+
+			Font* output = font::load_memory(".ttf", entry.data, (int)entry.length, 16, {})!!;
+			return output;
+		case SettingsValue:
+			//* Ensure it's the correct type
+			if (entry.type != SETTING) {
+				debug::log("Tried to load a non-Setting bulk item as a Setting.", LOW, name);
+				return BulkFault.ENTRY_NOT_CORRECT_TYPE?;
+			}
+
+			return entry.data;
 	}
 
-	int length = 0;
-	char* mem = data.to_mem_ptr(".png", &length);
-	data.unload();
-	//free(mem);
-
-	BulkEntry entry = {
-		.type = IMAGE,
-		.length = length,
-		.data = mem,
-	};
-	self.entries.set(name, entry);
-}
-/** Retrieves image from bulk entry
- @param entry_name
- @return "Image entry"
- **/
-fn Image*! Bulk.get_image(&self, String entry_name) {
-	//* Entry error checking
-	BulkEntry! entry = self.entries[entry_name];
-	if (catch entry) {
-		debug::log("Failed to find inputted entry in Bulk.", LOW, self.name, entry_name);
-		return BulkFault.ENTRY_DOESNT_EXIST?;
-	}
-
-	return image::load_mem_ptr(".png", entry.data, entry.length);
-}
-/** Add audio to Bulk
- @param name "Name of entry in Bulk"
- @param data "DRaw data to add to Bulk"
- **/
-fn void! Bulk.add_audio(&self, String name, char[] data) {
-	//* Checking if it already exists
-	if (self.entries.has_key(name)) {
-		debug::log("Attempted to replace a bulk entry.", LOW);
-		return BulkFault.ENTRY_EXISTS?;
-	}
-
-	BulkEntry entry = {
-		.type = AUDIO,
-		.length = data.len,
-		.data = (char*)data,
-	};
-	self.entries.set(name, entry);
-}
-/** Retrieves audio from bulk entry as Music
- @param entry_name
- @return "Music"
- **/
-fn Music*! Bulk.get_music(&self, String entry_name) {
-	//* Entry error checking
-	BulkEntry! entry = self.entries[entry_name];
-	if (catch entry) {
-		debug::log("Failed to find inputted entry in Bulk.", LOW, self.name, entry_name);
-		return BulkFault.ENTRY_DOESNT_EXIST?;
-	}
-
-	return music::load_mem(".mp3", entry.data, (int)entry.length);
-}
-/** Retrieves audio from bulk entry as Sound
- @param entry_name
- @return "Sound"
- **/
-fn Sound*! Bulk.get_sound(&self, String entry_name) {
-	//* Entry error checking
-	BulkEntry! entry = self.entries[entry_name];
-	if (catch entry) {
-		debug::log("Failed to find inputted entry in Bulk.", LOW, self.name, entry_name);
-		return BulkFault.ENTRY_DOESNT_EXIST?;
-	}
-
-	Wave* wave = wave::load_mem(".mp3", entry.data, (int)entry.length)!!;
-	Sound* output = wave.sound()!!;
-	wave.unload();
-	return output;
-}
-/** Add keybinding to Bulk
- @param name "Name of entry in Bulk"
- @param data "Keybind to add to Bulk"
- **/
-fn void! Bulk.add_keybinding(&self, String name, KeybindBulk* data) {
-	//* Checking if it already exists
-	if (self.entries.has_key(name)) {
-		debug::log("Attempted to replace a bulk entry.", LOW);
-		return BulkFault.ENTRY_EXISTS?;
-	}
-
-	BulkEntry entry = {
-		.type = KEYBINDING,
-		.length = KeybindBulk.sizeof,
-		.data = data,
-	};
-	self.entries.set(name, entry);
-}
-/** Add Sprite to bulk
- @param name "Name of entry in Bulk"
- @param data "Sprite data to add to Bulk"
- **/
-fn void! Bulk.add_sprite(&self, String name, Sprite* data) {
-	//* Checking if it already exists
-	if (self.entries.has_key(name)) {
-		debug::log("Attempted to replace a bulk entry.", LOW);
-		return BulkFault.ENTRY_EXISTS?;
-	}
-
-	BulkEntry entry = {
-		.type = AUDIO,
-		.length = Sprite.sizeof,
-		.data = data,
-	};
-	self.entries.set(name, entry);
-}
-/** Retrieves sprite from bulk entry
- @param entry_name
- @return "Sprite"
- **/
-fn Sprite*! Bulk.get_sprite(&self, String entry_name) {
-	//* Entry error checking
-	BulkEntry! entry = self.entries[entry_name];
-	if (catch entry) {
-		debug::log("Failed to find inputted entry in Bulk.", LOW, self.name, entry_name);
-		return BulkFault.ENTRY_DOESNT_EXIST?;
-	}
-
-	Sprite* spr = mem::new(Sprite);
-	*spr = *((Sprite*)entry.data);
-
-	return spr;
-}
-/** Retrieves font from bulk entry
- @param entry_name
- @return "Font"
- **/
-fn Font*! Bulk.get_font(&self, String entry_name) {
-	//* Entry error checking
-	BulkEntry! entry = self.entries[entry_name];
-	if (catch entry) {
-		debug::log("Failed to find inputted entry in Bulk.", LOW, self.name, entry_name);
-		return BulkFault.ENTRY_DOESNT_EXIST?;
-	}
-
-	Font* output = font::load_memory(".ttf", entry.data, (int)entry.length, 16, {})!!;
-	return output;
-}
-/** Add setting to bulk
- @param name "Name of entry in Bulk"
- @param data "Setting data to add to Bulk"
- **/
-fn void! Bulk.add_setting(&self, String name, SettingsValue* data) {
-	//* Checking if it already exists
-	if (self.entries.has_key(name)) {
-		debug::log("Attempted to replace a bulk entry.", LOW);
-		return BulkFault.ENTRY_EXISTS?;
-	}
-
-	BulkEntry entry = {
-		.type = SETTING,
-		.length = SettingsValue.sizeof,
-		.data = data,
-	};
-	self.entries.set(name, entry);
-}
-/** Retrieves setting from bulk entry
- @param entry_name
- @return "Setting"
- **/
-fn SettingsValue*! Bulk.get_setting(&self, String entry_name) {
-	//* Entry error checking
-	BulkEntry! entry = self.entries[entry_name];
-	if (catch entry) {
-		debug::log("Failed to find inputted entry in Bulk.", LOW, self.name, entry_name);
-		return BulkFault.ENTRY_DOESNT_EXIST?;
-	}
-
-	return entry.data;
+	return BulkFault.ENTRY_NO_TYPE?;
 }
 
-// TODO
 
 /** Entry for bulk table
  **/
