@@ -23,17 +23,23 @@ HashMap(<String,SettingsValue>) settings;
 fn void init(
 	String title = "default",
 	int framerate = 60,
-	CameraType camera_mode = CAMERA2D,
+	CameraMode camera_mode = CAMERA2D,
+
+	Resolution screen_res = {-1,-1},
+	Resolution render_res = {-1,-1},
 	
 	//* Debug
 	bool debug_mode = true,
 	PlErrorLevel debug_level = NONE,
+	bool ignore_kb = false,
+	bool ignore_st = false,
 ) {
 	//* Settings
-	settings::init()!!;
+	if (!ignore_st) { settings::init()!!; }
 
-	Resolution screen_res = settings["resolution_screen"]!!.as_resolution;
-	Resolution render_res = settings["resolution_render"]!!.as_resolution;
+	//* If screen and render resolution is set in initializer, ingore settings
+	if (!ignore_st || screen_res.equals({-1,-1})) { screen_res = settings["resolution_screen"]!!.as_resolution; }
+	if (!ignore_st || render_res.equals({-1,-1})) { render_res = settings["resolution_render"]!!.as_resolution; }
 
 	//* Init Raylib
 	raylib::set_trace_log_level(7);
@@ -50,7 +56,7 @@ fn void init(
 	if (try icon) icon.set_icon().unload();
 
 	//* Keybindings
-	keybindings::init()!!;
+	if (!ignore_kb) { keybindings::init()!!; }
 
 	//* Render texture
 	render = rendertexture::load(render_res.width, render_res.height);
@@ -61,7 +67,7 @@ fn void init(
 
 	//* Camera
 	camera::main = {
-		.type = camera_mode,
+		.mode = camera_mode,
 		.cam2d = { {(float)render_res.width/2,(float)render_res.height/2}, {0,0}, 0, 1 },
 		.cam3d = { {0,5,-5}, {0,0,0}, {0,1,0}, 70, CAMERA_PERSPECTIVE }
 	};

@@ -21,7 +21,7 @@ const char BULK_PATCH = 0;
 
 /*
 	? To add a new filetype to the bulk system
-	? One in Load, Two in Save, Then One i both .get / .add
+	? One in Load, two in Save, then one in both .get / .add
 */
 
 

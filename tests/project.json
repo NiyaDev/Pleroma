@@ -5,7 +5,7 @@
 	"dependencies": ["pleroma"],
 	"authors": ["NiyaDev"],
 	"version": "0.1.0",
-	"sources": ["src/**"],
+	"sources": ["src/**","test/**"],
 	"output": "build",
 	"targets": {
 		"tests": {

@@ -652,7 +652,7 @@ extern fn Wave load_wave(char* fileName) @extern("LoadWave");
 // Load wave from memory buffer, fileType refers to extension: i.e. '.wav'
 extern fn Wave load_wave_memory(char* fileType, char* fileData, int dataSize) @extern("LoadWaveFromMemory");
 // Checks if wave data is ready
-extern fn bool wave_ready(Wave wave) @extern("IsWaveReady");
+extern fn bool wave_ready(Wave wave) @extern("IsWaveValid");
 // Load sound from file
 extern fn Sound load_sound(char *fileName) @extern("LoadSound");
 // Load sound from wave data
@@ -660,7 +660,7 @@ extern fn Sound load_sound_wave(Wave wave) @extern("LoadSoundFromWave");
 // Create a new sound that shares the same sample data as the source sound, does not own the sound data
 extern fn Sound load_sound_alias(Sound source) @extern("LoadSoundAlias");
 // Checks if a sound is ready
-extern fn bool sound_ready(Sound sound) @extern("IsSoundReady");
+extern fn bool sound_ready(Sound sound) @extern("IsSoundValid");
 // Update sound buffer with new data
 extern fn void update_sound(Sound sound, void* data, int sampleCount) @extern("UpdateSound");
 // Unload wave data

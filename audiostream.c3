@@ -1,5 +1,6 @@
 
 module pleroma;
+import std::io;
 import raylib;
 
 
@@ -30,7 +31,7 @@ fn bool Wave.ready(&self) {
 fn Sound*! Wave.sound(&self) {
 	Sound* output = mem::new(Sound);
 	*output = raylib::load_sound_wave(*self);
-	if (output.stream.buffer == null) { return SoundFault.LOAD_FAILED?; }
+	//if (output.stream.buffer == null) { return SoundFault.LOAD_FAILED?; }
 	return output;
 }
 /** Unload Wave
@@ -330,6 +331,7 @@ struct Music {
  **/
 fault MusicFault {
 	LOAD_FAILED,
+	SEEK_PAST_END,
 }
 /** Checks whether the Music is ready to be used
  @return "Result"
@@ -392,9 +394,14 @@ fn bool Music.is_playing(&self) {
 }
 /** Seek music to a specific position in seconds
  @param position "Point to seek too"
+ @require position > 0
  @return "Self"
  **/
-fn Music* Music.seek(&self, float position) {
+fn Music*! Music.seek(&self, float position) {
+	if (position > self.length()) {
+		debug::log("Seeked past the length of music.");
+		return MusicFault.SEEK_PAST_END?;
+	}
 	raylib::seek_music(*self, position);
 
 	return self;

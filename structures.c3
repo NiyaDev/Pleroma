@@ -252,6 +252,13 @@ struct Rectangle {
 struct Resolution {
 	int width, height;
 }
+/** Equals
+ @param rhs
+ @return "True if equal"
+ **/
+fn bool Resolution.equals(&self, Resolution rhs) {
+	return (self.width == rhs.width) && (self.height == rhs.height);
+}
 
 
 
@@ -511,6 +518,13 @@ struct Vector3 {
 	float x;
 	float y;
 	float z;
+}
+/** Equals
+ @param rhs
+ @return "True if equal"
+ **/
+fn bool Vector3.equals(&self, Vector3 rhs) {
+	return ((self.x == rhs.x) && (self.y == rhs.y) && (self.z == rhs.z));
 }
 /** Add two Vector3s returning the result
  **/

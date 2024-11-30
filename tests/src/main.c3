@@ -49,10 +49,10 @@ fn int main(String[] args) {
 	pleroma::music.play();
 	
 	while (!raylib::window_should_close()) {
-		if (keybindings::down("up")!!)    camera::main.move({ 0,-1, 0});
-		if (keybindings::down("down")!!)  camera::main.move({ 0, 1, 0});
-		if (keybindings::down("left")!!)  camera::main.move({-1, 0, 0});
-		if (keybindings::down("right")!!) camera::main.move({ 1, 0, 0});
+		if (keybindings::down("up")!!)    camera::move({ 0,-1, 0});
+		if (keybindings::down("down")!!)  camera::move({ 0, 1, 0});
+		if (keybindings::down("left")!!)  camera::move({-1, 0, 0});
+		if (keybindings::down("right")!!) camera::move({ 1, 0, 0});
 		
 		pleroma::begin_drawing();
 
