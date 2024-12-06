@@ -624,6 +624,92 @@ extern fn void draw_bounding_box(BoundingBox bounds, Color color) @extern("DrawB
 
 
 
+//= rmodels
+// Model management functions
+// Load model from files (meshes and materials)
+extern fn Model load_model(char* fileName) @extern("LoadModel");
+// Load model from generated mesh (default material)
+extern fn Model load_model_from_mesh(Mesh mesh) @extern("LoadModelFromMesh");
+// Check if a model is valid (loaded in GPU, VAO/VBOs)
+extern fn bool is_model_valid(Model model) @extern("IsModelValid");
+// Unload model (including meshes) from memory (RAM and/or VRAM)
+extern fn void unload_model(Model model) @extern("UnloadModel");
+// Compute model bounding box limits (considers all meshes)
+extern fn BoundingBox get_model_bounds(Model model) @extern("GetModelBoundingBox");
+
+// Model drawing functions
+// Draw a model (with texture if set)
+extern fn void draw_model(Model model, Vector3 position, float scale, Color tint) @extern("DrawModel");
+// Draw a model with extended parameters
+extern fn void draw_model_ex(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint) @extern("DrawModelEx");
+// Draw a model wires (with texture if set)
+extern fn void draw_model_wires(Model model, Vector3 position, float scale, Color tint) @extern("DrawModelWires");
+// Draw a model wires (with texture if set) with extended parameters
+extern fn void draw_model_wires_ex(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint) @extern("DrawModelWiresEx");
+// Draw a model as points
+extern fn void draw_model_points(Model model, Vector3 position, float scale, Color tint) @extern("DrawModelPoints");
+// Draw a model as points with extended parameters
+extern fn void draw_model_points_ex(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint) @extern("DrawModelPointsEx");
+// Draw bounding box (wires)
+extern fn void draw_bounds(BoundingBox box, Color color) @extern("DrawBoundingBox");
+// Draw a billboard texture
+extern fn void draw_billboard(Camera3D camera, Texture texture, Vector3 position, float scale, Color tint) @extern("DrawBillboard");
+// Draw a billboard texture defined by source
+extern fn void draw_billboard_rec(Camera3D camera, Texture texture, Rectangle source, Vector3 position, Vector2 size, Color tint) @extern("DrawBillboardRec");
+// Draw a billboard texture defined by source and rotation
+extern fn void draw_billboard_pro(Camera3D camera, Texture texture, Rectangle source, Vector3 position, Vector3 up, Vector2 size, Vector2 origin, float rotation, Color tint) @extern("DrawBillboardPro");
+
+// Mesh generation functions
+// Generate polygonal mesh
+extern fn Mesh gen_mesh_poly(int sides, float radius) @extern("GenMeshPoly");
+// Generate plane mesh (with subdivisions)
+extern fn Mesh gen_mesh_plane(float width, float length, int resX, int resZ) @extern("GenMeshPlane");
+// Generate cuboid mesh
+extern fn Mesh gen_mesh_cube(float width, float height, float length) @extern("GenMeshCube");
+// Generate sphere mesh (standard sphere)
+extern fn Mesh gen_mesh_sphere(float radius, int rings, int slices) @extern("GenMeshSphere");
+// Generate half-sphere mesh (no bottom cap)
+extern fn Mesh gen_mesh_hemi(float radius, int rings, int slices) @extern("GenMeshHemiSphere");
+// Generate cylinder mesh
+extern fn Mesh gen_mesh_cylinder(float radius, float height, int slices) @extern("GenMeshCylinder");
+// Generate cone/pyramid mesh
+extern fn Mesh gen_mesh_cone(float radius, float height, int slices) @extern("GenMeshCone");
+// Generate torus mesh
+extern fn Mesh gen_mesh_torus(float radius, float size, int radSeg, int sides) @extern("GenMeshTorus");
+// Generate trefoil knot mesh
+extern fn Mesh gen_mesh_knot(float radius, float size, int radSeg, int sides) @extern("GenMeshKnot");
+// Generate heightmap mesh from image data
+extern fn Mesh gen_mesh_heightmap(Image heightmap, Vector3 size) @extern("GenMeshHeightmap");
+// Generate cubes-based map mesh from image data
+extern fn Mesh gen_mesh_cubicmap(Image cubicmap, Vector3 cubeSize) @extern("GenMeshCubicmap");
+
+// Model animations loading/unloading functions
+// Load model animations from file
+extern fn ModelAnimation* load_model_animations(String fileName, int* animCount) @extern("LoadModelAnimations");
+// Update model animation pose (CPU)
+extern fn void update_model_animation(Model model, ModelAnimation anim, int frame) @extern("UpdateModelAnimation");
+// Update model animation mesh bone matrices (GPU skinning)
+extern fn void update_model_animation_bones(Model model, ModelAnimation anim, int frame) @extern("UpdateModelAnimationBones");
+// Unload animation data
+extern fn void unload_model_animation(ModelAnimation anim) @extern("UnloadModelAnimation");
+// Unload animation array data
+extern fn void unload_model_animations(ModelAnimation *animations, int animCount) @extern("UnloadModelAnimations");
+// Check model animation skeleton match
+extern fn bool is_model_animation_valid(Model model, ModelAnimation anim) @extern("IsModelAnimationValid");
+
+// Collision detection functions
+extern fn bool CheckCollisionSpheres(Vector3 center1, float radius1, Vector3 center2, float radius2);   // Check collision between two spheres
+extern fn bool CheckCollisionBoxes(BoundingBox box1, BoundingBox box2);                                 // Check collision between two bounding boxes
+extern fn bool CheckCollisionBoxSphere(BoundingBox box, Vector3 center, float radius);                  // Check collision between box and sphere
+extern fn RayCollision GetRayCollisionSphere(Ray ray, Vector3 center, float radius);                    // Get collision info between ray and sphere
+extern fn RayCollision GetRayCollisionBox(Ray ray, BoundingBox box);                                    // Get collision info between ray and box
+extern fn RayCollision GetRayCollisionMesh(Ray ray, Mesh mesh, Matrix transform);                       // Get collision info between ray and mesh
+extern fn RayCollision GetRayCollisionTriangle(Ray ray, Vector3 p1, Vector3 p2, Vector3 p3);            // Get collision info between ray and triangle
+extern fn RayCollision GetRayCollisionQuad(Ray ray, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4);    // Get collision info between ray and quad
+
+
+
+
 //= Materials
 //= Material loading/unloading functions
 extern fn Material* load_materials(char* filename, int* materialCount) @extern("LoadMaterials");

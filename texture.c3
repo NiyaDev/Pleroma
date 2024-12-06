@@ -218,6 +218,44 @@ fn Texture* Texture.draw_forced(&self, Rectangle source, Rectangle dest, Vector2
 
 	return self;
 }
+/** Draw Texture as billboard
+ @param camera
+ @param position
+ @param scale
+ @param tint
+ **/
+fn Texture* Texture.draw_billboard(&self, Camera3D camera, Vector3 position, float scale, Color tint) {
+	raylib::draw_billboard(camera, *self, position, scale, tint);
+
+	return self;
+}
+/** Draw Texture as billboard using rectangle
+ @param camera
+ @param source
+ @param position
+ @param size
+ @param tint
+ **/
+fn Texture* Texture.draw_billboard_rec(&self, Camera3D camera, Rectangle source, Vector3 position, Vector2 size, Color tint) {
+	raylib::draw_billboard_rec(camera, *self, source, position, size, tint);
+
+	return self;
+}
+/** Draw Texture as billboard using rectangle and rotation
+ @param camera
+ @param source
+ @param position
+ @param up
+ @param size
+ @param origin
+ @param rotation
+ @param tint
+ **/
+fn Texture* Texture.draw_billboard_pro(&self, Camera3D camera, Rectangle source, Vector3 position, Vector3 up, Vector2 size, Vector2 origin, float rotation, Color tint) {
+	raylib::draw_billboard_pro(camera, *self, source, position, up, size, origin, rotation, tint);
+
+	return self;
+}
 
 /** Create NPatch for use
  @return "NPatchInfo to use"
@@ -264,6 +302,6 @@ fn Texture*! load(String filename) {
 	}
 
 	Texture* result = mem::new(Texture);
-		*result = raylib::load_texture(filename);
-		return result;
+	*result = raylib::load_texture(filename);
+	return result;
 }
