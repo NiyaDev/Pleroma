@@ -301,7 +301,6 @@ fn void Bulk.save(&self, Compression compression = NONE) {
 				offset += 8;
 				
 				//* Name
-				//for (int j = 0; ent.data.key[j] != '\0'; j++) { offset++; }
 				offset += ((KeybindBulk*)ent.data.data).key.len;
 	
 				//* Keybind
@@ -314,7 +313,6 @@ fn void Bulk.save(&self, Compression compression = NONE) {
 
 				//* Value
 				offset += (SettingsValue.sizeof - SettingValueType.sizeof);
-				io::printfn("size: %d - %d = %d", SettingsValue.sizeof, Vector3.sizeof, SettingsValue.sizeof - SettingValueType.sizeof);
 		}
 	}
 
@@ -614,7 +612,6 @@ fn void*! Bulk.get(&self, String name, typeid type) {
 				return BulkFault.ENTRY_NOT_CORRECT_TYPE?;
 			}
 
-			io::printfn("%p", entry.data);
 			Sprite* spr = mem::new(Sprite);
 			spr = ((Sprite*)entry.data).copy();
 			//*spr = *((Sprite*)entry.data);

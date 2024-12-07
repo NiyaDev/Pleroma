@@ -72,6 +72,10 @@ fn void draw_debug_log() {
  **/
 fn void draw_debug_stats() {
 	int fps = raylib::get_fps();
-	Vector2 cam = camera::main.cam2d.target;
-	raylib::draw_text(string::tformat("FPS: %d\nCamera: %d,%d\nTextures: %d\0", fps, cam.x, -cam.y, pleroma::textures_rendered), 0, 0, 10, color::WHITE);
+	Vector3 cam;
+	switch (camera::main.mode) {
+		case CAMERA2D: cam = {camera::main.cam2d.target.x, camera::main.cam2d.target.y, 0};
+		case CAMERA3D: cam = camera::main.cam3d.target;
+	}
+	raylib::draw_text(string::tformat("FPS: %d\nCamera: %d,%d,%d\nTextures: %d\0", fps, cam.x, cam.y, cam.z, pleroma::textures_rendered), 0, 0, 10, color::WHITE);
 }

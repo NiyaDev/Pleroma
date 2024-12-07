@@ -59,12 +59,15 @@ fn void Camera.end(&self) {
 fn void move(Vector3 movement) {
 	switch (main.mode) {
 		case CAMERA2D:
-			main.cam2d.target.x += movement.x;
+			main.cam2d.target.x -= movement.x;
 			main.cam2d.target.y += movement.y;
 		case CAMERA3D:
 			main.cam3d.position.x += movement.x;
 			main.cam3d.position.y += movement.y;
 			main.cam3d.position.z += movement.z;
+			main.cam3d.target.x += movement.x;
+			main.cam3d.target.y += movement.y;
+			main.cam3d.target.z += movement.z;
 	}
 }
 /** Set camera position
@@ -106,6 +109,6 @@ fn void Camera.print(&self) {
 	io::printf("Camera Mode:%s\n", self.mode);
 	switch (self.mode) {
 		case CAMERA2D: io::printfn("\tOffset: %d,%d\n\tTarget: %d,%d\n\tRotation: %d\n\tZoom: %d", self.cam2d.offset.x, self.cam2d.offset.y, self.cam2d.target.x, self.cam2d.target.y, self.cam2d.rotation, self.cam2d.zoom);
-		case CAMERA3D: 
+		case CAMERA3D: io::printfn("\tPosition: %d,%d,%d\n\tTarget: %d,%d,%d\n\tFOV: %d", self.cam3d.position.x, self.cam3d.position.y, self.cam3d.position.z, self.cam3d.target.x, self.cam3d.target.y, self.cam3d.target.z, self.cam3d.fovy);
 	}
 }

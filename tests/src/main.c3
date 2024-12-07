@@ -20,6 +20,7 @@ fn int main(String[] args) {
 	//* Init pleroma
 	pleroma::init(
 		.title = "Testing",
+		.camera_mode = CAMERA3D,
 	);
 	defer pleroma::close();
 
@@ -40,6 +41,7 @@ fn int main(String[] args) {
 	spr.set_animation("not_def")!!;
 	spr.textures = texs;
 
+
 	//* Audio
 	Bulk* sfx_bulk = bulk::load("resources/002.blk", DEFLATE);
 	defer sfx_bulk.close();
@@ -47,12 +49,21 @@ fn int main(String[] args) {
 	pleroma::music = sfx_bulk.get("theme", Music.typeid)!!;
 	defer pleroma::music.unload();
 	pleroma::music.play();
+
+
+	//* Models
+	Mesh* mesh_cube = mesh::gen_cube(16,16,16);
+	Model* model_cube = mesh_cube.model();
+	defer model_cube.unload();
+
 	
 	while (!raylib::window_should_close()) {
-		if (keybindings::down("up")!!)    camera::move({ 0,-1, 0});
-		if (keybindings::down("down")!!)  camera::move({ 0, 1, 0});
-		if (keybindings::down("left")!!)  camera::move({-1, 0, 0});
-		if (keybindings::down("right")!!) camera::move({ 1, 0, 0});
+		if (keybindings::down("up")!!)    	camera::move({ 0, 0, 1});
+		if (keybindings::down("down")!!)  	camera::move({ 0, 0,-1});
+		if (keybindings::down("left")!!)  	camera::move({ 1, 0, 0});
+		if (keybindings::down("right")!!) 	camera::move({-1, 0, 0});
+		if (keybindings::down("shift")!!) 	camera::move({ 0, 1, 0});
+		if (keybindings::down("control")!!) camera::move({ 0,-1, 0});
 		
 		pleroma::begin_drawing();
 
@@ -61,6 +72,8 @@ fn int main(String[] args) {
 		tex.draw(100,0, color::WHITE);
 
 		spr.draw({-100, -100});
+
+		model_cube.draw_ex({1,1,1}, {0,1,0}, 45, {1,1,1}, color::BLUE);
 
 		pleroma::end_drawing();
 	}
@@ -97,14 +110,16 @@ fn void create_bulk() {
 
 fn void default_kb_bulk() {
 	Bulk* kb_bulk = bulk::init("def_kb");
-	kb_bulk.add("kb_up_1", keybindings::new_bulk( .key = "up",		.value = { .type = KEYBOARD, .index = 0, .key = 87 }))!!;
-	kb_bulk.add("kb_up_2", keybindings::new_bulk( .key = "up",		.value = { .type = KEYBOARD, .index = 0, .key = 265}))!!;
-	kb_bulk.add("kb_down_1", keybindings::new_bulk( .key = "down",	.value = { .type = KEYBOARD, .index = 0, .key = 83 }))!!;
-	kb_bulk.add("kb_down_2", keybindings::new_bulk( .key = "down",	.value = { .type = KEYBOARD, .index = 0, .key = 264}))!!;
-	kb_bulk.add("kb_left_1", keybindings::new_bulk( .key = "left",	.value = { .type = KEYBOARD, .index = 0, .key = 65 }))!!;
-	kb_bulk.add("kb_left_2", keybindings::new_bulk( .key = "left",	.value = { .type = KEYBOARD, .index = 0, .key = 263}))!!;
-	kb_bulk.add("kb_right_1", keybindings::new_bulk( .key = "right",	.value = { .type = KEYBOARD, .index = 0, .key = 68 }))!!;
-	kb_bulk.add("kb_right_2", keybindings::new_bulk( .key = "right",	.value = { .type = KEYBOARD, .index = 0, .key = 262}))!!;
+	kb_bulk.add("kb_up_1",		keybindings::new_bulk( .key = "up",		.value = { .type = KEYBOARD, .index = 0, .key = 87 }))!!;
+	kb_bulk.add("kb_up_2",		keybindings::new_bulk( .key = "up",		.value = { .type = KEYBOARD, .index = 0, .key = 265}))!!;
+	kb_bulk.add("kb_down_1",	keybindings::new_bulk( .key = "down",	.value = { .type = KEYBOARD, .index = 0, .key = 83 }))!!;
+	kb_bulk.add("kb_down_2",	keybindings::new_bulk( .key = "down",	.value = { .type = KEYBOARD, .index = 0, .key = 264}))!!;
+	kb_bulk.add("kb_left_1",	keybindings::new_bulk( .key = "left",	.value = { .type = KEYBOARD, .index = 0, .key = 65 }))!!;
+	kb_bulk.add("kb_left_2",	keybindings::new_bulk( .key = "left",	.value = { .type = KEYBOARD, .index = 0, .key = 263}))!!;
+	kb_bulk.add("kb_right_1",	keybindings::new_bulk( .key = "right",	.value = { .type = KEYBOARD, .index = 0, .key = 68 }))!!;
+	kb_bulk.add("kb_right_2",	keybindings::new_bulk( .key = "right",	.value = { .type = KEYBOARD, .index = 0, .key = 262}))!!;
+	kb_bulk.add("kb_shift",		keybindings::new_bulk( .key = "shift",	.value = { .type = KEYBOARD, .index = 0, .key = 340}))!!;
+	kb_bulk.add("kb_cntrl",		keybindings::new_bulk( .key = "control",.value = { .type = KEYBOARD, .index = 0, .key = 341}))!!;
 	kb_bulk.save(DEFLATE);
 }
 
