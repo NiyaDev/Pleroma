@@ -4,6 +4,7 @@ import pleroma::wave;
 import pleroma::sound;
 import pleroma::music;
 import pleroma::camera;
+import pleroma::bulkfile;
 import raylib;
 
 
@@ -80,6 +81,11 @@ fn void! camera() @test {
 
 //* files.c3
 // TODO
+fn void! bulk_file() @test {
+	BulkFile* bulk_test = mem::new(BulkFile);
+	bulk_test.load("resources/001.blk", DEFLATE)!!;
+	defer bulk_test.unload()!!;
+}
 
 //* font.c3
 
