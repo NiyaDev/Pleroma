@@ -19,7 +19,7 @@ enum Compression {
 
 
 <* Create new Bulk file
-@param size "Size of file"
+  @param size "Size of file"
   @param compression "Compression method, default of NONE"
   @return "Pointer to new Bulk file or error"
  *>
@@ -74,7 +74,7 @@ fn BulkFile*! load_file(String filename, Compression compression = NONE) {
       output.data = buffer;
   }
   
-  free(buffer);
+  //free(buffer);
   file.close()!;
 
   return output;
@@ -107,6 +107,13 @@ fn void! BulkFile.save(&self, String filename) {
   }
 
   file.close()!;
+}
+<* *>
+fn void BulkFile.print(&self) {
+  for (int i; i < self.data.len; i++) {
+    io::printf("%2X-",self.data[i]);
+  }
+  io::printn("");
 }
 
 <* Writes byte to bulk file *>
@@ -183,6 +190,7 @@ fn void BulkFile.write_string(&self, String str) {
 		self.data[self.head + i] = ((char*)str)[i];
 	}
 	self.head += str.len;
+	self.data[self.head++] = '\0';
 }
 
 <* Reads byte from the bulkfile *>
@@ -191,31 +199,20 @@ fn char BulkFile.read_8(&self) {
 }
 <* Reads short from the bulkfile *>
 fn short BulkFile.read_16(&self) {
-	short result = self.data[self.head++]
-	  + ((long)self.data[self.head++] <<  8);
-	//self.head += 2;
-	return result;
+  short* result = (short*)&self.data[self.head];
+  self.head += 2;
+	
+	return *result;
 }
 <* Reads int from the bulkfile *>
 fn int BulkFile.read_32(&self) {
-	int result = self.data[self.head]
-		+ ((long)self.data[self.head + 1] <<  8)
-		+ ((long)self.data[self.head + 2] << 16)
-		+ ((long)self.data[self.head + 3] << 24);
+  int* result = (int*)&self.data[self.head];
 	self.head += 4;
-	return result;
+
+  return *result;
 }
 <* Reads long from the bulkfile *>
 fn long BulkFile.read_64(&self) {
-	//long result = self.data[self.head]
-	//	+ ((long)self.data[self.head + 1] <<  8)
-	//	+ ((long)self.data[self.head + 2] << 16)
-	//	+ ((long)self.data[self.head + 3] << 24)
-	//	+ ((long)self.data[self.head + 4] << 32)
-	//	+ ((long)self.data[self.head + 5] << 40)
-	//	+ ((long)self.data[self.head + 6] << 48)
-	//	+ ((long)self.data[self.head + 7] << 56);
-	//self.head += 8;
   long* result = (long*)&self.data[self.head];
   self.head += 8;
 
@@ -225,21 +222,29 @@ fn long BulkFile.read_64(&self) {
 fn float BulkFile.read_float(&self) {
 	float* result = (float*)&self.data[self.head];
 	self.head += 4;
+
 	return *result;
 }
-<* Reads string from the bulkfile
- @require length > 0
- @return "String read"
- *>
-fn String BulkFile.read_string(&self, usz length) {
-	char[] result = allocator::alloc_array(allocator::heap(), char, length);
-	for (int i = 0; i < length; i++) {
-		result[i] = self.data[self.head + i];
-	}
-	
-	self.head += length;
-	
-	return (String)result;
+<* Reads string from the bulkfile *>
+fn String BulkFile.read_string(&self) {
+  usz start = self.head;
+
+  //* Count characters
+  int count = 0;
+  for (int i; self.data[self.head] != '\0'; i++) {
+    count++;
+    self.head++;
+  }
+  self.head = start;
+
+  //* Copy string
+  String output = (String)mem::new_array(char,count);
+  for (int i; i < count; i++) {
+    output[i] = self.data[self.head++];
+  }
+  self.head++;
+  
+  return output;
 }
 <* Read data at pointer to array
  @param length "Amount of data to copy"
@@ -258,7 +263,7 @@ fn char[] BulkFile.read_array(&self, usz length) {
  @param length "Amount of data to copy"
  @return "Array of copied data"
  *>
-fn char* BulkFile.read_pointer(&self, usz length) {
+fn char* BulkFile.read_ptr(&self, usz length) {
 	char* result = malloc(length);
 
 	for (int i = 0; i < length; i++) {

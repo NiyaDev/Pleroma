@@ -15,12 +15,12 @@ struct Bulk {
 
   char major, minor, patch;
 
-  HashMap(<String, BulkValue>) entries;
+  HashMap(<String, BulkEntry>) entries;
 }
 
 <* Value storage *>
-struct BulkValue {
-  any value;
+struct BulkEntry {
+  char[] value;
 }
 
 <* Bulk faults *>
@@ -76,10 +76,67 @@ fn Bulk*! load(String filename) {
   Bulk* output = new(name)!;
 
   //* Create file
+  BulkFile* file = load_file(filename)!!;
+
   //* Read version
-  //output.major = 
+  output.major = file.read_8();
+  output.minor = file.read_8();
+  output.patch = file.read_8();
+
+  switch (true) {
+    case output.major == 1:
+      //* Get number of entries
+      char number_of_entries = file.read_8();
+      usz offset = 4;
+
+      //* Load each entry from file
+      for (int i; i < number_of_entries; i++) {
+        usz data_len = file.read_64();
+        //usz data_ptr = file.read_64();
+        String entry_name = file.read_string();
+        
+        //* Save head value for later
+        //usz old_head = file.head;
+        //file.head = data_ptr;
+
+        //* Create entry
+        BulkEntry entry = {file.read_array(data_len)};
+        output.entries.set(entry_name, entry);
+        //file.head = old_head;
+      }
+  }
+  file.free()!!;
   
   return output;
+}
+<* Saves Bulk to file *>
+// TODO: Add version switch
+fn void! Bulk.save(&self, Compression compression = NONE) {
+  //* Calculate size
+  usz size = 4;
+  self.entries.@each(; String key, BulkEntry entry) {
+    size += 8; // Length
+    size += key.len + 1; // String length
+    size += entry.value.len; // Length of data
+  };
+
+  //* Save to file
+  BulkFile* file = new_file(size, compression)!!;
+
+  file.write_8(self.major);
+  file.write_8(self.minor);
+  file.write_8(self.patch);
+  file.write_8((char)self.entries.len());
+
+  self.entries.@each(; String key, BulkEntry entry) {
+    file.write_64(entry.value.len); //Length of data
+    //file.write_64(); // Pointer
+    file.write_string(key);
+    file.write_array(entry.value);
+  };
+
+  file.save(self.save_path())!!;
+  file.free()!!;
 }
 
 <* Returns full path that bulk will be saved as
