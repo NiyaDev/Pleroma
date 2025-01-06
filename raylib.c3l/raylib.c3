@@ -181,19 +181,19 @@ extern fn void unload_shader(Shader shader) @extern("UnloadShader");
 
 //= Screen-space-related functions
 // Get a ray trace from screen position (i.e mouse)
-extern fn Ray get_screen_to_world(Vector2 position, Camera camera) @extern("GetScreenToWorldRay");
+extern fn Ray get_screen_to_world(Vector2 position, Camera3D camera) @extern("GetScreenToWorldRay");
 // Get a ray trace from screen position (i.e mouse) in a viewport
-extern fn Ray get_screen_to_world_ex(Vector2 position, Camera camera, int width, int height) @extern("GetScreenToWorldRayEx");
+extern fn Ray get_screen_to_world_ex(Vector2 position, Camera3D camera, int width, int height) @extern("GetScreenToWorldRayEx");
 // Get the screen space position for a 3d world space position
-extern fn Vector2 get_world_to_screen(Vector3 position, Camera camera) @extern("GetWorldToScreen");
+extern fn Vector2 get_world_to_screen(Vector3 position, Camera3D camera) @extern("GetWorldToScreen");
 // Get size position for a 3d world space position
-extern fn Vector2 get_world_to_screen_ex(Vector3 position, Camera camera, int width, int height) @extern("GetWorldToScreenEx");
+extern fn Vector2 get_world_to_screen_ex(Vector3 position, Camera3D camera, int width, int height) @extern("GetWorldToScreenEx");
 // Get the screen space position for a 2d camera world space position
 extern fn Vector2 get_world_to_screen_2d(Vector2 position, Camera2D camera) @extern("GetWorldToScreen2D");
 // Get the world space position for a 2d camera screen space position
 extern fn Vector2 get_screen_to_world_2d(Vector2 position, Camera2D camera) @extern("GetScreenToWorld2D");
 // Get camera transform matrix (view matrix)
-extern fn Matrix get_camera_matrix(Camera camera) @extern("GetCameraMatrix");
+extern fn Matrix get_camera_matrix(Camera3D camera) @extern("GetCameraMatrix");
 // Get camera 2d transform matrix
 extern fn Matrix get_camera_matrix_2d(Camera2D camera) @extern("GetCameraMatrix2D");
 

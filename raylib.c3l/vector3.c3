@@ -1,5 +1,6 @@
 
 module raylib;
+import std::math;
 
 
 <* Vector3 *>

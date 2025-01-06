@@ -9,6 +9,6 @@ struct BoundingBox {
 
 <* Draws the bounding box *>
 fn void BoundingBox.draw(self, Color color) {
-  draw_bounding_box(self, color);
+  draw_bounds(self, color);
 }
 

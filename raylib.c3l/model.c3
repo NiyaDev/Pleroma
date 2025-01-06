@@ -250,7 +250,7 @@ import std::io;
  *>
 fn Model*! load(String filename) {
 	if (!file::is_file(filename)) {
-		debug::log("Failed to load Model", NONE, filename);
+		io::printfn("ERROR - Failed to load model {%s}", filename);
 		return ModelFault.FAILED_FIND_FILE?;
 	}
 

@@ -31,6 +31,6 @@ enum PixelFormat : int {
 }
 <* Wrapper for Raylib::GetPixelDataSize() *>
 fn PixelFormat PixelFormat.fade(self, int width, int height) {
-	return (PixelFormat)get_pixel_data_size(width, height, (int)self);
+	return PixelFormat.from_ordinal(get_pixel_data_size(width, height, self.ordinal));
 }
 

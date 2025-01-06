@@ -1,5 +1,6 @@
 
 module raylib;
+import std::io;
 
 
 <* Texture stored in VRAM *>
@@ -73,11 +74,11 @@ fn void Texture.gen_mipmaps(&self) {
 }
 <* Set Texture scaling filter mode *>
 fn void Texture.set_filter(&self, TextureFilter filter) {
-	raylib::set_texture_filter(*self, (int)filter);
+	raylib::set_texture_filter(*self, filter.ordinal);
 }
 <* Set texture wrapping mode *>
 fn void Texture.set_wrap(&self, TextureWrap wrap) {
-	raylib::set_texture_wrap(*self, (int)wrap);
+	raylib::set_texture_wrap(*self, wrap.ordinal);
 }
 
 <* Draws Texture to screen
@@ -203,7 +204,7 @@ import std::io;
  *>
 fn Texture*! load(String filename) {
 	if (!file::is_file(filename)) {
-		debug::log("Failed to load Texture", NONE, filename);
+		io::printfn("ERROR - Failed to load texture {%s}", filename);
 		return TextureFault.FAILED_FIND_FILE?;
 	}
 

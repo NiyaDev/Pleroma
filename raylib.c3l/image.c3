@@ -74,9 +74,8 @@ fn Image[]* Image[].set_icons(&self) {
 	return self;
 }
 <* Convert image format *>
-fn Image* Image.format(&self, PixelFormat newformat) {
-	raylib::image_format(self, (int)newformat);
-	return self;
+fn void Image.set_format(&self, PixelFormat newformat) {
+	image_format(self, newformat.ordinal);
 }
 <* Convert image to power-of-two *>
 fn Image* Image.power_of_two(&self, Color fill) {
@@ -159,9 +158,8 @@ fn Image* Image.resize_canvas(&self, int width, int height, int x_offset, int y_
 	return self;
 }
 <* Compute all mipmap levels *>
-fn Image* Image.mipmaps(&self) {
-	raylib::image_mipmaps(self);
-	return self;
+fn void Image.comp_mipmaps(&self) {
+	image_mipmaps(self);
 }
 <* Dither image
   @param rbpp "Red bpp"
@@ -371,6 +369,7 @@ fn Texture*[] Image.cut_sheet(&self, int count_x, int count_y) {
 module raylib::image;
 import std::io::file;
 
+
 <* Loads image from file.
   Unneeded due to bulk loading, but exists jic.
   @param filename "Name of file to load"
@@ -382,7 +381,7 @@ fn Image*! load(String filename) {
 		*result = raylib::load_image(filename);
 		return result;
 	} else {
-		debug::log("Failed to load Image", NONE, filename);
+		io::printfn("ERROR - Failed to load Image {%s}", filename);
 		return ImageFault.FAILED_FIND_FILE?;
 	}
 }
@@ -402,25 +401,7 @@ fn Image*! load_raw(String filename, int width, int height, PixelFormat format, 
 		*result = raylib::load_image_raw(filename, width, height, format, headersize);
 		return result;
 	} else {
-		debug::log("Failed to load Image", NONE, filename);
-		return ImageFault.FAILED_FIND_FILE?;
-	}
-}
-<* Loads image from .svg
-  Unneeded due to bulk loading, but exists jic.
-  @param filename "Name of file to load"
-  @param width "Width of image"
-  @param height "Height of image"
-  @require width > 0, height > 0, "Width of Height value is invalid"
- *>
-fn Image*! load_svg(String filename, int width, int height) {
-	Image* result = mem::new(Image);
-	
-	if (file::is_file(filename)) {
-		*result = raylib::load_image_svg(filename, width, height);
-		return result;
-	} else {
-		debug::log("Failed to load Image", NONE, filename);
+		io::printf("ERROR - Failed to load image {%s}", filename);
 		return ImageFault.FAILED_FIND_FILE?;
 	}
 }
@@ -436,7 +417,7 @@ fn Image*! load_anim(String filename, int* frames) {
 		*result = raylib::load_image_anim(filename, frames);
 		return result;
 	} else {
-		debug::log("Failed to load Image", NONE, filename);
+		io::printfn("ERROR - Failed to load image {%s}", filename);
 		return ImageFault.FAILED_FIND_FILE?;
 	}
 }
@@ -485,7 +466,7 @@ fn Image*! gen_color(int width, int height, Color color) {
 	
 	if (result.data != null) { return result; }
 	else {
-		debug::log("Failed to generate Image", NONE, $$FUNC);
+		io::printfn("ERROR - Failed to generate color image");
 		return ImageFault.FAILED_GENERATE_IMAGE?;
 	}
 }
@@ -503,7 +484,7 @@ fn Image*! gen_linear_gradient(int width, int height, int direction, Color start
 	
 	if (result.data != null) { return result; }
 	else {
-		debug::log("Failed to generate Image", NONE, $$FUNC);
+		io::printfn("ERROR - Failed to generate Linear Gradient");
 		return ImageFault.FAILED_GENERATE_IMAGE?;
 	}
 }
@@ -522,7 +503,7 @@ fn Image*! gen_radial_gradient(int width, int height, float density, Color inner
 	
 	if (result.data != null) { return result; }
 	else {
-		debug::log("Failed to generate Image", NONE, $$FUNC);
+		io::printfn("ERROR - Failed to generate Radial Gradient");
 		return ImageFault.FAILED_GENERATE_IMAGE?;
 	}
 }
@@ -540,7 +521,7 @@ fn Image*! gen_square_gradient(int width, int height, float density, Color inner
 	
 	if (result.data != null) { return result; }
 	else {
-		debug::log("Failed to generate Image", NONE, $$FUNC);
+		io::printfn("ERROR - Failed to generate Square Gradient");
 		return ImageFault.FAILED_GENERATE_IMAGE?;
 	}
 }
@@ -559,7 +540,7 @@ fn Image*! gen_checker(int width, int height, int checksx, int checksy, Color co
 	
 	if (result.data != null) { return result; }
 	else {
-		debug::log("Failed to generate Image", NONE, $$FUNC);
+		io::printfn("ERROR - Failed to generate Checker pattern");
 		return ImageFault.FAILED_GENERATE_IMAGE?;
 	}
 }
@@ -575,7 +556,7 @@ fn Image*! gen_white_noise(int width, int height, float factor) {
 	
 	if (result.data != null) { return result; }
 	else {
-		debug::log("Failed to generate Image", NONE, $$FUNC);
+		io::printfn("ERROR - Failed to generate White Noise");
 		return ImageFault.FAILED_GENERATE_IMAGE?;
 	}
 }
@@ -593,7 +574,7 @@ fn Image*! gen_perlin_noise(int width, int height, int offsetx, int offsety, flo
 	
 	if (result.data != null) { return result; }
 	else {
-		debug::log("Failed to generate Image", NONE, $$FUNC);
+		io::printfn("ERROR - Failed to generate PErlin Noise");
 		return ImageFault.FAILED_GENERATE_IMAGE?;
 	}
 }
@@ -609,7 +590,7 @@ fn Image*! gen_cellular(int width, int height, int tilesize) {
 	
 	if (result.data != null) { return result; }
 	else {
-		debug::log("Failed to generate Image", NONE, $$FUNC);
+		io::printfn("ERROR - Failed to generate Cellular");
 		return ImageFault.FAILED_GENERATE_IMAGE?;
 	}
 }
@@ -625,7 +606,7 @@ fn Image*! text(String text, int fontsize, Color color) {
 	
 	if (result.data != null) { return result; }
 	else {
-		debug::log("Failed to generate Image", NONE, $$FUNC);
+		io::printfn("ERROR - Failed to generate Text image");
 		return ImageFault.FAILED_GENERATE_IMAGE?;
 	}
 }
@@ -642,7 +623,7 @@ fn Image*! text_ex(Font font, String text, float fontsize, float spacing, Color 
 	
 	if (result.data != null) { return result; }
 	else {
-		debug::log("Failed to generate Image", NONE, $$FUNC);
+		io::printfn("ERROR Failed to generate Text image (ex)");
 		return ImageFault.FAILED_GENERATE_IMAGE?;
 	}
 }

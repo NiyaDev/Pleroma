@@ -1,5 +1,7 @@
 
 module raylib;
+import std::io;
+import std::math;
 
 
 const Color LIGHTGRAY		= {200, 200, 200, 255};

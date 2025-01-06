@@ -1,6 +1,9 @@
 
 module raylib;
+import std::math;
 
+
+const float EPSILON = 1.1920929E-7;
 
 <* Quaternion *>
 distinct Quaternion = Vector4;

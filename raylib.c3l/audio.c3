@@ -1,5 +1,6 @@
 
 module raylib;
+import std::io;
 
 
 <* Audio wave data *>
@@ -263,7 +264,7 @@ fn bool Music.is_playing(&self) {
  *>
 fn void! Music.seek(&self, float position) {
 	if (position > self.length()) {
-		debug::log("Seeked past the length of music.");
+		io::printfn("ERROR Seeked past the length of music");
 		return MusicFault.SEEK_PAST_END?;
 	}
 	raylib::seek_music(*self, position);

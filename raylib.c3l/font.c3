@@ -61,7 +61,7 @@ fn Font* get_default() {
 <* Load font from file *>
 fn Font*! load(String filename) {
 	if (!file::is_file(filename)) {
-		debug::log("Failed to load Font");
+		io::printfn("ERROR - Failed to load Font");
 		return FontFault.FILE_NOT_FOUND?;
 	}
 
@@ -73,7 +73,7 @@ fn Font*! load(String filename) {
 <* Load font from file with extra info *>
 fn Font*! load_ex(String filename, int fontsize, int[] codepoints) {
 	if (!file::is_file(filename)) {
-		debug::log("Failed to load Font");
+		io::printfn("ERROR - Failed to load Font (ex)");
 		return FontFault.FILE_NOT_FOUND?;
 	}
 
