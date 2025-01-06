@@ -24,7 +24,7 @@ fn void bulk_save() @test {
   defer new_bulk.free()!!;
 
   String test_str = "Testing this shit my duderino.";
-  new_bulk.entries.set("test", {(char[])test_str});
+  new_bulk.add("test", (char[])test_str)!!;
 
   new_bulk.save()!!;
 

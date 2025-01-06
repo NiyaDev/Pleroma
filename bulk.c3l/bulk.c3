@@ -1,6 +1,7 @@
 
 module bulk;
 import std::collections;
+import std::io;
 
 
 const char MAJOR = 1;
@@ -32,6 +33,8 @@ fault BulkFault {
   FILE_ZERO_LENGTH,
   FILE_FAILED_BUFFER,
   FILE_CANNOT_WRITE,
+
+  BULK_OVERWRITE,
 }
 
 
@@ -92,17 +95,11 @@ fn Bulk*! load(String filename) {
       //* Load each entry from file
       for (int i; i < number_of_entries; i++) {
         usz data_len = file.read_64();
-        //usz data_ptr = file.read_64();
         String entry_name = file.read_string();
-        
-        //* Save head value for later
-        //usz old_head = file.head;
-        //file.head = data_ptr;
 
         //* Create entry
         BulkEntry entry = {file.read_array(data_len)};
         output.entries.set(entry_name, entry);
-        //file.head = old_head;
       }
   }
   file.free()!!;
@@ -110,33 +107,43 @@ fn Bulk*! load(String filename) {
   return output;
 }
 <* Saves Bulk to file *>
-// TODO: Add version switch
 fn void! Bulk.save(&self, Compression compression = NONE) {
-  //* Calculate size
-  usz size = 4;
-  self.entries.@each(; String key, BulkEntry entry) {
-    size += 8; // Length
-    size += key.len + 1; // String length
-    size += entry.value.len; // Length of data
-  };
+  switch (true) {
+    case self.major == 1:
+      //* Calculate size
+      usz size = 4;
+      self.entries.@each(; String key, BulkEntry entry) {
+        size += 8; // Length
+        size += key.len + 1; // String length
+        size += entry.value.len; // Length of data
+      };
 
-  //* Save to file
-  BulkFile* file = new_file(size, compression)!!;
+      //* Save to file
+      BulkFile* file = new_file(size, compression)!!;
 
-  file.write_8(self.major);
-  file.write_8(self.minor);
-  file.write_8(self.patch);
-  file.write_8((char)self.entries.len());
+      file.write_8(self.major);
+      file.write_8(self.minor);
+      file.write_8(self.patch);
+      file.write_8((char)self.entries.len());
 
-  self.entries.@each(; String key, BulkEntry entry) {
-    file.write_64(entry.value.len); //Length of data
-    //file.write_64(); // Pointer
-    file.write_string(key);
-    file.write_array(entry.value);
-  };
+      self.entries.@each(; String key, BulkEntry entry) {
+        file.write_64(entry.value.len); //Length of data
+        file.write_string(key);
+        file.write_array(entry.value);
+      };
 
-  file.save(self.save_path())!!;
-  file.free()!!;
+      file.save(self.save_path())!!;
+      file.free()!!;
+  }
+}
+<* Inserting a base value *>
+fn void! Bulk.add(&self, String name, char[] data) {
+  if (self.entries.has_key(name)) {
+    io::printf("ERROR - Attempted to overwrite entry");
+    return BulkFault.BULK_OVERWRITE?;
+  }
+
+  self.entries.set(name, {data});
 }
 
 <* Returns full path that bulk will be saved as
