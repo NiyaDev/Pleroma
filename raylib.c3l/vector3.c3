@@ -9,6 +9,7 @@ struct Vector3 {
 	float y;
 	float z;
 }
+
 <* Equals *>
 fn bool Vector3.equals(&self, Vector3 rhs) {
 	return ((self.x == rhs.x) && (self.y == rhs.y) && (self.z == rhs.z));
@@ -189,6 +190,23 @@ fn Vector3 Vector3.rotate_quaternion(&self, Quaternion q) {
 		.y = self.x * (2.0 * q.w * q.z + 2.0 * q.x * q.y) + self.y * (double)(q.w.pow(2) - q.x.pow(2) + q.y.pow(2) - q.z.pow(2)) + self.z * (-2.0 * q.w * q.x + 2.0 * q.y * q.z),
 		.z = self.x * (-2.0 * q.w * q.y + 2.0 * q.x * q.z) + self.y * (2.0 * q.w * q.x + 2.0 * q.y * q.z) + self.z * (double)(q.w.pow(2) - q.x.pow(2) - q.y.pow(2) + q.z.pow(2)),
 	};
+}
+<* Returns point rotated at input distance from self
+	@param dist
+	@param rot
+	@return "Point"
+ *>
+fn Vector3 Vector3.rotate(&self, Vector3 dist, float rot) {
+	Vector3 position;
+
+	position.x = dist.x * (float)math::cos(rot / 57.3) - dist.z * (float)math::sin(rot / 57.3);
+	position.z = dist.x * (float)math::sin(rot / 57.3) + dist.z * (float)math::cos(rot / 57.3);
+
+	position.x += self.x;
+	position.y  = self.y + dist.y;
+	position.z += self.z;
+
+	return position;
 }
 <* Rotates a vector around an axis Using Euler-Rodrigues Formula *>
 fn Vector3 Vector3.rotate_axis(&self, Vector3 axis, float angle) {
