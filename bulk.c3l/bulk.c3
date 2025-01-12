@@ -4,6 +4,7 @@ import std::collections;
 import std::io;
 
 
+const bool IMPORTED = true;
 const char MAJOR = 1;
 const char MINOR = 0;
 const char PATCH = 0;
@@ -35,6 +36,7 @@ fault BulkFault {
   FILE_CANNOT_WRITE,
 
   BULK_OVERWRITE,
+  BULK_NONEXIST,
 }
 
 
@@ -136,6 +138,7 @@ fn void! Bulk.save(&self, Compression compression = NONE) {
       file.free()!!;
   }
 }
+
 <* Inserting a base value *>
 fn void! Bulk.add(&self, String name, char[] data) {
   if (self.entries.has_key(name)) {
@@ -145,7 +148,26 @@ fn void! Bulk.add(&self, String name, char[] data) {
 
   self.entries.set(name, {data});
 }
+<* Get a general value from bulk *>
+fn char[]! Bulk.get(&self, String name) @operator([]) {
+  if (!self.entries.has_key(name)) {
+    io::printfn("ERROR - Attempted to get non-existant entry");
+    return BulkFault.BULK_NONEXIST?;
+  }
 
+  return self.entries[name].value;
+}
+
+<* Prints info on bulk *>
+fn void Bulk.print(&self) {
+  io::printfn("\nBulk - [%s]-[%s%s.bulk] %s {", self.name, self.path, self.name, self.version());
+
+  self.entries.@each(; String key, BulkEntry ent) {
+    io::printfn("\t%s - %sb", key, ent.value.len);
+  };
+
+  io::printn("}");
+}
 <* Returns full path that bulk will be saved as
   @return "File path as a string"
  *>

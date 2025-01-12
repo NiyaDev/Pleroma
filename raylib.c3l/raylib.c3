@@ -2,6 +2,9 @@
 module raylib;
 
 
+const String RAYLIB_VERSION = "5.5.0";
+
+
 //= Window-related functions
 // Initialize window and OpenGL context
 extern fn void init_window(int width, int height, char* title) @extern("InitWindow");

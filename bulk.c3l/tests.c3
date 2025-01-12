@@ -25,12 +25,11 @@ fn void bulk_save() @test {
 
   String test_str = "Testing this shit my duderino.";
   new_bulk.add("test", (char[])test_str)!!;
-
   new_bulk.save()!!;
 
   Bulk* bulk_2 = bulk::load("resources/Test.bulk")!!;
-  BulkEntry ent = bulk_2.entries["test"]!!;
-  assert(ent.value == test_str, "Loading failed");
+  char[] ent = bulk_2.get("test")!!;
+  assert(ent == test_str, "Loading failed");
 }
 
 fn void file_new() @test {
