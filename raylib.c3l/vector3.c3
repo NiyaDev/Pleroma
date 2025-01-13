@@ -14,37 +14,45 @@ struct Vector3 {
 fn bool Vector3.equals(&self, Vector3 rhs) {
 	return ((self.x == rhs.x) && (self.y == rhs.y) && (self.z == rhs.z));
 }
-<* Add two Vector3s returning the result *>
+<* Add two Vector3s *>
 fn Vector3 Vector3.add(&self, Vector3 rhs) {
-	return {
-		.x = self.x + rhs.x,
-		.y = self.y + rhs.y,
-		.z = self.z + rhs.z,
-	};
+	self.x += rhs.x;
+	self.y += rhs.y;
+	self.z += rhs.z;
+
+	return *self;
 }
-<* Subtract two Vector3s returning the result *>
+<* Subtract two Vector3s *>
 fn Vector3 Vector3.sub(&self, Vector3 rhs) {
-	return {
-		.x = self.x - rhs.x,
-		.y = self.y - rhs.y,
-		.z = self.z - rhs.z,
-	};
+	self.x -= rhs.x;
+	self.y -= rhs.y;
+	self.z -= rhs.z;
+
+	return *self;
 }
-<* Multiply two Vector3s returning the result *>
+<* Multiply two Vector3s *>
 fn Vector3 Vector3.mul(&self, Vector3 rhs) {
-	return {
-		.x = self.x * rhs.x,
-		.y = self.y * rhs.y,
-		.z = self.z * rhs.z,
-	};
+	self.x *= rhs.x;
+	self.y *= rhs.y;
+	self.z *= rhs.z;
+
+	return *self;
 }
-<* Divide two Vector3s returning the result *>
+<* Multiply Vector3 by float *>
+fn Vector3 Vector3.mul_f(&self, float rhs) {
+	self.x *= rhs;
+	self.y *= rhs;
+	self.z *= rhs;
+
+	return *self;
+}
+<* Divide two Vector3s *>
 fn Vector3 Vector3.div(&self, Vector3 rhs) {
-	return {
-		.x = self.x / rhs.x,
-		.y = self.y / rhs.y,
-		.z = self.z / rhs.z,
-	};
+	self.x = self.x / rhs.x;
+	self.y = self.y / rhs.y;
+	self.z = self.z / rhs.z;
+
+	return *self;
 }
 <* Calculate two vectors cross product *>
 fn Vector3 Vector3.cross_product(&self, Vector3 v2) {
