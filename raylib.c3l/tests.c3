@@ -4,7 +4,7 @@ import raylib;
 
 
 fn void aa_start() @test {
-	raylib::set_trace_log_level(7);
+	raylib::set_trace_log_level(NONE);
 	raylib::init_window(100, 100, "TESTS");
 	raylib::set_target_fps(60);
 	raylib::init_audio_device();

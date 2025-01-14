@@ -204,7 +204,7 @@ extern fn Matrix get_camera_matrix_2d(Camera2D camera) @extern("GetCameraMatrix2
 // Set target FPS (maximum)
 extern fn void set_target_fps(int fps) @extern("SetTargetFPS");
 // Get time in seconds for last frame drawn (delta time)
-extern fn float get_frametime() @extern("GetFrameTime");
+extern fn float get_frame_time() @extern("GetFrameTime");
 // Get elapsed time in seconds since InitWindow()
 extern fn double get_time() @extern("GetTime");
 // Get current FPS
@@ -243,7 +243,7 @@ extern fn void open_url(char* url) @extern("OpenURL");
 //= Show trace log messages (LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR...)
 //extern fn void tracelog(int logLevel, const char *text, ...) @extern("TraceLog");
 // Set custom trace log
-extern fn void set_trace_log_level(int logLevel) @extern("SetTraceLogLevel");
+extern fn void set_trace_log_level(TraceLogLevel logLevel) @extern("SetTraceLogLevel");
 // Internal memory allocator
 extern fn void* memalloc(uint size) @extern("MemAlloc");
 // Internal memory reallocator
@@ -310,21 +310,21 @@ extern fn uint* compute_sha1(char *data, int dataSize) @extern("ComputeSHA1");
 
 //= Input-related functions: keyboard
 // Check if a key has been pressed once
-extern fn bool is_key_pressed(int key) @extern("IsKeyPressed");
+extern fn bool is_key_pressed(KeyboardKey key) @extern("IsKeyPressed");
 // Check if a key has been pressed again (Only PLATFORM_DESKTOP)
-extern fn bool is_key_repeat(int key) @extern("IsKeyPressedRepeat");
+extern fn bool is_key_repeat(KeyboardKey key) @extern("IsKeyPressedRepeat");
 // Check if a key is being pressed
-extern fn bool is_key_down(int key) @extern("IsKeyDown");
+extern fn bool is_key_down(KeyboardKey key) @extern("IsKeyDown");
 // Check if a key has been released once
-extern fn bool is_key_released(int key) @extern("IsKeyReleased");
+extern fn bool is_key_released(KeyboardKey key) @extern("IsKeyReleased");
 // Check if a key is NOT being pressed
-extern fn bool is_key_up(int key) @extern("IsKeyUp");
+extern fn bool is_key_up(KeyboardKey key) @extern("IsKeyUp");
 // Get key pressed (keycode), call it multiple times for keys queued, returns 0 when the queue is empty
-extern fn int get_key_pressed() @extern("GetKeyPressed");
+extern fn KeyboardKey get_key_pressed() @extern("GetKeyPressed");
 // Get char pressed (unicode), call it multiple times for chars queued, returns 0 when the queue is empty
 extern fn int get_char_pressed() @extern("GetCharPressed");
 // Set a custom key to exit program (default is ESC)
-extern fn void set_exit_key(int key) @extern("SetExitKey");
+extern fn void set_exit_key(KeyboardKey key) @extern("SetExitKey");
 
 //= Input-related functions: gamepads
 // Check if a gamepad is available

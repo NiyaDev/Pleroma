@@ -21,7 +21,14 @@ struct NPatchInfo {
 	int top;
 	int right;
 	int bottom;
-	int layout;
+	NPatchLayout layout;
+}
+
+<* N-patch layout *>
+enum NPatchLayout {
+    NINE_PATCH,              // Npatch layout: 3x3 tiles
+    THREE_PATCH_VERTICAL,    // Npatch layout: 1x3 tiles
+    THREE_PATCH_HORIZONTAL   // Npatch layout: 3x1 tiles
 }
 
 <* Texture filter modes *>
@@ -178,7 +185,7 @@ fn NPatchInfo Texture.npatch(&self) {
 		.top = self.height / 3,
 		.right = self.width / 3,
 		.bottom = self.height / 3,
-		.layout = 0,
+		.layout = NINE_PATCH,
 	};
 }
 <* Prints information of texture *>

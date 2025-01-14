@@ -2,7 +2,55 @@
 module raylib;
 
 
-// TODO: Replace this with enum
+<* Mouse buttons *>
+enum MouseButton {
+  LEFT,       // Mouse button left
+  RIGHT,      // Mouse button right
+  MIDDLE,     // Mouse button middle (pressed wheel)
+  SIDE,       // Mouse button side (advanced mouse device)
+  EXTRA,      // Mouse button extra (advanced mouse device)
+  FORWARD,    // Mouse button fordward (advanced mouse device)
+  BACK,       // Mouse button back (advanced mouse device)
+}
+<* Mouse axis *>
+enum MouseAxis {
+  X,
+  Y,
+  SCROLL,
+}
+<* Gamepad buttons *>
+enum GamepadButton : int {
+  UNKNOWN,             // Unknown button, just for error checking
+  LEFT_FACE_UP,        // Gamepad left DPAD up button
+  LEFT_FACE_RIGHT,     // Gamepad left DPAD right button
+  LEFT_FACE_DOWN,      // Gamepad left DPAD down button
+  LEFT_FACE_LEFT,      // Gamepad left DPAD left button
+  RIGHT_FACE_UP,       // Gamepad right button up (i.e. PS3: Triangle, Xbox: Y)
+  RIGHT_FACE_RIGHT,    // Gamepad right button right (i.e. PS3: Square, Xbox: X)
+  RIGHT_FACE_DOWN,     // Gamepad right button down (i.e. PS3: Cross, Xbox: A)
+  RIGHT_FACE_LEFT,     // Gamepad right button left (i.e. PS3: Circle, Xbox: B)
+  LEFT_TRIGGER_1,      // Gamepad top/back trigger left (first), it could be a trailing button
+  LEFT_TRIGGER_2,      // Gamepad top/back trigger left (second), it could be a trailing button
+  RIGHT_TRIGGER_1,     // Gamepad top/back trigger right (one), it could be a trailing button
+  RIGHT_TRIGGER_2,     // Gamepad top/back trigger right (second), it could be a trailing button
+  MIDDLE_LEFT,         // Gamepad center buttons, left one (i.e. PS3: Select)
+  MIDDLE,              // Gamepad center buttons, middle one (i.e. PS3: PS, Xbox: XBOX)
+  MIDDLE_RIGHT,        // Gamepad center buttons, right one (i.e. PS3: Start)
+  LEFT_THUMB,          // Gamepad joystick pressed button left
+  RIGHT_THUMB          // Gamepad joystick pressed button right
+}
+<* Gamepad Axis *>
+enum GamepadAxis : int {
+  LEFT_X,           // Gamepad left stick X axis
+  LEFT_Y,           // Gamepad left stick Y axis
+  RIGHT_X,          // Gamepad right stick X axis
+  RIGHT_Y,          // Gamepad right stick Y axis
+  LEFT_TRIGGER,     // Gamepad back trigger left, pressure level: [1..-1]
+  RIGHT_TRIGGER     // Gamepad back trigger right, pressure level: [1..-1]
+}
+
+
+<* Keyboard Keys *>
 distinct KeyboardKey = int;
 
 const KeyboardKey KEY_NULL            = 0;        // Key: NULL; used for no key pressed

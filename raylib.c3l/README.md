@@ -1,4 +1,3 @@
 
-Raylib structures and bindings for Pleroma
-
-Raylib version 5.5
+### Raylib
+5.5
