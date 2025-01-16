@@ -62,6 +62,10 @@ fn void Model.unload(&self) {
 fn BoundingBox Model.bounds(&self) {
 	return raylib::get_model_bounds(*self);
 }
+<* Set material *>
+fn void Model.set_material(&self, Material* mat) {
+	self.materials[0] = *mat;
+}
 
 <* Draw model *>
 fn void Model.draw(&self, Vector3 position, float scale, Color tint) {

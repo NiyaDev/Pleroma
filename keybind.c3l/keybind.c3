@@ -50,7 +50,7 @@ fault KeybindFault {
 <* Check if Keybind is pressed *>
 fn bool! is_pressed(String name) {
   if (!data.has_key(name)) {
-    io::printf("ERROR - Keybinding doesn't exist [%s]", name);
+    io::printfn("ERROR - Keybinding doesn't exist [%s]", name);
     return KeybindFault.NO_BINDING?;
   }
 
@@ -59,6 +59,23 @@ fn bool! is_pressed(String name) {
   switch (bind.type) {
     case KEYBOARD:
       if ((bind.kb_m == raylib::KEY_NULL || raylib::is_key_down(bind.kb_m)) && raylib::is_key_pressed(bind.kb)) return true;
+    default:
+  }
+
+  return false;
+}
+<* Check if Keybind is down *>
+fn bool! is_down(String name) {
+  if (!data.has_key(name)) {
+    io::printfn("ERROR - Keybinding doesn't exist [%s]", name);
+    return KeybindFault.NO_BINDING?;
+  }
+
+  Keybind bind = data[name]!!;
+
+  switch (bind.type) {
+    case KEYBOARD:
+      if ((bind.kb_m == raylib::KEY_NULL || raylib::is_key_down(bind.kb_m)) && raylib::is_key_down(bind.kb)) return true;
     default:
   }
 
