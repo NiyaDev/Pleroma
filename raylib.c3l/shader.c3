@@ -8,6 +8,7 @@ struct Shader {
   int* locs;
 }
 
+
 <* Wrapper for Raylib::UnloadShader(shader: ShaderRl) *>
 fn void Shader.unload(&self) {
 	unload_shader(*self);
@@ -25,3 +26,24 @@ fn void Shader.end(&self) {
 	end_shader_mode();
 }
 
+
+
+module raylib::shader;
+
+
+<**>
+fn Shader* load(String vs, String fs) {
+	Shader* output = mem::new(Shader);
+
+	*output = raylib::load_shader(vs, fs);
+
+	return output;
+}
+<**>
+fn Shader* from_mem(char* vs, char* fs) {
+	Shader* output = mem::new(Shader);
+
+	*output = raylib::load_shader_memory(vs, fs);
+
+	return output;
+}

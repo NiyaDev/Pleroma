@@ -139,9 +139,7 @@ fn void Texture.draw_pro(&self, Rectangle source, Rectangle dest, Vector2 origin
   @param rotation "Rotation of Texture"
   @param tint "Color to tint texture"
  *>
-fn void Texture.draw_npatch(&self, Rectangle dest, Vector2 origin, float rotation, Color tint) {
-	NPatchInfo npat = self.npatch();
-
+fn void Texture.draw_npatch(&self, NPatchInfo npat, Rectangle dest, Vector2 origin, float rotation, Color tint) {
 	raylib::draw_texture_npatch(*self, npat, dest, origin, rotation, tint);
 }
 <* Draw Texture as billboard
