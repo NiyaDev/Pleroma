@@ -146,7 +146,11 @@ fn void! Bulk.add(&self, String name, char[] data) {
     return BulkFault.BULK_OVERWRITE?;
   }
 
-  self.entries.set(name, {data});
+  //* Duplicate data
+  char[] new_data = mem::new_array(char, data.len);
+  for (int i; i < data.len; i++) new_data[i] = data[i];
+
+  self.entries.set(name, {new_data});
 }
 <* Get a general value from bulk *>
 fn char[]! Bulk.get(&self, String name) @operator([]) {
@@ -155,7 +159,12 @@ fn char[]! Bulk.get(&self, String name) @operator([]) {
     return BulkFault.BULK_NONEXIST?;
   }
 
-  return self.entries[name].value;
+  //* Duplicate data
+  char[] data = self.entries[name]!!.value;
+  char[] new_data = mem::new_array(char, data.len);
+  for (int i; i < data.len; i++) new_data[i] = data[i];
+
+  return new_data;
 }
 
 <* Prints info on bulk *>
