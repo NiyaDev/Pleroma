@@ -4,66 +4,79 @@ import std::io;
 import std::collections;
 
 
-struct Yaml {
-  String version;
-  Collection data;
-}
-enum DataType {
-  STRING,
+enum YAMLType {
+  NONE,
   INT,
-  FLOAT,
+  DOUBLE,
+  STRING,
+  ARRAY,
   BOOL,
   OBJECT,
-  COLLECTION
 }
-struct Data {
-  DataType type;
-  union {
-    String str;
-    int i;
-    float f;
-    bool b;
-    Object* obj;
-    Collection* col;
+fn String YAMLType.to_string(self) {
+  switch (self) {
+    case INT:    return "int";
+    case DOUBLE: return "double";
+    case STRING: return "string";
+    case ARRAY:  return "array";
+    case BOOL:   return "bool";
+    case OBJECT: return "object";
+    default:     return "None";
   }
 }
 
-struct Object {
-  HashMap(<String, Data>) data;
-}
-struct Collection {
-  Data[] data;
-}
-
-fault YamlFault {
-  FILE_NOT_FOUND,
+struct NamedValue {
+  String name;
+  YAMLType type;
+  void* value;
 }
 
-
-<*  *>
-fn Yaml*! load(String filename) {
-  File! file = file::open(filename, "r");
-  if (catch file) {
-    io::printfn("Failed to open file [%s]", filename);
-    return YamlFault.FILE_NOT_FOUND?;
+fault TypedValueFault {
+  SIZE_WRONG_TYPE,
+  GET_WRONG_TYPE,
+}
+struct TypedValue {
+  YAMLType type;
+  void* value;
+}
+fn usz! TypedValue.size(&self) {
+  switch (self.type) {
+    case ARRAY:  return ((List(<TypedValue>))self.value).len;
+    case OBJECT: return ((HashMap(<String, TypedValue>))self.value).len;
   }
+  io::printfn("ERROR - Unable to get length of type %s. This is only applicable to Arrays and Objects.", self.type.to_string());
+  return TypedValueFault.SIZE_WRONG_TYPE?;
+}
+fn TypedValue! TypedValue.get_array(&self, usz index) {
+  if (self.type != ARRAY) {
+    io::printfn("ERROR - Attempting to cast TypedValue of type %s to array.", self.type.to_string());
+    return TypedValueFault.GET_WRONG_TYPE?;
+  }
+  return ((List(<TypedValue>))self.value)[index];
+}
+fn TypedValue! TypedValue.get_object(&self, String name) {
+  if (self.type != OBJECT) {
+    io::printfn("ERROR - Attempting to cast TypedValue of  type %s to object.", self.type.to_string());
+    return TypedValueFault.GET_WRONG_TYPE?;
+  }
+  return ((HashMap(<String, TypedValue>))self.value)[name];
+}
 
-  char[] data = mem::new_array(char, file::get_size(filename))!!;
-  file.read(data)!!;
-  //io::printfn("\n%s",(String)data);
+def Array = List(<TypedValue>);
+def Map   = HashMap(<String, TypedValue>);
 
-  Yaml* output = mem::new(Yaml);
-  
-  String[] lines = ((String)data).tsplit("\n");
-
-  //* Version
-  String[] firstline = lines[0].tsplit(" ");
-  output.version = firstline[1];
-  free(firstline);
-
-  io::printfn("Ver: %s",output.version);
-  //output.version = 
-
-  return null;
+<* Counts the number of spaces set at the beginning of a string *>
+fn int count_spaces(String str, int tab_spaces = 4) {
+  int spaces = 0;
+  for (int i; i < str.len; i++) {
+    if (str[i] == ' ') {
+      spaces++;
+    } else if (str[i] == '\t') {
+      spaces += tab_spaces;
+    } else {
+      return spaces;
+    } 
+  }
+  return spaces;
 }
 
