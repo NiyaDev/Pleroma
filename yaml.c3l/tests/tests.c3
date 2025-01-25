@@ -75,8 +75,11 @@ fn void yaml_test() @test {
   assert(nval.valid(), "Failed to validate NamedValue");
 
   //* Yaml Parsing
-  Yaml yml = yaml::parse("yaml.c3l/tests/test.yml")!!;
-  TypedValue singleline = yml.get("Singleline test")!!; 
+  Yaml yml = yaml::parse_file("yaml.c3l/tests/test.yml")!!;
+  TypedValue* singleline = yml.get("Singleline test")!!;
+  //singleline.print();
+  //io::printf("fug");
+  io::printfn("%s - %s",singleline.type, singleline.get_string()!!);
   assert(*(String*)singleline.value == "Testing a single line.", "Failed to parse single line");
 }
 

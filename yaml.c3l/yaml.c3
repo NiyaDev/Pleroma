@@ -29,17 +29,37 @@ fn String YAMLType.to_string(self) {
 struct NamedValue {
   String name;
   YAMLType type;
-  void* value;
+  //void* value;
+  union {
+    void* value;
+    bool  v_bool;
+    int   v_iny;
+    double v_double;
+    String v_string;
+    Object v_object;
+    Array v_array;
+  }
 }
 
 fault YamlFault {
   SIZE_WRONG_TYPE,
   GET_WRONG_TYPE,
   FILE_ERROR,
+  NO_HEADER,
+  INCORRECT_VERSION,
 }
 struct TypedValue {
   YAMLType type;
-  void* value;
+  //void* value;
+  union {
+    void* value;
+    bool  v_bool;
+    int   v_iny;
+    double v_double;
+    String v_string;
+    Object v_object;
+    Array v_array;
+  }
 }
 fn usz! TypedValue.size(&self) {
   switch (self.type) {
@@ -65,8 +85,8 @@ fn TypedValue! TypedValue.get_object(&self, String name) {
   return ((HashMap(<String, TypedValue>)*)self.value).get(name);
 }
 
-def Array  = List(<TypedValue>);
-def Yaml   = HashMap(<String, TypedValue>);
+def Array  = List(<TypedValue*>);
+def Yaml   = HashMap(<String, TypedValue*>);
 def Object = Yaml;
 
 <* Counts the number of spaces set at the beginning of a string *>
@@ -212,12 +232,10 @@ fn NamedValue String.to_value(&self) {
       val.value = mem::new(double);
       *(double*)val.value = name_value[1].to_double()!!;
     case STRING:
-      //val.value = &name_value[1].copy();
-      //
-      String str = (String)mem::new_array(char,name_value[1].len);
-      for (int i; i < name_value[1].len; i ++) str[i] = name_value[1][i];
-      io::printf("%s", str);
-      val.value = &str;
+      //String str = (String)mem::new_array(char,name_value[1].len);
+      //for (int i; i < name_value[1].len; i ++) str[i] = name_value[1][i];
+      String str = name_value[1].copy();
+      val.value = str;
     case BOOL:
       val.value = mem::new(bool);
       *(bool*)val.value = name_value[1] == "true";
@@ -230,12 +248,8 @@ fn NamedValue String.to_value(&self) {
 fn bool NamedValue.valid(&self) {
   return (self.value != null);
 }
-<*  *>
-fn Yaml! parse(String filename) {
-  Yaml yaml;
-  String[] lines;
-  int file_indent;
-
+<* Loads a file to pass into parse function *>
+fn Yaml! parse_file(String filename) {
   File! file = file::open(filename, "r");
   if (catch file) {
     io::printfn("ERROR - Failed to find file");
@@ -243,36 +257,59 @@ fn Yaml! parse(String filename) {
   }
   usz! length = file::get_size(filename);
   if (catch length) {
-    io::printfn("ERROR - Failed to find file");
+    io::printfn("ERROR - Failed to fin file");
     return YamlFault.FILE_ERROR?;
   }
   char[] buffer = mem::new_array(char, length);
   file.read(buffer)!!;
   file.close()!!;
 
-  lines = ((String)buffer).split("\n");
-  for (int i; i < lines.len; i++) {
-    //* Remove spaces after chars
-    lines[i] = lines[i].remove_spaces_after_char(':').remove_spaces_after_char(',');//.truncate_spaces().truncate_spaces_after().remove_spaces_after_char(':');
+  return parse((String)buffer);
+}
+<* Parses Yaml data *>
+fn Yaml! parse(String file) {
+  Yaml yaml;
+
+  //* Split up lines
+  String[] lines = file.split("\n");
+  if (lines[0].len < 5 || lines[0][0..4] != "%YAML") {
+    io::printfn("ERROR - No header found");
+    return YamlFault.NO_HEADER?;
+  }
+  if (lines[0].len < 9 || lines[0][6..8] != "1.2") {
+    io::printfn("ERROR - Version %s incompatible", lines[0][6:8]);
+    return YamlFault.INCORRECT_VERSION?;
+  }
+
+  int file_indent;
+  for (int i = 2; i < lines.len; i++) {
+    //* Ignore empty lines
+    if (lines[i].truncate_spaces() == "") continue;
+
+    //* Count indent
     int spaces = lines[i].count_spaces();
     if (spaces > 0 && file_indent == 0) file_indent = spaces;
-    
+
     //* Remove comments
     String[] temp = lines[i].split("#");
-    lines[i] = temp[0];
+    String tmp = temp[0].copy().truncate_spaces_after();
     free(temp);
+    lines[i] = tmp;
+
+    //* Remove spaces
+    lines[i] = lines[i].remove_spaces_after_char(':').remove_spaces_after_char(',');
 
     //io::printf("\n%s",lines[i]);
   }
 
-  //io::printfn("\n%s",lines);
-
   List(<void*>) scope_stack;
   scope_stack.push(&yaml);
   int prev_indent;
+  io::printfn("");
 
-  for (int i; i < lines.len; i++) {
-    io::printf("\n%s",lines[i]);
+  for (int i = 2; i < lines.len; i++) {
+    if (lines[i].truncate_spaces() == "") continue; 
+
     int indent = lines[i].count_spaces();
     if (indent < prev_indent) {
       for (int f; f < (prev_indent - indent) / file_indent; f++) {
@@ -281,32 +318,30 @@ fn Yaml! parse(String filename) {
     }
 
     NamedValue v = lines[i].truncate_spaces().to_value();
+    //v.to_typed().print();
 
     if (v.valid()) {
       //* Adding value to deepest object
-      (*((Object*)(scope_stack[scope_stack.len()-1]))).set(v.name, {v.type,v.value});
+      //(*((Object*)(scope_stack[scope_stack.len()-1]))).set(v.name, {v.type,v.value});
+      TypedValue* tv = mem::new(TypedValue, v.to_typed());
+      (*((Object*)(scope_stack[scope_stack.len()-1]))).set(v.name, tv);
     } else {
       //* Add a new object to the deepest object if no value
-      (*((Object*)(scope_stack[scope_stack.len()-1]))).set(v.name, {OBJECT,mem::new(Object)});
+      TypedValue* tv = mem::new(TypedValue, {OBJECT, mem::new(Object)});
+      (*((Object*)(scope_stack[scope_stack.len()-1]))).set(v.name, tv);
       scope_stack.push((*((Object*)(scope_stack[scope_stack.len()-1]))).get(v.name)!!.value);
     }
     prev_indent = indent;
   }
 
   yaml.print();
-  //io::printf("%s",yaml);
-  //yaml.@each(;String key, TypedValue val) {
-  //  io::printf("%s: %s\n", key, val.type);
-  //  (*(Object*)val.value).@each(;String keyd, TypedValue vald) {
-  //    io::printf("\t%s: %s\n", keyd, vald.type);
-  //  };
-  //};
 
+  //io::printfn("%d",count);
   return yaml;
 }
 
 fn void Yaml.print(&self) {
-  self.@each(; String key, TypedValue val) {
+  self.@each(; String key, TypedValue* val) {
     if (val.type == OBJECT) {
       io::printfn("%s:",key);
       val.print(1);
@@ -317,13 +352,27 @@ fn void Yaml.print(&self) {
 }
 
 fn void TypedValue.print(&self, int tabs = 0) {
+  for (int i; i < tabs; i++) io::print(" ");
+  switch (self.type) {
+    case BOOL:    io::printfn("%s: %b", self.type, *(bool*)self.value);
+    case INT:     io::printfn("%s: %s", self.type, *(int*)self.value);
+    case DOUBLE:  io::printfn("%s: %f", self.type, *(double*)self.value);
+    case STRING:  io::printfn("%s: %s", self.type, self.v_string);
+    case ARRAY:   io::printfn("%s: TEMP", self.type);
+    case OBJECT:
+      (*(Object*)self.value).@each(; String key, TypedValue* val) {
+        val.print(tabs+1);
+      };
+    case NONE:    io::printfn("%s:", self.type); 
+  }
+  /*
   (*(Object*)self.value).@each(; String key, TypedValue val) {
     for (int i; i < tabs; i++) io::print(" ");
     switch (val.type) {
       case OBJECT:
         val.print(tabs+1);
-      //case STRING:
-      //  io::printfn("%s: %s", key, val.get_string()!!);
+      case STRING:
+        io::printfn("%s: %s", key, val.get_string()!!);
       case INT:
         io::printfn("%s: %d", key, val.get_int()!!);
       case DOUBLE:
@@ -333,34 +382,49 @@ fn void TypedValue.print(&self, int tabs = 0) {
       default:
     }
   };
+  */
+}
+fn void NamedValue.print(&self, int tabs = 0) {
+  switch (self.type) {
+    case BOOL:    io::printfn("%s: %b", self.name, *(bool*)self.value);
+    case INT:     io::printfn("%s: %s", self.name, *(int*)self.value);
+    case DOUBLE:  io::printfn("%s: %f", self.name, *(double*)self.value);
+    case STRING:  io::printfn("%s: %s", self.name, *(String*)self.value);
+    case ARRAY:   io::printfn("%s: TEMP", self.name);
+    case OBJECT:  io::printfn("%s: TEMP", self.name);
+    case NONE:    io::printfn("%s:", self.name); 
+  }
 }
 
+fn TypedValue NamedValue.to_typed(&self) {
+  return {self.type, self.value};
+}
 fn String! TypedValue.get_string(&self) {
   if (self.type != STRING) {
     io::printfn("ERROR - Attempting to cast TypedValue of type %s to string.", self.type.to_string());
     return YamlFault.GET_WRONG_TYPE?;
   }
-  io::print(*((String*)self.value));
-  return *((String*)self.value);
+  io::print(self.v_string);
+  return *(String*)self.value;
 }
 fn int! TypedValue.get_int(&self) {
   if (self.type != INT) {
     io::printfn("ERROR - Attempting to cast TypedValue of type %s to int.", self.type.to_string());
     return YamlFault.GET_WRONG_TYPE?;
   }
-  return *((int*)self.value);
+  return *(int*)self.value;
 }
 fn double! TypedValue.get_double(&self) {
   if (self.type != DOUBLE) {
     io::printfn("ERROR - Attempting to cast TypedValue of type %s to double.", self.type.to_string());
     return YamlFault.GET_WRONG_TYPE?;
   }
-  return *((double*)self.value);
+  return *(double*)self.value;
 }
 fn bool! TypedValue.get_bool(&self) {
   if (self.type != BOOL) {
     io::printfn("ERROR - Attempting to cast TypedValue of type %s to bool.", self.type.to_string());
     return YamlFault.GET_WRONG_TYPE?;
   }
-  return *((bool*)self.value);
+  return *(bool*)self.value;
 } 
