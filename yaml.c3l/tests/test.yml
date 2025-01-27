@@ -4,7 +4,7 @@
 Singleline test: Testing a single line.
 
 Object test:  #testing comments
-  A string
+  A string: test
   A Collection:
     Entry A
     Entry B

@@ -76,11 +76,30 @@ fn void yaml_test() @test {
 
   //* Yaml Parsing
   Yaml yml = yaml::parse_file("yaml.c3l/tests/test.yml")!!;
-  TypedValue* singleline = yml.get("Singleline test")!!;
-  //singleline.print();
-  //io::printf("fug");
-  io::printfn("%s - %s",singleline.type, singleline.get_string()!!);
-  assert(*(String*)singleline.value == "Testing a single line.", "Failed to parse single line");
+  assert(yml.len() == 2, "Failed to organize yaml");
+
+  //* Singleline test
+  TypedValue singleline = yml.get("Singleline test")!!;
+  assert(singleline.v_string == "Testing a single line.", "Failed to parse Single line");
+
+  //* Object test
+  TypedValue object_test = yml.get("Object test")!!;
+  assert(object_test.type == OBJECT && object_test.size()!! == 4, "Failed to load Object test");
+
+  //* String inside object
+  TypedValue a_string = object_test.get_object("A string")!!;
+  assert(a_string.v_string == "test", "Failed to get string inside object");
+
+  //* Object inside object
+  TypedValue tag = object_test.get_object("A Tag")!!;
+  assert(tag.get_object("float")!!.v_double == 0.1, "Failed to validate float");
+  assert(tag.get_object("bool")!!.v_bool == true, "Failed to validate boolean");
+  assert(tag.get_object("str")!!.v_string == "i42", "Failed to validate string");
+  assert(tag.get_object("int")!!.v_int == 10, "Failed to validate integer");
+
+  //* Array
+  TypedValue array = object_test.get_object("Array test")!!;
+  assert(array.get_array(0)!!.v_int == 10 && array.get_array(1)!!.v_int == 9 && array.get_array(2)!!.v_int == 25 && array.get_array(3)!!.v_int == 6, "Failed to validate array");
 }
 
 
