@@ -184,7 +184,7 @@ fn String! Bulk.save_path(&self) {
   if (self.name == "") return BulkFault.PATH_NAME_EMPTY?;
   if (self.path == "") return BulkFault.PATH_PATH_EMPTY?;
 
-  return self.path.concat(self.name).concat(".bulk");
+  return self.path.concat(self.name);//.concat(".bulk");
 }
 <* Returns Version as a string
   @return "Version number as string"

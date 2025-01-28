@@ -9,29 +9,34 @@ import raylib;
 fn void keyb_init_close() @test {
   //* Test if "initialize()" has gone off
   assert(keybind::data.is_initialized(), "Keybind data not initialized");
+
+  Keybind kb_up    = {.type=KEYBOARD,.kb=raylib::KEY_W};
+  Keybind kb_down  = {.type=KEYBOARD,.kb=raylib::KEY_S};
+  Keybind kb_left  = {.type=KEYBOARD,.kb=raylib::KEY_A};
+  Keybind kb_right = {.type=KEYBOARD,.kb=raylib::KEY_D}; 
+  keybind::set("move_up",    kb_up);
+  keybind::set("move_down",  kb_down); 
+  keybind::set("move_left",  kb_left); 
+  keybind::set("move_right", kb_right);
+
+  char[] saved_kb = keybind::save()!!;
+
+  //* KB move_left
+  assert((String)saved_kb[0:9] == "move_left", "Failed to save Keybind \"move_left\"");
+  //* KB move_down
+  assert((String)saved_kb[26:9] == "move_down", "Failed to save Keybind \"move_down\"");
+  //* KB move_right
+  assert((String)saved_kb[52:10] == "move_right", "Failed to save Keybind \"move_right\"");
+  //* KB move_right
+  assert((String)saved_kb[79:7] == "move_up", "Failed to save Keybind \"move_up\"");
+
+  //* Clear old keybinding and load from saved
+  keybind::clear();
+  keybind::load(saved_kb)!!;
   
-  //keybind::get_keyboard_bind();
-  //keybind::is_scanning = false;
-  //while (!raylib::window_should_close()) {
-  //  
-  //  if (raylib::is_mouse_button_pressed(raylib::MouseButton.LEFT)) keybind::ready_scan();
-  //  keybind::scan();
-  //  if (raylib::is_key_pressed(raylib::KEY_ENTER)) io::printfn("%s - %s", keybind::key_m, keybind::key_b);
-//
-  //  keybind::data.set("test_1", {.type = KEYBOARD, .kb = raylib::KEY_S, .kb_m = raylib::KEY_NULL});
-  //  keybind::data.set("test_2", {.type = KEYBOARD, .kb = raylib::KEY_S, .kb_m = raylib::KEY_LEFT_SHIFT});
-  //  if (keybind::is_pressed("test_1")!!) io::printfn("S");
-  //  if (keybind::is_pressed("test_2")!!) io::printfn("SHIFT-S");
-//
-  //  raylib::begin_drawing();
-  //    if (keybind::is_scanning) {
-  //      raylib::clear_background(raylib::RED);
-  //    } else {
-  //      raylib::clear_background(raylib::GRAY);
-  //    }
-  //  raylib::end_drawing();
-  //}
-  //Keybind kb = keybind::convert_scan();
-  //assert(kb.kb == raylib::KEY_A && kb.kb_m == raylib::KEY_LEFT_SHIFT, "Converted scan not correct");
+  assert(keybind::get("move_up")!!.equals(kb_up), "Failed to load \"move_up\"");
+  assert(keybind::get("move_down")!!.equals(kb_down), "Failed to load \"move_down\"");
+  assert(keybind::get("move_left")!!.equals(kb_left), "Failed to load \"move_left\"");
+  assert(keybind::get("move_right")!!.equals(kb_right), "Failed to load \"move_right\""); 
 }
 

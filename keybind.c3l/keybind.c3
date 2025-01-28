@@ -5,14 +5,103 @@ import std::collections;
 import raylib;
 
 
-<* Distinct keybindings structure that is a global *>
-HashMap(<String, Keybind>) data;
+<* Define Keybindings structure that is a global *>
+def Keybindings = HashMap(<String, Keybind>);
+Keybindings data;
+
 KeyType last_type = KEYBOARD;
+
 <* Initialize keybindings *>
 fn void initialize() @init {
   data.new_init();
 }
+<* Saves keybindings as char array *>
+fn char[]! save() {
+  //* Get length of data and strings
+  usz length = data.len() * 16;
+  data.@each(; String key, Keybind val) {
+    length += key.len + 1;
+  };
 
+  char[] output = mem::new_array(char, length);
+
+  usz ptr;
+  data.@each(; String key, Keybind val) {
+    //* Key string
+    for (int i; i < key.len; i++) output[ptr++] = key[i];
+    output[ptr++] = '\0';
+
+    //* Type
+    output[ptr++] = (char)(val.type.ordinal >>  0);
+    output[ptr++] = (char)(val.type.ordinal >>  8);
+    output[ptr++] = (char)(val.type.ordinal >> 16);
+    output[ptr++] = (char)(val.type.ordinal >> 24);
+
+    //* Keypress
+    output[ptr++] = (char)(val.kb >>  0);
+    output[ptr++] = (char)(val.kb >>  8);
+    output[ptr++] = (char)(val.kb >> 16);
+    output[ptr++] = (char)(val.kb >> 24);
+
+    //* Keymod
+    output[ptr++] = (char)(val.kb_m >>  0);
+    output[ptr++] = (char)(val.kb_m >>  8);
+    output[ptr++] = (char)(val.kb_m >> 16);
+    output[ptr++] = (char)(val.kb_m >> 24);
+
+    //* Gamepad
+    output[ptr++] = (char)(val.pad >>  0);
+    output[ptr++] = (char)(val.pad >>  8);
+    output[ptr++] = (char)(val.pad >> 16);
+    output[ptr++] = (char)(val.pad >> 24); 
+  };
+
+  return output;
+}
+<* Loads keybindings from char array *>
+fn void! load(char[] file) {
+  int ptr;
+  while (ptr < file.len) {
+    String key = file.read_str(ptr);
+    ptr += key.len + 1;
+    Keybind kb;
+    kb.type = KeyType.from_ordinal(file.read_int(ptr));
+    ptr += 4;
+    kb.kb = (KeyboardKey)file.read_int(ptr);
+    ptr += 4;
+    kb.kb_m = (KeyboardKey)file.read_int(ptr);
+    ptr += 4;
+    kb.pad = file.read_int(ptr);
+    ptr += 4;
+
+    data.set(key, kb);
+  }
+}
+<* Clears keybindings *>
+fn void clear() {
+  data.clear();
+}
+<* Sets keybind into map *>
+fn void set(String key, Keybind val) {
+  data.set(key, val);
+}
+<* Gets keybind *>
+fn Keybind! get(String key) {
+  return data.get(key);
+}
+
+fn String char[].read_str(self, int start) {
+  //* Count
+  int count;
+  for (int i; self[start + i] != '\0'; i++) count++;
+
+  return (String)self[start:count];
+}
+fn int char[].read_int(self, int ptr) {
+  int* result = (int*)&self[ptr];
+
+  return *result;
+}
 
 <* Core keybind structure *>
 struct Keybind {
@@ -46,6 +135,10 @@ fault KeybindFault {
   NO_BINDING,
 }
 
+<* Compare two Keybinds *>
+fn bool Keybind.equals(&self, Keybind rhs) {
+  return (self.type == rhs.type && self.kb == rhs.kb && self.kb_m == rhs.kb_m && self.pad == rhs.pad);
+}
 
 <* Check if Keybind is pressed *>
 fn bool! is_pressed(String name) {

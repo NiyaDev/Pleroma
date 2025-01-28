@@ -11,7 +11,7 @@ fn void bulk_new() @test {
   //* Name and path
   assert(new_bulk.name == "TEST", "Name is incorrect");
   assert(new_bulk.path == "resources/", "Path is incorrect");
-  assert(new_bulk.save_path()!! == "resources/TEST.bulk", "Full path is incorrect");
+  assert(new_bulk.save_path()!! == "resources/TEST", "Full path is incorrect");
   //* Version
   assert(new_bulk.major == bulk::MAJOR, "Major incorrect");
   assert(new_bulk.minor == bulk::MINOR, "Minor incorrect");
