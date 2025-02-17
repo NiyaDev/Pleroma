@@ -183,7 +183,7 @@ fn YAMLType String.get_type(self) {
   //* Int
   bool is_int = true;
   for (int i; i < self.len; i++) {
-    if ((self[i] < '0' || self[i] > '9') && self[i] != '-') {
+    if (((self[i] < '0' || self[i] > '9') && self[i] != '-') || (self[i] == '-' && i != 0)) {
       is_int = false;
       break;
     }
@@ -372,11 +372,10 @@ fn void TypedValue.print(&self, int tabs = 0) {
         io::printfn("}");
       case ARRAY:
         io::printfn("%s [%s]: {", key, val.type);
-        //usz len = self.size()!!;
-        //for (int f; f < len; f++) val.get_array(f)!!.print(tabs+1);
         for (int i; i < tabs; i++) io::print("  ");
         io::printfn("}");
       case NONE:    io::printfn("%s [%s]", key, val.type); 
     }
   };
 }
+

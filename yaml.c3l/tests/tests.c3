@@ -103,4 +103,6 @@ fn void yaml_test() @test {
 }
 
 
-
+fn void yaml_test_2() @test {
+  //Yaml yml = yaml::parse_file("yaml.c3l/tests/test2.yml")!!;
+}
