@@ -5,8 +5,8 @@ import bulk;
 
 
 fn void bulk_new() @test {
-  Bulk* new_bulk = bulk::new("TEST")!!;
-  defer new_bulk.free()!!;
+  Bulk* new_bulk = bulk::new("TEST");
+  defer new_bulk.free();
 
   //* Name and path
   assert(new_bulk.name == "TEST", "Name is incorrect");
@@ -20,8 +20,8 @@ fn void bulk_new() @test {
 }
 
 fn void bulk_save() @test {
-  Bulk* new_bulk = bulk::new("Test")!!;
-  defer new_bulk.free()!!;
+  Bulk* new_bulk = bulk::new("Test");
+  defer new_bulk.free();
 
   String test_str = "Testing this shit my duderino.";
   new_bulk.add("test", (char[])test_str)!!;

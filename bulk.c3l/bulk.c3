@@ -44,7 +44,7 @@ fault BulkFault {
   @param name "Name of file"
   @return "Pointer to bulk"
  *>
-fn Bulk*! new(String name) {
+fn Bulk* new(String name) {
   Bulk* output = mem::new(Bulk);
   *output = {
     .name = name.copy(),
@@ -60,10 +60,13 @@ fn Bulk*! new(String name) {
 <* Frees Bulk data
   @return "Error freeing data"
  *>
-fn void! Bulk.free(&self) {
+fn void Bulk.free(&self) {
   self.name.free();
 
-  // TODO: Free up data inside HashMap
+  //* Free up data inside HashMap
+  self.entries.@each(; String key, BulkEntry val) {
+    val.free();
+  };
   self.entries.free();
 
   mem::free(self);
@@ -78,10 +81,10 @@ fn Bulk*! load(String filename) {
   String name = path_split[0].trim(".bulk");
   
   //* Create Bulk
-  Bulk* output = new(name)!;
+  Bulk* output = new(name);
 
   //* Create file
-  BulkFile* file = load_file(filename)!!;
+  BulkFile* file = load_file(filename)!;
 
   //* Read version
   output.major = file.read_8();
@@ -104,7 +107,7 @@ fn Bulk*! load(String filename) {
         output.entries.set(entry_name, entry);
       }
   }
-  file.free()!!;
+  file.free()!;
   
   return output;
 }
@@ -121,7 +124,7 @@ fn void! Bulk.save(&self, Compression compression = NONE) {
       };
 
       //* Save to file
-      BulkFile* file = new_file(size, compression)!!;
+      BulkFile* file = new_file(size, compression)!;
 
       file.write_8(self.major);
       file.write_8(self.minor);
@@ -134,8 +137,8 @@ fn void! Bulk.save(&self, Compression compression = NONE) {
         file.write_array(entry.value);
       };
 
-      file.save(self.save_path())!!;
-      file.free()!!;
+      file.save(self.save_path())!;
+      file.free()!;
   }
 }
 
@@ -184,11 +187,16 @@ fn String! Bulk.save_path(&self) {
   if (self.name == "") return BulkFault.PATH_NAME_EMPTY?;
   if (self.path == "") return BulkFault.PATH_PATH_EMPTY?;
 
-  return self.path.concat(self.name);//.concat(".bulk");
+  return self.path.concat(self.name);;
 }
 <* Returns Version as a string
   @return "Version number as string"
  *>
 fn String Bulk.version(&self) {
   return string::tformat("%d.%d.%d", self.major, self.minor, self.patch);
+}
+
+<* Cleans up BulkEntry *>
+fn void BulkEntry.free(&self) {
+  free(self.value);
 }
