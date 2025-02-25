@@ -91,7 +91,7 @@ fn Font*! Image.font(&self, Color key, int firstchar) {
 	return output;
 }
 <* Load font from memory *>
-fn Font*! load_memory(String filetype, char* data, int datasize, int fontsize, int[] codepoints) {
+fn Font*! load_mem(String filetype, char* data, int datasize, int fontsize, int[] codepoints) {
 
 	Font* output = mem::new(Font);
 	*output = raylib::load_font_from_memory(filetype, data, datasize, fontsize, codepoints, codepoints.len);
