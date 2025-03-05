@@ -273,3 +273,11 @@ fn Model* Mesh.model(&self) {
 	return output;
 }
 
+<* Draw mesh *>
+fn void Mesh.draw(self, Material material, Matrix transform) {
+	raylib::draw_mesh(self, material, transform);
+}
+<* Draw mesh instanced *>
+fn void Mesh.instanced(self, Material material, Matrix* transforms, int instances) {
+	raylib::draw_mesh_instanced(self, material, transforms, instances);
+}
