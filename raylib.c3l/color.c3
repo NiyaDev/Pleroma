@@ -177,6 +177,16 @@ fn Color Color.alpha(&self, float alpha) {
 
 	return result;
 }
+<**>
+fn Color Color.multiply(self, float factor) {
+	Color output = self;
+
+	output.r = (char)(output.r * factor);
+	output.g = (char)(output.g * factor);
+	output.b = (char)(output.b * factor);
+
+	return output;
+}
 <* Get src alpha-blended into dst color with tint
   @param src
   @param tint
