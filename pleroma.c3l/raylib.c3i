@@ -1,0 +1,419 @@
+module pleroma::raylib;
+//= Audio
+struct Wave {
+  uint frame_count;
+  uint sample_rate;
+  uint sample_size;
+  uint channels;
+  void* data;
+}
+fault WaveFault {
+  LOAD_FAILED,
+  FAILED_EXPORT,
+}
+struct Sound {
+	AudioStream stream;
+  uint frameCount;
+}
+fault SoundFault {
+	LOAD_FAILED,
+}
+struct Music {
+	AudioStream stream;
+	uint frame_count;
+	bool looping;
+
+	int ctx_type;
+	void* ctx_data;
+}
+fault MusicFault {
+	LOAD_FAILED,
+	SEEK_PAST_END,
+}
+struct AudioStream {
+	AudioBufferRef buffer;
+	AudioProcessorRef processor;
+
+  uint sample_rate;
+  uint sample_size;
+  uint channels;
+}
+def AudioBufferRef = void*;
+def AudioProcessorRef = void*;
+
+//= Bounds
+struct BoundingBox {
+  Vector3 min, max;
+}
+
+//= Buttons
+enum MouseButton {
+  LEFT,
+  RIGHT,
+  MIDDLE,
+  SIDE,
+  EXTRA,
+  FORWARD,
+  BACK,
+}
+enum MouseAxis {
+  X,
+  Y,
+  SCROLL,
+}
+enum GamepadButton : int {
+  UNKNOWN,
+  LEFT_FACE_UP,
+  LEFT_FACE_RIGHT,
+  LEFT_FACE_DOWN,
+  LEFT_FACE_LEFT,
+  RIGHT_FACE_UP,
+  RIGHT_FACE_RIGHT,
+  RIGHT_FACE_DOWN,
+  RIGHT_FACE_LEFT,
+  LEFT_TRIGGER_1,
+  LEFT_TRIGGER_2,
+  RIGHT_TRIGGER_1,
+  RIGHT_TRIGGER_2,
+  MIDDLE_LEFT,
+  MIDDLE,
+  MIDDLE_RIGHT,
+  LEFT_THUMB,
+  RIGHT_THUMB,
+}
+enum GamepadAxis : int {
+  LEFT_X,
+  LEFT_Y,
+  RIGHT_X,
+  RIGHT_Y,
+  LEFT_TRIGGER,
+  RIGHT_TRIGGER,
+}
+distinct KeyboardKey = int;
+
+
+//= Camera
+struct Camera2D {
+  Vector2 offset, target;
+  float rotation, zoom;
+}
+struct Camera3D {
+  Vector3 position, target, up;
+  float fovy;
+  CameraProjection projection;
+}
+enum CameraProjection {
+  PERSPECTIVE,
+  ORTHOGRAPHIC,
+}
+
+//= Color
+struct Color {
+  char r, g, b, a;
+}
+
+//= FilePathList
+struct FilePathList {
+  uint capacity, count;
+  char** paths;
+}
+
+//= float
+
+
+//= Font
+struct Font {
+	int base_size;
+	int glyph_count;
+	int glyph_padding;
+	Texture texture;
+	Rectangle* recs;
+	GlyphInfo* glyphs;
+}
+fault FontFault {
+	FILE_NOT_FOUND,
+}
+struct GlyphInfo {
+	int value;
+	int offset_x;
+	int offset_y;
+	int advance_x;
+	Image image;
+}
+
+//= Image
+struct Image {
+	void* data;
+	int width;
+	int height;
+	int mipmaps;
+	PixelFormat format;
+}
+fault ImageFault {
+	FAILED_FIND_FILE,
+	FAILED_GENERATE_IMAGE,
+}
+extern fn Texture Image.texture(&self) @extern("image_texture");
+
+//= Material
+struct Material {
+  Shader shader;
+  MaterialMap* maps;
+  float[4] params;
+}
+struct MaterialMap {
+  Texture texture;
+  Color color;
+  float value;
+}
+enum MaterialMapIndex : int {
+    ALBEDO,
+    METALNESS,
+    NORMAL,
+    ROUGHNESS,
+    OCCLUSION,
+    EMISSION,
+    HEIGHT,
+    CUBEMAP,
+    IRRADIANCE,
+    PREFILTER,
+    BRDF,
+    DEPTH0,
+    DEPTH1,
+    DEPTH2,
+    DEPTH3,
+}
+
+//= Matrix
+struct Matrix {
+	float m0, m4, m8,  m12;
+	float m1, m5, m9,  m13;
+	float m2, m6, m10, m14;
+	float m3, m7, m11, m15;
+}
+
+//= Model
+struct Mesh {
+	int vertexCount;
+	int triangleCount;
+	float* vertices;
+	float* texcoords;
+	float* texcoords2;
+	float* normals;
+	float* tangents;
+	char* colors;
+	ushort* indices;
+	float* animVertices;
+	float* animNormals;
+	char* boneIds;
+	float* boneWeights;
+	Matrix* boneMatrices;
+	int boneCount;
+	uint vaoId;
+	uint *vboId;
+}
+
+<* Model *>
+struct Model {
+	Matrix transform;
+	int meshCount;
+	int materialCount;
+	Mesh* meshes;
+	Material* materials;
+	int* meshMaterial;
+	int boneCount;
+	BoneInfo* bones;
+	Transform* bindPose;
+}
+fault ModelFault {
+	FAILED_FIND_FILE,
+}
+struct Transform {
+	Vector3 translation;
+	Quaternion rotation;
+	Vector3 scale;
+}
+struct BoneInfo {
+	char[32] name;
+	int parent;
+}
+struct ModelAnimation {
+	int n;
+}
+
+//= Quaternion
+distinct Quaternion = Vector4;
+struct AxisAngle {
+	Vector3 axis;
+	float angle;
+}
+
+//= Ray
+struct Ray {
+  Vector3 position, direction;
+}
+struct RayCollision {
+  bool hit;
+  float distance;
+  Vector3 point, normal;
+}
+
+//= Rectangle
+struct Rectangle {
+  float x, y, width, height;
+}
+
+//= RenderTexture
+struct RenderTexture {
+	uint id;
+	Texture texture, depth;
+}
+fault RenderTextureFault {
+	FAILED_CREATE_RENDERTEXTURE,
+}
+
+//= Shader
+struct Shader {
+  uint id;
+  int* locs;
+}
+
+//= Texture
+struct Texture {
+	uint id;
+	int width, height, mipmaps;
+	PixelFormat format;
+}
+fault TextureFault {
+	FAILED_FIND_FILE,
+}
+struct NPatchInfo {
+	Rectangle source;
+	int left;
+	int top;
+	int right;
+	int bottom;
+	NPatchLayout layout;
+}
+enum NPatchLayout {
+    NINE_PATCH,              // Npatch layout: 3x3 tiles
+    THREE_PATCH_VERTICAL,    // Npatch layout: 1x3 tiles
+    THREE_PATCH_HORIZONTAL   // Npatch layout: 3x1 tiles
+}
+enum TextureFilter {
+	FILTER_POINT,
+	FILTER_BILINEAR,
+	FILTER_TRILINEAR,
+	FILTER_ANISOTROPIC_4X,
+	FILTER_ANISOTROPIC_8X,
+	FILTER_ANISOTROPIC_16X,
+}
+enum TextureWrap {
+	WRAP_REPEAT,
+  WRAP_CLAMP,
+  WRAP_MIRROR_REPEAT,
+  WRAP_MIRROR_CLAMP
+}
+enum PixelFormat : int {
+	GRAYSCALE,
+	GRAYALPHA,
+	R5G6B5,
+	R8G8B8,
+	R5G5B5A1,
+	R4G4B4A4,
+	R8G8B8A8,
+	R32,
+	R32G32B32,
+	R32G32B32A32,
+	R16,
+	R16G16B16,
+	R16G16B16A16,
+	DXT1RGB,
+	DXT1RGBA,
+	DXT3RGBA,
+	DXT5RGBA,
+	ETC1RGB,
+	ETC2RGB,
+	ETC2EACRGBA,
+	PVRTRGB,
+	PVRTRGBA,
+	ASTC4X4RGBA,
+	ASTC8X8RGBA,
+	UNKNOWN,
+}
+extern fn void Texture.draw(&self,int,int,Color) @extern("texture_draw");
+
+//= tracelog
+enum TraceLogLevel : int {
+  ALL,            // Display all logs (0)
+  TRACE,          // Trace logging, intended for internal use only
+  DEBUG,          // Debug logging, used for internal debugging, it should be disabled on release builds
+  INFO,           // Info logging, used for program execution info
+  WARNING,        // Warning logging, used on recoverable failures
+  ERROR,          // Error logging, used on unrecoverable failures
+  FATAL,          // Fatal logging, used to abort program: exit(EXIT_FAILURE)
+  NONE            // Disable logging
+}
+
+//= Vector
+struct Vector2 {
+  float x,y;
+}
+struct Vector3 {
+  float x,y,z;
+}
+struct Vector4 {
+  float x,y,z,w;
+}
+
+//= VRInfo
+struct VrDeviceInfo {
+	int h_resolution, v_resolution;
+	float h_screen_size, v_screen_size;
+	float eye_to_screen_distance;
+	float lens_seperation_distance;
+	float interpupillary_distance;
+	float[4] lens_distortion_values;
+	float[4] chroma_aberration_correction;
+}
+struct VrStereoConfig {
+	Matrix[2] projection, view_offset;
+	float[2] left_lens_center, right_lens_center;
+	float[2] left_screen_center, right_screen_center;
+	float[2] scale, scale_in;
+}
+
+
+module pleroma::raylib::image;
+extern fn Image load(String filename) @extern("image_load");
+
+
+module pleroma::raylib::color;
+const Color LIGHTGRAY		= {200, 200, 200, 255};
+const Color GRAY		  	= {130, 130, 130, 255};
+const Color DARKGRAY		= { 80,  80,  80, 255};
+const Color YELLOW			= {253, 249,   0, 255};
+const Color GOLD		  	= {255, 203,   0, 255};
+const Color ORANGE	 		= {255, 161,   0, 255};
+const Color PINK 				= {255, 109, 194, 255};
+const Color RED 				= {230,  41,  55, 255};
+const Color MAROON 			= {190,  33,  55, 255};
+const Color GREEN 			= {  0, 228,  48, 255};
+const Color LIME				= {  0, 158,  47, 255};
+const Color DARKGREEN		= {  0, 117,  44, 255};
+const Color SKYBLUE			= {102, 191, 255, 255};
+const Color BLUE				= {  0, 121, 241, 255};
+const Color DARKBLUE		= {  0,  82, 172, 255};
+const Color PURPLE			= {200, 122, 255, 255};
+const Color VIOLET			= {135,  60, 190, 255};
+const Color DARKPURPLE	= {112,  31, 126, 255};
+const Color BEIGE				= {211, 176, 131, 255};
+const Color BROWN				= {127, 106,  79, 255};
+const Color DARKBROWN		= { 76,  63,  47, 255};
+const Color WHITE				= {255, 255, 255, 255};
+const Color BLACK				= {  0,   0,   0, 255};
+const Color BLANK				= {  0,   0,   0,   0};
+const Color MAGENTA			= {255,   0, 255, 255};
+const Color RAYWHITE		= {245, 245, 245, 255};
+const Color PALETTE_30	= { 48,  56,  67, 255};
+

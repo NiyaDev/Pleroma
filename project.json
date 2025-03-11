@@ -1,0 +1,20 @@
+{
+  "langrev": "1",
+  "warnings": [ "no-unused" ],
+  "dependency-search-paths": [ "lib" ],
+  "dependencies": [ ], 
+  "linked-libraries" : [ "raylib" ],
+  "authors": [ "NiyaDev" ],
+  "version": "0.2.0",
+  "sources": [ "src/**" ],
+  "test-sources": [ "test/**" ],
+  "output": "build",
+  "targets": {
+    "pleroma": {
+      "name": "libpleroma", 
+      "type": "static-lib",
+    },
+  },
+  "cpu": "generic",
+  "opt": "O0",
+}
