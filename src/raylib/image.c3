@@ -43,7 +43,7 @@ fn char* Image.to_mem_ptr(&self, String filetype, int* length) {
 	return result_ptr;
 }
 <* Exports Image to GPU as texture *>
-fn Texture Image.texture(&self) @export("image.texture") {
+fn Texture Image.texture(&self) @export("image_texture") {
 	//Texture* result = mem::new(Texture);
 	//*result = raylib::load_texture_from_image(*self);
 	//return result;

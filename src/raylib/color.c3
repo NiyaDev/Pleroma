@@ -42,15 +42,15 @@ struct Color {
   @param alpha "Value to change alpha to"
   @require alpha <= 1, alpha >= 0, "Alpha not withing proper range of 0 -> 1"
  *>
-fn void Color.fade(&self, float alpha) {
+fn void Color.fade(&self, float alpha) @export("color_fade") {
 	self.a = (char)(255 * alpha);
 }
 <* Converts color to hexadecimal representation *>
-fn uint Color.to_int(&self) {
+fn uint Color.to_int(self) @export("color_toint") {
 	return self.r << 24 | self.g << 16 | self.b << 8 | self.a;
 }
 <* Converts color into Vector4 representation *>
-fn Vector4 Color.normalize(&self) {
+fn Vector4 Color.normalize(self) @export("color_normalize") {
 	return {
 		.x = (float)self.r / 255,
 		.y = (float)self.g / 255,
@@ -59,7 +59,7 @@ fn Vector4 Color.normalize(&self) {
 	};
 }
 <* Converts color into HSV *>
-fn Vector3 Color.hsv(&self) {
+fn Vector3 Color.hsv(self) @export("color_hsv") {
 	float r = (float)self.r / 255;
 	float g = (float)self.g / 255;
 	float b = (float)self.b / 255;
@@ -83,8 +83,8 @@ fn Vector3 Color.hsv(&self) {
 	};
 }
 <* Multiplies color by input *>
-fn Color Color.tint(&self, Color tint) {
-	Color result = *self;
+fn Color Color.tint(self, Color tint) @export("color_tint") {
+	Color result = self;
 
 	float cr = (float)tint.r / 255;
 	float cg = (float)tint.g / 255;
@@ -102,7 +102,7 @@ fn Color Color.tint(&self, Color tint) {
   @param factor "Percentage to increase brightness"
   @require factor <= 1, factor >= -1, "Brightness factor not within range"
  *>
-fn Color Color.brightness(&self, float factor) {
+fn Color Color.brightness(&self, float factor) @export("color_brightness") {
 	Color result = *self;
 
 	float red	= (float)self.r;
@@ -130,7 +130,7 @@ fn Color Color.brightness(&self, float factor) {
   @param contrast "Percentage to change brightness"
   @require contrast <= 1, contrast >= -1, "Contrast not within proper range"
  *>
-fn Color Color.contrast(&self, float contrast) {
+fn Color Color.contrast(&self, float contrast) @export("color_contrast") {
 	Color result = *self;
 
 	contrast += 1;
@@ -170,7 +170,7 @@ fn Color Color.contrast(&self, float contrast) {
   @param alpha "Alpha to apply to color"
   @require alpha >= 0, alpha <= 1, "Alpha not within proper range"
  *>
-fn Color Color.alpha(&self, float alpha) {
+fn Color Color.alpha(&self, float alpha) @export("color_alpha") {
 	Color result = *self;
 
 	result.a = (char)(255 * alpha);
@@ -178,7 +178,7 @@ fn Color Color.alpha(&self, float alpha) {
 	return result;
 }
 <**>
-fn Color Color.multiply(self, float factor) {
+fn Color Color.multiply(self, float factor) @export("color_multiply") {
 	Color output = self;
 
 	output.r = (char)(output.r * factor);
@@ -191,7 +191,7 @@ fn Color Color.multiply(self, float factor) {
   @param src
   @param tint
  *>
-fn Color Color.alpha_blend(&self, Color src, Color tint) {
+fn Color Color.alpha_blend(&self, Color src, Color tint) @export("color_alphablend") {
 	return raylib::color_alpha_blend(*self, src, tint);
 }
 <* Convert hexcode into color *>
