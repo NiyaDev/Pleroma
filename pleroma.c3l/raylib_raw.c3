@@ -612,39 +612,23 @@ extern fn int get_pixel_data_size(int width, int height, int format) @extern("Ge
 
 
 //= rtext
-//= Font loading/unloading functions
-// Get the default Font
-extern fn Font get_font_default() @extern("GetFontDefault");
-// Load font from file into GPU memory (VRAM)
-extern fn Font load_font(char* fileName) @extern("LoadFont");
 // Load font from file with extended parameters, use NULL for codepoints and 0 for codepointCount to load the default character set, font size is provided in pixels height
 extern fn Font load_font_ex(char* fileName, int fontSize, int* codepoints, int codepointCount) @extern("LoadFontEx");
-// Load font from Image (XNA style)
-extern fn Font load_font_from_image(Image image, Color key, int firstChar) @extern("LoadFontFromImage");
 // Load font from memory buffer, fileType refers to extension: i.e. '.ttf'
 extern fn Font load_font_from_memory(char* fileType, char* fileData, int dataSize, int fontSize, int* codepoints, int codepointCount) @extern("LoadFontFromMemory");
-// Check if a font is valid (font data loaded, WARNING: GPU texture not checked)
-extern fn bool is_font_ready(Font font) @extern("IsFontValid");
 // Load font data for further use
 extern fn GlyphInfo* load_font_data(char* fileData, int dataSize, int fontSize, int* codepoints, int codepointCount, int type) @extern("LoadFontData");
 // Generate image font atlas using chars info
 extern fn Image gen_font_atlas(GlyphInfo* glyphs, Rectangle** glyphRecs, int glyphCount, int fontSize, int padding, int packMethod) @extern("GenImageFontAtlas");
 // Unload font chars info data (RAM)
 extern fn void unload_font_data(GlyphInfo* glyphs, int glyphCount) @extern("UnloadFontData");
-// Unload font from GPU memory (VRAM)
-extern fn void unload_font(Font font) @extern("UnloadFont");
 // Export font as code file, returns true on success
 extern fn bool export_font_as_code(Font font, char* fileName) @extern("ExportFontAsCode");
-
 //= Text drawing functions
 // Draw current FPS
 extern fn void draw_fps(int posX, int posY) @extern("DrawFPS");
 // Draw text (using default font)
 extern fn void draw_text(char* text, int posX, int posY, int fontSize, Color color) @extern("DrawText");
-// Draw text using font and additional parameters
-extern fn void draw_text_ex(Font font, char* text, Vector2 position, float font_size, float spacing, Color tint) @extern("DrawTextEx");
-// Draw text using Font and pro parameters (rotation)
-extern fn void draw_text_pro(Font font, char* text, Vector2 position, Vector2 origin, float rotation, float font_size, float spacing, Color tint) @extern("DrawTextPro");
 // Draw one character (codepoint)
 extern fn void draw_text_codepoint(Font font, int codepoint, Vector2 position, float fontSize, Color tint) @extern("DrawTextCodepoint");
 // Draw multiple character (codepoint)
@@ -655,8 +639,6 @@ extern fn void draw_text_codepoints(Font font, int* codepoints, int codepointCou
 extern fn void set_text_line_spacing(int spacing) @extern("SetTextLineSpacing");
 // Measure string width for default font
 extern fn int measure_text(char* text, int fontSize) @extern("MeasureText");
-// Measure string size for Font
-extern fn Vector2 measure_text_ex(Font font, char* text, float fontSize, float spacing) @extern("MeasureTextEx");
 // Get glyph index position in font for a codepoint (unicode character), fallback to '?' if not found
 extern fn int get_glyph_index(Font font, int codepoint) @extern("GetGlyphIndex");
 // Get glyph font info data for a codepoint (unicode character), fallback to '?' if not found

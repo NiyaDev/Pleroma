@@ -102,8 +102,8 @@ fn Color Color.tint(self, Color tint) @export("color_tint") {
   @param factor "Percentage to increase brightness"
   @require factor <= 1, factor >= -1, "Brightness factor not within range"
  *>
-fn Color Color.brightness(&self, float factor) @export("color_brightness") {
-	Color result = *self;
+fn Color Color.brightness(self, float factor) @export("color_brightness") {
+	Color result = self;
 
 	float red	= (float)self.r;
 	float green	= (float)self.g;
@@ -130,8 +130,8 @@ fn Color Color.brightness(&self, float factor) @export("color_brightness") {
   @param contrast "Percentage to change brightness"
   @require contrast <= 1, contrast >= -1, "Contrast not within proper range"
  *>
-fn Color Color.contrast(&self, float contrast) @export("color_contrast") {
-	Color result = *self;
+fn Color Color.contrast(self, float contrast) @export("color_contrast") {
+	Color result = self;
 
 	contrast += 1;
 	contrast *= contrast;
@@ -170,8 +170,8 @@ fn Color Color.contrast(&self, float contrast) @export("color_contrast") {
   @param alpha "Alpha to apply to color"
   @require alpha >= 0, alpha <= 1, "Alpha not within proper range"
  *>
-fn Color Color.alpha(&self, float alpha) @export("color_alpha") {
-	Color result = *self;
+fn Color Color.alpha(self, float alpha) @export("color_alpha") {
+	Color result = self;
 
 	result.a = (char)(255 * alpha);
 
@@ -191,11 +191,11 @@ fn Color Color.multiply(self, float factor) @export("color_multiply") {
   @param src
   @param tint
  *>
-fn Color Color.alpha_blend(&self, Color src, Color tint) @export("color_alphablend") {
-	return raylib::color_alpha_blend(*self, src, tint);
+fn Color Color.alpha_blend(self, Color src, Color tint) @export("color_alphablend") {
+	return raylib::color_alpha_blend(self, src, tint);
 }
 <* Convert hexcode into color *>
-fn Color hex(uint hex_value) {
+fn Color hex(uint hex_value) @export("color_hex") {
 	return {
 		.r = (char)((hex_value >> 24) & 0xFF),
 		.g = (char)((hex_value >> 16) & 0xFF),
