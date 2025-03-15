@@ -556,7 +556,7 @@ extern fn void image_draw_text_ex(Image* dst, Font font, char* text, Vector2 pos
 // Load texture from file into GPU memory (VRAM)
 extern fn Texture load_texture(char* filename) @extern("LoadTexture");
 // Load texture from image data
-extern fn Texture load_texture_from_image(Image image) @extern("LoadTextureFromImage");
+//extern fn Texture load_texture_from_image(Image image) @extern("LoadTextureFromImage");
 // Load cubemap from image, multiple image cubemap layouts supported
 extern fn Texture load_texture_cubemap(Image image, int layout) @extern("LoadTextureCubemap");
 // Load texture for rendering (framebuffer)

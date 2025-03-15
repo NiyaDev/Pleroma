@@ -15,6 +15,7 @@ fault ImageFault {
 	FAILED_FIND_FILE,
 	FAILED_GENERATE_IMAGE,
 }
+extern fn Texture Image.texture(self) @extern("LoadTextureFromImage");
 
 <* Checks whether the Image  is ready for use *>
 fn bool Image.ready(&self) {
@@ -41,13 +42,6 @@ fn char[] Image.to_mem(&self, String filetype) {
 fn char* Image.to_mem_ptr(&self, String filetype, int* length) {
 	char* result_ptr = raylib::export_image_to_memory(*self, filetype, length);
 	return result_ptr;
-}
-<* Exports Image to GPU as texture *>
-fn Texture Image.texture(&self) @export("image_texture") {
-	//Texture* result = mem::new(Texture);
-	//*result = raylib::load_texture_from_image(*self);
-	//return result;
-	return raylib::load_texture_from_image(*self);
 }
 <* Creates a copy of image *>
 fn Image* Image.copy(&self) {

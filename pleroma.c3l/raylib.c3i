@@ -212,11 +212,7 @@ struct Image {
 	int mipmaps;
 	PixelFormat format;
 }
-fault ImageFault {
-	FAILED_FIND_FILE,
-	FAILED_GENERATE_IMAGE,
-}
-extern fn Texture Image.texture(&self) @extern("image_texture");
+extern fn Texture Image.texture(self) @extern("LoadTextureFromImage");
 
 //= Material
 struct Material {
