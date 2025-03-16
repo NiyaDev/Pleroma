@@ -194,7 +194,7 @@ struct Font {
 struct GlyphInfo {
 	int value;
 	int offset_x;
-	int offset_y;
+int offset_y;
 	int advance_x;
 	Image image;
 }
@@ -213,6 +213,53 @@ struct Image {
 	PixelFormat format;
 }
 extern fn Texture Image.texture(self) @extern("LoadTextureFromImage");
+extern fn bool Image.ready(self) @extern("IsImageValid");
+extern fn void Image.unload(self) @extern("UnloadImage");
+extern fn bool Image.save(self, String) @extern("ExportImage");
+extern fn char[] Image.to_mem(self, String) @extern("image_tomem");
+extern fn char*  Image.to_mem_ptr(self, String, int*) @extern("ExportImageToMemory");
+extern fn Image Image.copy(self) @extern("ImageCopy");
+extern fn Image Image.copy_rec(self, Rectangle) @extern("ImageFromImage");
+extern fn void Image.set_icon(self) @extern("SetWindowIcon");
+extern fn void Image.set_format(self, PixelFormat) @extern("ImageFormat");
+extern fn void Image.pot(&self, Color) @extern("ImageToPOT");
+extern fn void Image.crop(&self, Rectangle) @extern("ImageCrop");
+extern fn void Image.alpha_crop(&self, float) @extern("ImageAlphaCrop");
+extern fn void Image.clear_alpha(&self, Color, float) @extern("ImageAlphaClear");
+extern fn void Image.alpha_mask(&self, Image) @extern("ImageAlphaMask");
+extern fn void Image.premultiply(&self) @extern("ImagePremultiply");
+extern fn void Image.gauss(&self, int) @extern("ImageBlurGaussian");
+extern fn void Image.resize(&self, int, int) @extern("ImageResize");
+extern fn void Image.resize_nn(&self, int, int) @extern("ImageResizeNN");
+extern fn void Image.resize_canvas(&self, int, int) @extern("ImageResizeCanvas");
+extern fn void Image.comp_mipmaps(&self) @extern("ImageMipmaps");
+extern fn void Image.dither(&self, int, int, int, int) @extern("ImageDither");
+extern fn void Image.vflip(&self) @extern("ImageFlipVertical");
+extern fn void Image.hflip(&self) @extern("ImageFlipHorizontal");
+extern fn void Image.rotate(&self, int) @extern("ImageRotate");
+extern fn void Image.rotate_cw(&self) @extern("ImageRotateCW");
+extern fn void Image.rotate_ccw(&self) @extern("ImageRotateCCW");
+extern fn void Image.tint(&self, Color) @extern("ImageColorTint");
+extern fn void Image.invert(&self) @extern("ImageColorInvert");
+extern fn void Image.grayscale(&self) @extern("ImageColorGrayscale");
+extern fn void Image.contrast(&self, float) @extern("ImageColorContrast");
+extern fn void Image.brightness(&self, int) @extern("ImageColorBrightness");
+extern fn void Image.replace(&self, Color, Color) @extern("ImageColorReplace");
+extern fn Color[] Image.palette(self, int) @extern("image_palette");
+extern fn void Image.get_alpha_border(self, float) @extern("GetImageAlphaBorder");
+extern fn Color Image.color(self, int, int) @extern("GetImageColor");
+extern fn void Image.clear_background(&self, Color) @extern("ImageClearBackground");
+extern fn void Image.draw_pixel(&self, Vector2, Color) @extern("ImageDrawPixelV");
+extern fn void Image.draw_line(&self, Vector2, Vector2, int, Color) @extern("ImageDrawLineEx");
+extern fn void Image.draw_circle(&self, Vector2, int, Color) @extern("ImageDrawCircleV");
+extern fn void Image.draw_circle_lines(&self, Vector2, int, Color) @extern("ImageDrawCircleLinesV");
+extern fn void Image.draw_rectangle(&self, Rectangle, Color) @extern("ImageDrawRectangleRec");
+extern fn void Image.draw_rectangle_lines(&self, Rectangle, int, Color) @extern("ImageDrawRectangleRec");
+extern fn void Image.draw_triangle(&self, Vector2, Vector2, Vector2, Color, Color, Color) @extern("ImageDrawTriangleEx");
+extern fn void Image.draw_triangle_lines(&self, Vector2, Vector2, Vector2, Color) @extern("ImageDrawTriangleLines");
+extern fn void Image.draw_image(&self, Image, Rectangle, Rectangle, Color) @extern("ImageDraw");
+extern fn void Image.draw_text(&self, Font, String, Vector2, float, float, Color) @extern("ImageDrawTextEx");
+extern fn Texture[] Image.cut_sheet(&self, int, int) @extern("image_cutsheet");
 
 //= Material
 struct Material {
@@ -242,6 +289,9 @@ enum MaterialMapIndex : int {
     DEPTH2,
     DEPTH3,
 }
+extern fn bool Material.ready(self) @extern("IsMaterialValid");
+extern fn void Material.unload(self) @extern("UnloadMaterial");
+extern fn void Material.set_texture(&self, Texture, MaterialMapIndex map_type = ALBEDO) @extern("SetMaterialTexture");
 
 //= Matrix
 struct Matrix {
@@ -250,6 +300,15 @@ struct Matrix {
 	float m2, m6, m10, m14;
 	float m3, m7, m11, m15;
 }
+extern fn Matrix Matrix.add(self, Matrix) @extern("matrix_add");
+extern fn Matrix Matrix.sub(self, Matrix) @extern("matrix_sub");
+extern fn Matrix Matrix.mul(self, Matrix) @extern("matrix_mul");
+extern fn float Matrix.determinant(self) @extern("matrix_determinant");
+extern fn float Matrix.trace(self) @extern("matrix_trace");
+extern fn Matrix Matrix.transpose(self) @extern("matrix_transpose");
+extern fn Matrix Matrix.invert(self) @extern("matrix_invert");
+extern fn Vector4 Matrix.quaternion_transform(self, Quaternion) @extern("matrix_quaterniontranspose");
+extern fn void Matrix.print(self) @extern("matrix_print");
 
 //= Model
 struct Mesh {
@@ -467,8 +526,48 @@ extern fn Font Image.font(self, Color, int) @extern("LoadFontFromImage");
 extern fn Font load_mem(String, char[], int, int[]) @extern("font_loadmem");
 
 module pleroma::raylib::image;
-extern fn Image load(String filename) @extern("image_load");
+extern fn Image load(String) @extern("LoadImage");
+extern fn Image load_raw(String, int, int, PixelFormat, int) @extern("LoadImageRaw");
+extern fn Image load_anim(String, int*) @extern("LoadImageAnim");
+extern fn Image load_mem(String, char[]) @extern("image_loadarr");
+extern fn Image load_mem_ptr(String, char*, int) @extern("LoadImageFromMemory");
+extern fn Image load_screen() @extern("LoadImageFromScreen");
+extern fn Image Texture.image(self) @extern("LoadImageFromTexture");
+extern fn Image color(int, int, Color) @extern("GenImageColor");
+extern fn Image gradient_linear(int, int, int, Color, Color) @export("GenImageGradientLinear");
+extern fn Image gradient_radial(int, int, float, Color, Color) @export("GenImageGradientRadial");
+extern fn Image gradient_square(int, int, float, Color, Color) @export("GenImageGradientSquare");
+extern fn Image checked(int, int, int, int, Color, Color) @export("GenImageChecked");
+extern fn Image white_noise(int, int, float) @extern("GenImageWhiteNoise");
+extern fn Image perlin_noise(int, int, int, int, float) @extern("GenImagePerlinNoise");
+extern fn Image cellular(int, int, int) @extern("GenImageCellular");
+extern fn Image gen_text(int, int, String) @extern("GenImageText");
+extern fn Image text(String, int, Color) @extern("ImageText");
+extern fn Image text(Font, String, float, float, Color) @extern("ImageTextEx");
 
+module pleroma::raylib::material;
+extern fn Material load_default() @extern("LoadMaterialDefault");
+extern fn Material[] load_model(String) @extern("material_moadmodel");
+
+module pleroma::raylib::matrix;
+const Matrix IDENTITY = {
+	1.0, 0.0, 0.0, 0.0,
+	0.0, 1.0, 0.0, 0.0,
+	0.0, 0.0, 1.0, 0.0,
+	0.0, 0.0, 0.0, 1.0,
+};
+extern fn Matrix translate(Vector3) @extern("matrix_translate");
+extern fn Matrix rotate(Vector3, float) @extern("matrix_rotate");
+extern fn Matrix rotate_x(Vector3, float) @extern("matrix_rotatex");
+extern fn Matrix rotate_y(Vector3, float) @extern("matrix_rotatey");
+extern fn Matrix rotate_z(Vector3, float) @extern("matrix_rotatez");
+extern fn Matrix rotate_xyz(Vector3, float) @extern("matrix_rotatexyz");
+extern fn Matrix rotate_zyx(Vector3, float) @extern("matrix_rotatezyx");
+extern fn Matrix scale(Vector3) @extern("matrix_scale");
+extern fn Matrix frustum(double, double, double, double, double, double) @extern("matrix_frustum");
+extern fn Matrix perspective(double, double, double, double) @extern("matrix_perspective");
+extern fn Matrix ortho(double, double, double, double, double, double) @extern("matrix_ortho");
+extern fn Matrix look_at(Vecxtor3, Vector3, Vector3) @extern("matrix_lookat");
 
 module pleroma::raylib::color;
 const Color LIGHTGRAY		= {200, 200, 200, 255};

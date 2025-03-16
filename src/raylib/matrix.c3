@@ -12,8 +12,8 @@ struct Matrix {
 }
 
 <* Add two matrices returning the result *>
-fn Matrix Matrix.add(&self, Matrix rhs) {
-	Matrix result = {};
+fn Matrix Matrix.add(self, Matrix rhs) @export("matrix_add") {
+	Matrix result;
 	result.m0  = self.m0  + rhs.m0;
 	result.m1  = self.m1  + rhs.m1;
 	result.m2  = self.m2  + rhs.m2;
@@ -34,9 +34,8 @@ fn Matrix Matrix.add(&self, Matrix rhs) {
 	return result;
 }
 <* Subtract two matrices returning the result *>
-fn Matrix Matrix.sub(&self, Matrix rhs) {
-	Matrix result = {};
-
+fn Matrix Matrix.sub(self, Matrix rhs) @export("matrix_sub") {
+	Matrix result;
 	result.m0  = self.m0  - rhs.m0;
 	result.m1  = self.m1  - rhs.m1;
 	result.m2  = self.m2  - rhs.m2;
@@ -57,9 +56,8 @@ fn Matrix Matrix.sub(&self, Matrix rhs) {
 	return result;
 }
 <* Multiply two matrices returning the result *>
-fn Matrix Matrix.mul(&self, Matrix rhs) {
-	Matrix result = {};
-
+fn Matrix Matrix.mul(self, Matrix rhs) @export("matrix_mul") {
+	Matrix result;
 	result.m0  = self.m0  * rhs.m0 + self.m1  * rhs.m4 + self.m2  * rhs.m8  + self.m3  * rhs.m12;
 	result.m1  = self.m0  * rhs.m1 + self.m1  * rhs.m5 + self.m2  * rhs.m9  + self.m3  * rhs.m13;
 	result.m2  = self.m0  * rhs.m2 + self.m1  * rhs.m6 + self.m2  * rhs.m10 + self.m3  * rhs.m14;
@@ -80,7 +78,7 @@ fn Matrix Matrix.mul(&self, Matrix rhs) {
 	return result;
 }
 <* Compute matrix determinant *>
-fn float Matrix.determinant(&self) {
+fn float Matrix.determinant(self) @export("matrix_determinant") {
 	return self.m12 * self.m9 * self.m6*self.m3 - self.m8 * self.m13 * self.m6 * self.m3 - self.m12 * self.m5 * self.m10 * self.m3 + self.m4 * self.m13 * self.m10 * self.m3 +
 		self.m8  *self.m5 * self.m14 * self.m3  - self.m4 * self.m9  * self.m14 * self.m3  - self.m12 * self.m9 * self.m2  * self.m7  + self.m8 * self.m13 * self.m2  * self.m7  +
 		self.m12 *self.m1 * self.m10 * self.m7  - self.m0 * self.m13 * self.m10 * self.m7  - self.m8  * self.m1 * self.m14 * self.m7  + self.m0 * self.m9  * self.m14 * self.m7  +
@@ -89,13 +87,12 @@ fn float Matrix.determinant(&self) {
 		self.m8  *self.m1 * self.m6  * self.m15 - self.m0 * self.m9  * self.m6  * self.m15 - self.m4  * self.m1 * self.m10 * self.m15 + self.m0 * self.m5  * self.m10 * self.m15;
 }
 <* Get the trace of the matrix (Sum of the values along the diagonal) *>
-fn float Matrix.trace(&self) {
+fn float Matrix.trace(self) @export("matrix_trace") {
 	return self.m0 + self.m5 + self.m10 + self.m15;
 }
 <* Tansposes provided matrix *>
-fn Matrix Matrix.transpose(&self) {
-	Matrix result = {};
-
+fn Matrix Matrix.transpose(self) @export("matrix_transpose") {
+	Matrix result;
 	result.m0  = self.m0;
 	result.m1  = self.m4;
 	result.m2  = self.m8;
@@ -116,8 +113,8 @@ fn Matrix Matrix.transpose(&self) {
 	return result;
 }
 <* Invert provided matrix *>
-fn Matrix Matrix.invert(&self) {
-	Matrix result = {};
+fn Matrix Matrix.invert(self) @export("matrix_invert") {
+	Matrix result;
 
 	//* Cache the matrix values (speed optimization)
 	float a00 = self.m0;
@@ -173,7 +170,7 @@ fn Matrix Matrix.invert(&self) {
 	return result;
 }
 <* Transform a quaternion given a transformation matrix *>
-fn Vector4 Matrix.quaternion_transform(&self, Quaternion q) {
+fn Vector4 Matrix.quaternion_transform(self, Quaternion q) @export("matrix_quaterniontransform") {
 	return {
 		.x = self.m0 * q.x + self.m4 * q.y + self.m8  * q.z + self.m12 * q.w,
 		.y = self.m1 * q.x + self.m5 * q.y + self.m9  * q.z + self.m13 * q.w,
@@ -182,7 +179,7 @@ fn Vector4 Matrix.quaternion_transform(&self, Quaternion q) {
 	};
 }
 <* Prints matrix to console *>
-fn void Matrix.print(&self) {
+fn void Matrix.print(&self) @export("matrix_print") {
 	io::printfn("[\n\t%d, %d, %d, %d,\n\t%d, %d, %d, %d,\n\t%d, %d, %d, %d,\n\t%d, %d, %d, %d,\n]",
 		self.m0, self.m4, self.m8,  self.m12,
 		self.m1, self.m5, self.m9,  self.m13,
@@ -196,13 +193,6 @@ fn void Matrix.print(&self) {
 module pleroma::raylib::matrix;
 import std::math;
 
-<* Zero matrix *>
-const Matrix ZERO = {
-	0.0, 0.0, 0.0, 0.0,
-	0.0, 0.0, 0.0, 0.0,
-	0.0, 0.0, 0.0, 0.0,
-	0.0, 0.0, 0.0, 0.0,
-};
 <* Identity Matrix *>
 const Matrix IDENTITY = {
 	1.0, 0.0, 0.0, 0.0,
@@ -212,7 +202,7 @@ const Matrix IDENTITY = {
 };
 
 <* Create translation matrix *>
-fn Matrix translate(Vector3 v) {
+fn Matrix translate(Vector3 v) @export("matrix_translate") {
 	return {
 		1.0, 0.0, 0.0, v.x,
 		0.0, 1.0, 0.0, v.y,
@@ -221,9 +211,8 @@ fn Matrix translate(Vector3 v) {
 	};
 }
 <* Create rotation matrix from axis and angle *>
-fn Matrix rotate(Vector3 axis, float angle) {
-	Matrix result = {};
-
+fn Matrix rotate(Vector3 axis, float angle) @export("matrix_rotate") {
+	Matrix result;
 	float x = axis.x;
 	float y = axis.y;
 	float z = axis.z;
@@ -263,9 +252,8 @@ fn Matrix rotate(Vector3 axis, float angle) {
 	return result;
 }
 <* Get x-rotation matrix *>
-fn Matrix rotate_x(float angle) {
-	Matrix result = {};
-
+fn Matrix rotate_x(float angle) @export("matrix_rotatex") {
+	Matrix result;
 	float cosres = math::cos(angle);
 	float sinres = math::sin(angle);
 
@@ -277,9 +265,8 @@ fn Matrix rotate_x(float angle) {
 	return result;
 }
 <* Get y-rotation matrix *>
-fn Matrix rotate_y(float angle) {
-	Matrix result = {};
-
+fn Matrix rotate_y(float angle) @export("matrix_rotatey") {
+	Matrix result;
 	float cosres = math::cos(angle);
 	float sinres = math::sin(angle);
 
@@ -291,9 +278,8 @@ fn Matrix rotate_y(float angle) {
 	return result;
 }
 <* Get z-rotation matrix *>
-fn Matrix rotate_z(float angle) {
-	Matrix result = {};
-
+fn Matrix rotate_z(float angle) @export("matrix_rotatez") {
+	Matrix result;
 	float cosres = math::cos(angle);
 	float sinres = math::sin(angle);
 
@@ -305,9 +291,8 @@ fn Matrix rotate_z(float angle) {
 	return result;
 }
 <* Get xyz-rotation matrix *>
-fn Matrix rotate_xyz(Vector3 angle) {
-	Matrix result = {};
-
+fn Matrix rotate_xyz(Vector3 angle) @export("matrix_rotatexyz") {
+	Matrix result;
 	float cosz = math::cos(-angle.z);
 	float sinz = math::sin(-angle.z);
 	float cosy = math::cos(-angle.y);
@@ -330,9 +315,8 @@ fn Matrix rotate_xyz(Vector3 angle) {
 	return result;
 }
 <* Get xyz-rotation matrix *>
-fn Matrix rotate_zyx(Vector3 angle) {
-	Matrix result = {};
-
+fn Matrix rotate_zyx(Vector3 angle) @export("matrix_rotatezyx") {
+	Matrix result;
 	float cz = math::cos(angle.z);
 	float sz = math::sin(angle.z);
 	float cy = math::cos(angle.y);
@@ -363,7 +347,7 @@ fn Matrix rotate_zyx(Vector3 angle) {
 	return result;
 }
 <* Get scaling matrix *>
-fn Matrix scale(Vector3 scale) {
+fn Matrix scale(Vector3 scale) @export("matrix_scale") {
 	return {
 		scale.x,     0.0,     0.0, 0.0,
 		    0.0, scale.y,     0.0, 0.0,
@@ -372,9 +356,8 @@ fn Matrix scale(Vector3 scale) {
 	};
 }
 <* Get perspective projection matrix *>
-fn Matrix frustum(double left, double right, double bottom, double top, double near, double far) {
-	Matrix result = {};
-
+fn Matrix frustum(double left, double right, double bottom, double top, double near, double far) @export("matrix_frustum") {
+	Matrix result;
 	float rl  = (float)(right - left);
 	float tb  = (float)(top - bottom);
 	float f_n = (float)(far - near);
@@ -402,9 +385,8 @@ fn Matrix frustum(double left, double right, double bottom, double top, double n
 	return result;
 }
 <* Get perspective projection matrix *>
-fn Matrix perspective(double fov_y, double aspect, double near_plane, double far_plane) {
-	Matrix result = {};
-
+fn Matrix perspective(double fov_y, double aspect, double near_plane, double far_plane) @export("matrix_perspective") {
+	Matrix result;
 	double top    =  near_plane * math::tan((fov_y * 0.5));
 	double bottom = -top;
 	double right  =  top * aspect;
@@ -426,9 +408,8 @@ fn Matrix perspective(double fov_y, double aspect, double near_plane, double far
 	return result;
 }
 <* Get orthographic projection matrix *>
-fn Matrix ortho(double left, double right, double bottom, double top, double near_plane, double far_plane) {
-	Matrix result = ZERO;
-
+fn Matrix ortho(double left, double right, double bottom, double top, double near_plane, double far_plane) @export("matrix_ortho") {
+	Matrix result;
 	float rl  = (float)(right - left);
 	float tb  = (float)(top - bottom);
 	float f_n = (float)(far_plane - near_plane);
@@ -453,9 +434,8 @@ fn Matrix ortho(double left, double right, double bottom, double top, double nea
 	return result;
 }
 <* Get camera look-at matrix (view matrix) *>
-fn Matrix look_at(Vector3 eye, Vector3 target, Vector3 up) {
-	Matrix result = {};
-
+fn Matrix look_at(Vector3 eye, Vector3 target, Vector3 up) @export("matrix_lookat") {
+	Matrix result;
 	float length;
 	float ilength;
 

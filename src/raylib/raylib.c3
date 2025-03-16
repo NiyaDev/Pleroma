@@ -43,7 +43,7 @@ extern fn void minimize() @extern("MinimizeWindow");
 // Set window state: not minimized/maximized
 extern fn void restore() @extern("RestoreWindow");
 // Set icon for window (single image, RGBA 32bit, only PLATFORM_DESKTOP)
-extern fn void set_window_icon(Image image) @extern("SetWindowIcon");
+//extern fn void set_window_icon(Image image) @extern("SetWindowIcon");
 // Set icon for window (multiple images, RGBA 32bit, only PLATFORM_DESKTOP)
 extern fn void set_window_icons(Image* image, int count) @extern("SetWindowIcons");
 // Set title for window (only PLATFORM_DESKTOP and PLATFORM_WEB)
@@ -393,170 +393,26 @@ extern fn void set_mouse_cursor(int cursor) @extern("SetMouseCursor");
 
 //= rTextures
 //= Image loading functions
-// Load image from file into CPU memory (RAM)
-extern fn Image load_image(char* filename) @extern("LoadImage");
-// Load image from RAW file data
-extern fn Image load_image_raw(char* filename, int width, int height, PixelFormat format, int header_size) @extern("LoadImageRaw");
-// Load image sequence from file (frames appended to image.data)
-extern fn Image load_image_anim(char* fileName, int* frames) @extern("LoadImageAnim");
 // Load image sequence from memory buffer
 extern fn Image load_image_anim_from_memory(char* fileType, char* fileData, int dataSize, int* frames) @extern("LoadImageAnimFromMemory");
-// Load image from memory buffer, fileType refers to extension: i.e. '.png'
-extern fn Image load_image_from_memory(char* fileType, char* fileData, int dataSize) @extern("LoadImageFromMemory");
-// Load image from GPU texture data
-extern fn Image load_image_from_texture(Texture texture) @extern("LoadImageFromTexture");
 // Load image from screen buffer and (screenshot)
 extern fn Image load_image_from_screen() @extern("LoadImageFromScreen");
-// Check if an image is ready
-extern fn bool is_image_ready(Image image) @extern("IsImageValid");
-// Unload image from CPU memory (RAM)
-extern fn void unload_image(Image image) @extern("UnloadImage");
-// Export image data to file, returns true on success
-extern fn bool export_image(Image image, char* filename) @extern("ExportImage");
-// Export image to memory buffer
-extern fn char* export_image_to_memory(Image image, char* fileType, int* fileSize) @extern("ExportImageToMemory");
 // Export image as code file defining an array of bytes, returns true on success
 extern fn bool export_image_as_code(Image image, char* file) @extern("ExportImageAsCode");
 
-//= Image generation functions
-// Generate image: plain color
-extern fn Image gen_image_color(int width, int height, Color color) @extern("GenImageColor");
-// Generate image: linear gradient, direction in degrees [0..360], 0=Vertical gradient
-extern fn Image gen_image_gradient_linear(int width, int height, int direction, Color start, Color end) @extern("GenImageGradientLinear");
-// Generate image: radial gradient
-extern fn Image gen_image_gradient_radial(int width, int height, float density, Color inner, Color outer) @extern("GenImageGradientRadial");
-// Generate image: square gradient
-extern fn Image gen_image_gradient_square(int width, int height, float density, Color inner, Color outer) @extern("GenImageGradientSquare");
-// Generate image: checked
-extern fn Image gen_image_checked(int width, int height, int checksX, int checksY, Color col1, Color col2) @extern("GenImageChecked");
-// Generate image: white noise
-extern fn Image gen_image_white_noise(int width, int height, float factor) @extern("GenImageWhiteNoise");
-// Generate image: perlin noise
-extern fn Image gen_image_perlin_noise(int width, int height, int offsetX, int offsetY, float scale) @extern("GenImagePerlinNoise");
-// Generate image: cellular algorithm, bigger tileSize means bigger cells
-extern fn Image gen_image_cellular(int width, int height, int tileSize) @extern("GenImageCellular");
-// Generate image: grayscale image from text data
-extern fn Image gen_image_text(int width, int height, char* text) @extern("GenImageText");
-
 //= Image manipulation functions
-// Create an image duplicate (useful for transformations)
-extern fn Image image_copy(Image image) @extern("ImageCopy");
-// Create an image from another image piece
-extern fn Image image_from_image(Image image, Rectangle rec) @extern("ImageFromImage");
-// Create an image from text (default font)
-extern fn Image image_text(char* text, int fontSize, Color color) @extern("ImageText");
-// Create an image from text (custom sprite font)
-extern fn Image image_text_ex(Font font, char* text, float fontSize, float spacing, Color tint) @extern("ImageTextEx");
-// Convert image data to desired format
-extern fn void image_format(Image* image, int newFormat) @extern("ImageFormat");
-// Convert image to POT (power-of-two)
-extern fn void image_to_pot(Image* image, Color fill) @extern("ImageToPOT");
-// Crop an image to a defined rectangle
-extern fn void image_crop(Image* image, Rectangle crop) @extern("ImageCrop");
- // Crop image depending on alpha value
-extern fn void image_alpha_crop(Image* image, float threshold) @extern("ImageAlphaCrop");
-// Clear alpha channel to desired color
-extern fn void image_alpha_clear(Image* image, Color color, float threshold) @extern("ImageAlphaClear");
-// Apply alpha mask to image
-extern fn void image_alpha_mask(Image* image, Image alphaMask) @extern("ImageAlphaMask");
-// Premultiply alpha channel
-extern fn void image_alpha_premultiply(Image* image) @extern("ImageAlphaPremultiply");
-// Apply Gaussian blur using a box blur approximation
-extern fn void image_blur_gaussian(Image* image, int blurSize) @extern("ImageBlurGaussian");
 // Apply custom square convolution kernel to image
 extern fn void image_kernel_convolution(Image* image, float* kernel, int kernelSize) @extern("ImageKernelConvolution");
-// Resize image (Bicubic scaling algorithm)
-extern fn void image_resize(Image* image, int newWidth, int newHeight) @extern("ImageResize");
-// Resize image (Nearest-Neighbor scaling algorithm)
-extern fn void image_resize_nn(Image* image, int newWidth, int newHeight) @extern("ImageResizeNN");
-// Resize canvas and fill with color
-extern fn void image_resize_canvas(Image* image, int newWidth, int newHeight, int offsetX, int offsetY, Color fill) @extern("ImageResizeCanvas");
-// Compute all mipmap levels for a provided image
-extern fn void image_mipmaps(Image* image) @extern("ImageMipmaps");
-// Dither image data to 16bpp or lower (Floyd-Steinberg dithering)
-extern fn void image_dither(Image* image, int rBpp, int gBpp, int bBpp, int aBpp) @extern("ImageDither");
-// Flip image vertically
-extern fn void image_flip_vertical(Image* image) @extern("ImageFlipVertical");
-// Flip image horizontally
-extern fn void image_flip_horizontal(Image* image) @extern("ImageFlipHorizontal");
-// Rotate image by input angle in degrees (-359 to 359)
-extern fn void image_rotate(Image* image, int degrees) @extern("ImageRotate");
-// Rotate image clockwise 90deg
-extern fn void image_rotate_cw(Image* image) @extern("ImageRotateCW");
-// Rotate image counter-clockwise 90deg
-extern fn void image_rotate_ccw(Image* image) @extern("ImageRotateCCW");
-// Modify image color: tint
-extern fn void image_color_tint(Image* image, Color color) @extern("ImageColorTint");
-// Modify image color: invert
-extern fn void image_color_invert(Image* image) @extern("ImageColorInvert");
-// Modify image color: grayscale
-extern fn void image_color_grayscale(Image* image) @extern("ImageColorGrayscale");
-// Modify image color: contrast (-100 to 100)
-extern fn void image_color_contrast(Image* image, float contrast) @extern("ImageColorContrast");
-// Modify image color: brightness (-255 to 255)
-extern fn void image_color_brightness(Image* image, int brightness) @extern("ImageColorBrightness");
-// Modify image color: replace color
-extern fn void image_color_replace(Image* image, Color color, Color replace) @extern("ImageColorReplace");
-// Load colors palette from image as a Color array (RGBA - 32bit)
-extern fn Color* load_image_palette(Image image, int maxPaletteSize, int* colorCount) @extern("LoadImagePalette");
-// Unload colors palette loaded with LoadImagePalette()
-extern fn void unload_image_palette(Color* colors) @extern("UnloadImagePalette");
-// Get image alpha border rectangle
-extern fn Rectangle get_image_alpha_border(Image image, float threshold) @extern("GetImageAlphaBorder");
-// Get image pixel color at (x, y) position
-extern fn Color get_image_color(Image* image, int x, int y) @extern("GetImageColor");
 
 //= Image drawing functions
-// Clear image background with given color
-extern fn void image_clear_background(Image* dst, Color color) @extern("ImageClearBackground");
-// Draw pixel within an image
-extern fn void image_draw_pixel(Image* dst, int posX, int posY, Color color) @extern("ImageDrawPixel");
-// Draw pixel within an image (Vector version)
-extern fn void image_draw_pixel_v(Image* dst, Vector2 position, Color color) @extern("ImageDrawPixelV");
-// Draw line within an image
-extern fn void image_draw_line(Image* dst, int startPosX, int startPosY, int endPosX, int endPosY, Color color) @extern("ImageDrawLine");
-// Draw line within an image (Vector version)
-extern fn void image_draw_line_v(Image* dst, Vector2 start, Vector2 end, Color color) @extern("ImageDrawLineV");
-// Draw a line defining thickness within an image
-extern fn void image_draw_line_ex(Image* dst, Vector2 start, Vector2 end, int thick, Color color) @extern("ImageDrawLineEx");
-// Draw a filled circle within an image
-extern fn void image_draw_circle(Image* dst, int centerX, int centerY, int radius, Color color) @extern("ImageDrawCircle");
-// Draw a filled circle within an image (Vector version)
-extern fn void image_draw_circle_v(Image* dst, Vector2 center, int radius, Color color) @extern("ImageDrawCircleV");
-// Draw circle outline within an image
-extern fn void image_draw_circle_lines(Image* dst, int centerX, int centerY, int radius, Color color) @extern("ImageDrawCircleLines");
-// Draw circle outline within an image (Vector version)
-extern fn void image_draw_circle_lines_v(Image* dst, Vector2 center, int radius, Color color) @extern("ImageDrawCircleLinesV");
-// Draw rectangle within an image
-extern fn void image_draw_rectangle(Image* dst, int posX, int posY, int width, int height, Color color) @extern("ImageDrawRectangle");
-// Draw rectangle within an image (Vector version)
-extern fn void image_draw_rectangle_v(Image* dst, Vector2 position, Vector2 size, Color color) @extern("ImageDrawRectangleV");
-// Draw rectangle within an image
-extern fn void image_draw_rectangle_rec(Image* dst, Rectangle rec, Color color) @extern("ImageDrawRectangleRec");
-// Draw rectangle lines within an image
-extern fn void image_draw_rectangle_lines(Image* dst, Rectangle rec, int thick, Color color) @extern("ImageDrawRectangleLines");
-// Draw triangle within an image
-extern fn void image_draw_triangle(Image* dst, Vector2 v1, Vector2 v2, Vector2 v3, Color color) @extern("ImageDrawTriangle");
-// Draw triangle with interpolated colors within an image
-extern fn void image_draw_triangle_ex(Image* dst, Vector2 v1, Vector2 v2, Vector2 v3, Color c1, Color c2, Color c3) @extern("ImageDrawTriangleEx");
-// Draw triangle outline within an image
-extern fn void image_draw_triangle_lines(Image* dst, Vector2 v1, Vector2 v2, Vector2 v3, Color color) @extern("ImageDrawTriangleLines");
 // Draw a triangle fan defined by points within an image (first vertex is the center)
 extern fn void image_draw_triangle_fan(Image* dst, Vector2* points, int pointCount, Color color) @extern("ImageDrawTriangleFan");
 // Draw a triangle strip defined by points within an image
 extern fn void image_draw_triangle_strip(Image* dst, Vector2* points, int pointCount, Color color) @extern("ImageDrawTriangleStrip");
-// Draw a source image within a destination image (tint applied to source)
-extern fn void image_draw(Image* dst, Image src, Rectangle srcRec, Rectangle dstRec, Color tint) @extern("ImageDraw");
-// Draw text (using default font) within an image (destination)
-extern fn void image_draw_text(Image* dst, char* text, int posX, int posY, int fontSize, Color color) @extern("ImageDrawText");
-// Draw text (custom sprite font) within an image (destination)
-extern fn void image_draw_text_ex(Image* dst, Font font, char* text, Vector2 position, float fontSize, float spacing, Color tint) @extern("ImageDrawTextEx");
 
 //= Texture loading functions
 // Load texture from file into GPU memory (VRAM)
 extern fn Texture load_texture(char* filename) @extern("LoadTexture");
-// Load texture from image data
-//extern fn Texture load_texture_from_image(Image image) @extern("LoadTextureFromImage");
 // Load cubemap from image, multiple image cubemap layouts supported
 extern fn Texture load_texture_cubemap(Image image, int layout) @extern("LoadTextureCubemap");
 // Load texture for rendering (framebuffer)

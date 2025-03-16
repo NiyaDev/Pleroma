@@ -34,35 +34,11 @@ enum MaterialMapIndex : int {
     DEPTH3             // New depth map index shadow for light4
 }
 
-<* Check if material is ready to use *>
-fn bool Material.ready(&self) {
-  return is_material_ready(*self);
-}
-<* Unload material *>
-fn void Material.unload(&self) {
-  unload_material(*self);
-  free(self);
-}
-<* Set texture *>
-fn void Material.set_texture(&self, Texture texture, MaterialMapIndex map_type = ALBEDO) {
-  set_material_texture(self, map_type.ordinal, texture);
-}
-
-
 
 module pleroma::raylib::material;
 
-
-<* Load default material *>
-fn Material* load_default() {
-  Material* output = mem::new(Material);
-
-  *output = raylib::load_material_default();
-
-  return output;
-}
 <* Load materials from model *>
-fn Material[] load_from_model(String filename) {
+fn Material[] load_from_model(String filename) @export("material_loadmodel") {
   int material_count = 0;
   Material* mats = raylib::load_materials(filename, &material_count);
 
