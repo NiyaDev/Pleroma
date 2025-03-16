@@ -133,9 +133,9 @@ extern fn void begin_3d_mode(Camera3D camera) @extern("BeginMode3D");
 // Ends 3D mode and returns to default 2D orthographic mode
 extern fn void end_3d_mode() @extern("EndMode3D");
 // Begin drawing to render texture
-extern fn void begin_texture_mode(RenderTexture target) @extern("BeginTextureMode");
+//extern fn void begin_texture_mode(RenderTexture target) @extern("BeginTextureMode");
 // Ends drawing to render texture
-extern fn void end_texture_mode() @extern("EndTextureMode");
+//extern fn void end_texture_mode() @extern("EndTextureMode");
 // Begin custom shader drawing
 extern fn void begin_shader_mode(Shader shader) @extern("BeginShaderMode");
 // End custom shader drawing (use default shader)
@@ -158,47 +158,6 @@ extern fn void end_vr_mode() @extern("EndVrStereoMode");
 extern fn VrStereoConfig load_vr_config(VrDeviceInfo device) @extern("LoadVrStereoConfig");
 // Unload VR stereo config
 extern fn void unload_ver_config(VrStereoConfig config) @extern("UnloadVrStereoConfig");
-
-//= Shader management functions
-//= NOTE: Shader functionality is not available on OpenGL 1.1
-// Load shader from files and bind default locations
-extern fn Shader load_shader(char* vsFilename, char* fsFilename) @extern("LoadShader");
-// Load shader from code strings and bind default locations
-extern fn Shader load_shader_memory(char* vsCode, char* fsCode) @extern("LoadShaderFromMemory");
-// Check if a shader is ready
-extern fn bool is_shader_ready(Shader shader) @extern("IsShaderValid");
-// Get shader uniform location
-extern fn int get_shader_location(Shader shader, char* uniformName) @extern("GetShaderLocation");
-// Get shader attribute location
-extern fn int get_shader_location_attribute(Shader shader, char* atttribName) @extern("GetShaderLocationAttrib");
-// Set shader uniform value
-extern fn void set_shader_value(Shader shader, int locIndex, void* value, int uniformType) @extern("SetShaderValue");
-// Set shader uniform value vector
-extern fn void set_shader_value_vec(Shader shader, int locIndex, void* value, int uniformType) @extern("SetShaderValueV");
-// Set shader uniform value (matrix 4x4)
-extern fn void set_shader_value_mat(Shader shader, int locIndex, Matrix mat) @extern("SetShaderValueMatrix");
-// Set shader uniform value for texture (sampler2d)
-extern fn void set_shader_value_texture(Shader shader, int locIndex, void* value, int uniformType) @extern("SetShaderValueTexture");
-// Unload shader from GPU memory (VRAM)
-extern fn void unload_shader(Shader shader) @extern("UnloadShader");
-
-//= Screen-space-related functions
-// Get a ray trace from screen position (i.e mouse)
-extern fn Ray get_screen_to_world(Vector2 position, Camera3D camera) @extern("GetScreenToWorldRay");
-// Get a ray trace from screen position (i.e mouse) in a viewport
-extern fn Ray get_screen_to_world_ex(Vector2 position, Camera3D camera, int width, int height) @extern("GetScreenToWorldRayEx");
-// Get the screen space position for a 3d world space position
-extern fn Vector2 get_world_to_screen(Vector3 position, Camera3D camera) @extern("GetWorldToScreen");
-// Get size position for a 3d world space position
-extern fn Vector2 get_world_to_screen_ex(Vector3 position, Camera3D camera, int width, int height) @extern("GetWorldToScreenEx");
-// Get the screen space position for a 2d camera world space position
-extern fn Vector2 get_world_to_screen_2d(Vector2 position, Camera2D camera) @extern("GetWorldToScreen2D");
-// Get the world space position for a 2d camera screen space position
-extern fn Vector2 get_screen_to_world_2d(Vector2 position, Camera2D camera) @extern("GetScreenToWorld2D");
-// Get camera transform matrix (view matrix)
-extern fn Matrix get_camera_matrix(Camera3D camera) @extern("GetCameraMatrix");
-// Get camera 2d transform matrix
-extern fn Matrix get_camera_matrix_2d(Camera2D camera) @extern("GetCameraMatrix2D");
 
 //= Timing-related functions
 // Set target FPS (maximum)
@@ -411,61 +370,13 @@ extern fn void image_draw_triangle_fan(Image* dst, Vector2* points, int pointCou
 extern fn void image_draw_triangle_strip(Image* dst, Vector2* points, int pointCount, Color color) @extern("ImageDrawTriangleStrip");
 
 //= Texture loading functions
-// Load texture from file into GPU memory (VRAM)
-extern fn Texture load_texture(char* filename) @extern("LoadTexture");
 // Load cubemap from image, multiple image cubemap layouts supported
 extern fn Texture load_texture_cubemap(Image image, int layout) @extern("LoadTextureCubemap");
-// Load texture for rendering (framebuffer)
-extern fn RenderTexture load_render_texture(int width, int height) @extern("LoadRenderTexture");
-// Check if a texture is ready
-extern fn bool is_texture_ready(Texture texture) @extern("IsTextureValid");
-// Unload texture from GPU memory (VRAM)
-extern fn void unload_texture(Texture texture) @extern("UnloadTexture");
-// Check if a render texture is ready
-extern fn bool is_render_texture_ready(RenderTexture target) @extern("IsRenderTextureValid");
-// Unload render texture from GPU memory (VRAM)
-extern fn void unload_render_texture(RenderTexture target) @extern("UnloadRenderTexture");
-// Update GPU texture with new data
-extern fn void update_texture(Texture texture, void* pixels) @extern("UpdateTexture");
-// Update GPU texture rectangle with new data
-extern fn void update_texture_rec(Texture texture, Rectangle rec, void* pixels) @extern("UpdateTextureRec");
 
-//= Texture configuration functions
-// Generate GPU mipmaps for a texture
-extern fn void gen_texture_mipmaps(Texture* texture) @extern("GenTextureMipmaps");
-// Set texture scaling filter mode
-extern fn void set_texture_filter(Texture texture, int filter) @extern("SetTextureFilter");
-// Set texture wrapping mode
-extern fn void set_texture_wrap(Texture texture, int wrap) @extern("SetTextureWrap");
-
-//= Texture drawing functions
-// Draw a Texture2D
-extern fn void draw_texture(Texture texture, int pos_x, int pos_y, Color tint) @extern("DrawTexture");
-// Draw a Texture2D with position defined as Vector2
-extern fn void draw_texture_v(Texture texture, Vector2 position, Color tint) @extern("DrawTextureV");
-// Draw a Texture2D with extended parameters
-extern fn void draw_texture_ex(Texture texture, Vector2 position, float rotation, float scale, Color tint) @extern("DrawTextureEx");
-// Draw a part of a texture defined by a rectangle
-extern fn void draw_texture_rec(Texture texture, Rectangle source, Vector2 position, Color tint) @extern("DrawTextureRec");
-// Draw a part of a texture defined by a rectangle with 'pro' parameters
-extern fn void draw_texture_pro(Texture texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint) @extern("DrawTexturePro");
-// Draws a texture (or part of it) that stretches or shrinks nicely
-extern fn void draw_texture_npatch(Texture texture, NPatchInfo npatch_info, Rectangle dest, Vector2 origin, float rotation, Color tint) @extern("DrawTextureNPatch");
 
 //= Color/pixel related functions
-// TODO:
-
 // Get src alpha-blended into dst color with tint
 extern fn Color color_alpha_blend(Color dst, Color src, Color tint) @extern("ColorAlphaBlend");
-// Get Color structure from hexadecimal value
-extern fn Color get_color(uint hexValue) @extern("GetColor");
-// Get Color from a source pixel pointer of certain format
-extern fn Color get_pixel_color(void* srcPtr, int format) @extern("GetPixelColor");
-// Set color formatted into destination pixel pointer
-extern fn void set_pixel_color(void* dstPtr, Color color, int format) @extern("SetPixelColor");
-// Get pixel data size in bytes for certain format
-extern fn int get_pixel_data_size(int width, int height, int format) @extern("GetPixelDataSize");
-
 
 //= rtext
 // Load font from file with extended parameters, use NULL for codepoints and 0 for codepointCount to load the default character set, font size is provided in pixels height
@@ -502,38 +413,6 @@ extern fn GlyphInfo get_glyph_info(Font font, int codepoint) @extern("GetGlyphIn
 // Get glyph rectangle in font atlas for a codepoint (unicode character), fallback to '?' if not found
 extern fn Rectangle get_glyph_atlas_rec(Font font, int codepoint) @extern("GetGlyphAtlasRec");
 
-//= Text codepoints management functions (unicode characters)
-// TODO:
-
-//char *LoadUTF8(const int *codepoints, int length);                // Load UTF-8 text encoded from codepoints array
-//void UnloadUTF8(char *text);                                      // Unload UTF-8 text encoded from codepoints array
-//int *LoadCodepoints(const char *text, int *count);                // Load all codepoints from a UTF-8 text string, codepoints count returned by parameter
-//void UnloadCodepoints(int *codepoints);                           // Unload codepoints data from memory
-//int GetCodepointCount(const char *text);                          // Get total number of codepoints in a UTF-8 encoded string
-//int GetCodepoint(const char *text, int *codepointSize);           // Get next codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
-//int GetCodepointNext(const char *text, int *codepointSize);       // Get next codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
-//int GetCodepointPrevious(const char *text, int *codepointSize);   // Get previous codepoint in a UTF-8 encoded string, 0x3f('?') is returned on failure
-//const char *CodepointToUTF8(int codepoint, int *utf8Size);        // Encode one codepoint into UTF-8 byte array (array length returned as parameter)
-
-// Text strings management functions (no UTF-8 strings, only byte chars)
-// NOTE: Some strings allocate memory internally for returned strings, just be careful!
-// TODO:
-
-//int TextCopy(char *dst, const char *src);                                             // Copy one string to another, returns bytes copied
-//bool TextIsEqual(const char *text1, const char *text2);                               // Check if two text string are equal
-//unsigned int TextLength(const char *text);                                            // Get text length, checks for '\0' ending
-//const char *TextFormat(const char *text, ...);                                        // Text formatting with variables (sprintf() style)
-//const char *TextSubtext(const char *text, int position, int length);                  // Get a piece of a text string
-//char *TextReplace(char *text, const char *replace, const char *by);                   // Replace text string (WARNING: memory must be freed!)
-//char *TextInsert(const char *text, const char *insert, int position);                 // Insert text in a position (WARNING: memory must be freed!)
-//const char *TextJoin(const char **textList, int count, const char *delimiter);        // Join text strings with delimiter
-//const char **TextSplit(const char *text, char delimiter, int *count);                 // Split text into multiple strings
-//void TextAppend(char *text, const char *append, int *position);                       // Append text at specific position and move cursor!
-//int TextFindIndex(const char *text, const char *find);                                // Find first text occurrence within a string
-//const char *TextToUpper(const char *text);                      // Get upper case version of provided string
-//const char *TextToLower(const char *text);                      // Get lower case version of provided string
-//const char *TextToPascal(const char *text);                     // Get Pascal case notation version of provided string
-//int TextToInteger(const char *text);                            // Get integer value from text (negative values not supported)
 
 //= rmodels
 // Basic geometric 3D shapes drawing functions
@@ -560,97 +439,13 @@ extern fn Rectangle get_glyph_atlas_rec(Font font, int codepoint) @extern("GetGl
 //void DrawRay(Ray ray, Color color);                                                                // Draw a ray line
 //void DrawGrid(int slices, float spacing);                                                          // Draw a grid (centered at (0, 0, 0))
 
-// Model management functions
-// Load model from files (meshes and materials)
-extern fn Model load_model(char* fileName) @extern("LoadModel");
-// Load model from generated mesh (default material)
-extern fn Model load_model_from_mesh(Mesh mesh) @extern("LoadModelFromMesh");
-// Check if a model is valid (loaded in GPU, VAO/VBOs)
-extern fn bool is_model_valid(Model model) @extern("IsModelValid");
-// Unload model (including meshes) from memory (RAM and/or VRAM)
-extern fn void unload_model(Model model) @extern("UnloadModel");
-// Compute model bounding box limits (considers all meshes)
-extern fn BoundingBox get_model_bounds(Model model) @extern("GetModelBoundingBox");
-
-// Model drawing functions
-// Draw a model (with texture if set)
-extern fn void draw_model(Model model, Vector3 position, float scale, Color tint) @extern("DrawModel");
-// Draw a model with extended parameters
-extern fn void draw_model_ex(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint) @extern("DrawModelEx");
-// Draw a model wires (with texture if set)
-extern fn void draw_model_wires(Model model, Vector3 position, float scale, Color tint) @extern("DrawModelWires");
-// Draw a model wires (with texture if set) with extended parameters
-extern fn void draw_model_wires_ex(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint) @extern("DrawModelWiresEx");
-// Draw a model as points
-extern fn void draw_model_points(Model model, Vector3 position, float scale, Color tint) @extern("DrawModelPoints");
-// Draw a model as points with extended parameters
-extern fn void draw_model_points_ex(Model model, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale, Color tint) @extern("DrawModelPointsEx");
-// Draw bounding box (wires)
-//extern fn void draw_bounds(BoundingBox box, Color color) @extern("DrawBoundingBox");
-// Draw a billboard texture
-extern fn void draw_billboard(Camera3D camera, Texture texture, Vector3 position, float scale, Color tint) @extern("DrawBillboard");
-// Draw a billboard texture defined by source
-extern fn void draw_billboard_rec(Camera3D camera, Texture texture, Rectangle source, Vector3 position, Vector2 size, Color tint) @extern("DrawBillboardRec");
-// Draw a billboard texture defined by source and rotation
-extern fn void draw_billboard_pro(Camera3D camera, Texture texture, Rectangle source, Vector3 position, Vector3 up, Vector2 size, Vector2 origin, float rotation, Color tint) @extern("DrawBillboardPro");
-
 // Mesh management functions
 // Upload mesh vertex data in GPU and provide VAO/VBO ids
 extern fn void upload_mesh(Mesh *mesh, bool dynamic) @extern("UploadMesh");
 // Update mesh vertex data in GPU for a specific buffer index
 extern fn void update_mesh(Mesh mesh, int index, void* data, int dataSize, int offset) @extern("UpdateMeshBuffer");
-// Unload mesh data from CPU and GPU
-extern fn void unload_mesh(Mesh mesh) @extern("UnloadMesh");
-// Draw a 3d mesh with material and transform
-extern fn void draw_mesh(Mesh mesh, Material material, Matrix transform) @extern("DrawMesh");
-// Draw multiple mesh instances with material and different transforms
-extern fn void draw_mesh_instanced(Mesh mesh, Material material, Matrix* transforms, int instances) @extern("DrawMeshInstanced");
-// Compute mesh bounding box limits
-extern fn BoundingBox get_mesh_bounds(Mesh mesh) @extern("GetMeshBoundingBox");
-// Compute mesh tangents
-extern fn void gen_mesh_tangents(Mesh *mesh) @extern("GenMeshTangents");
-// Export mesh data to file, returns true on success
-extern fn bool export_mesh(Mesh mesh, char* fileName) @extern("ExportMesh");
 // Export mesh as code file (.h) defining multiple arrays of vertex attributes
 extern fn bool export_mesh_code(Mesh mesh, char* fileName) @extern("ExportMeshAsCode");
-
-// Mesh generation functions
-// Generate polygonal mesh
-extern fn Mesh gen_mesh_poly(int sides, float radius) @extern("GenMeshPoly");
-// Generate plane mesh (with subdivisions)
-extern fn Mesh gen_mesh_plane(float width, float length, int resX, int resZ) @extern("GenMeshPlane");
-// Generate cuboid mesh
-extern fn Mesh gen_mesh_cube(float width, float height, float length) @extern("GenMeshCube");
-// Generate sphere mesh (standard sphere)
-extern fn Mesh gen_mesh_sphere(float radius, int rings, int slices) @extern("GenMeshSphere");
-// Generate half-sphere mesh (no bottom cap)
-extern fn Mesh gen_mesh_hemi(float radius, int rings, int slices) @extern("GenMeshHemiSphere");
-// Generate cylinder mesh
-extern fn Mesh gen_mesh_cylinder(float radius, float height, int slices) @extern("GenMeshCylinder");
-// Generate cone/pyramid mesh
-extern fn Mesh gen_mesh_cone(float radius, float height, int slices) @extern("GenMeshCone");
-// Generate torus mesh
-extern fn Mesh gen_mesh_torus(float radius, float size, int radSeg, int sides) @extern("GenMeshTorus");
-// Generate trefoil knot mesh
-extern fn Mesh gen_mesh_knot(float radius, float size, int radSeg, int sides) @extern("GenMeshKnot");
-// Generate heightmap mesh from image data
-extern fn Mesh gen_mesh_heightmap(Image heightmap, Vector3 size) @extern("GenMeshHeightmap");
-// Generate cubes-based map mesh from image data
-extern fn Mesh gen_mesh_cubicmap(Image cubicmap, Vector3 cubeSize) @extern("GenMeshCubicmap");
-
-//= Material loading/unloading functions
-// Load materials from model file
-extern fn Material* load_materials(char* filename, int* materialCount) @extern("LoadMaterials");
-// Load default material (Supports: DIFFUSE, SPECULAR, NORMAL maps)
-extern fn Material load_material_default() @extern("LoadMaterialDefault");
-// Check if a material is valid (shader assigned, map textures loaded in GPU)
-extern fn bool is_material_ready(Material material) @extern("IsMaterialValid");
-// Unload material from GPU memory (VRAM)
-extern fn void unload_material(Material material) @extern("UnloadMaterial");
-// Set texture for a material map type (MATERIAL_MAP_DIFFUSE, MATERIAL_MAP_SPECULAR...)
-extern fn void set_material_texture(Material* material, int mapType, Texture texture) @extern("SetMaterialTexture");
-// Set material for a mesh
-extern fn void set_model_material(Model *model, int meshId, int materialId) @extern("SetModelMeshMaterial");
 
 // Model animations loading/unloading functions
 // Load model animations from file
@@ -665,23 +460,5 @@ extern fn void unload_model_animation(ModelAnimation anim) @extern("UnloadModelA
 extern fn void unload_model_animations(ModelAnimation *animations, int animCount) @extern("UnloadModelAnimations");
 // Check model animation skeleton match
 extern fn bool is_model_animation_valid(Model model, ModelAnimation anim) @extern("IsModelAnimationValid");
-
-// Collision detection functions
-// Check collision between two spheres
-extern fn bool check_collision_spheres(Vector3 center1, float radius1, Vector3 center2, float radius2) @extern("CheckCollisionSpheres");
-// Check collision between two bounding boxes
-extern fn bool check_collision_boxes(BoundingBox box1, BoundingBox box2) @extern("CheckCollisionBoxes");
-// Check collision between box and sphere
-extern fn bool check_collision_box_sphere(BoundingBox box, Vector3 center, float radius) @extern("CheckCollisionBoxSphere");
-// Get collision info between ray and sphere
-extern fn RayCollision get_ray_collision_sphere(Ray ray, Vector3 center, float radius) @extern("GetRayCollisionSphere");
-// Get collision info between ray and box
-extern fn RayCollision get_ray_collision_box(Ray ray, BoundingBox box) @extern("GetRayCollisionBox");
-// Get collision info between ray and mesh
-extern fn RayCollision get_ray_collision_mesh(Ray ray, Mesh mesh, Matrix transform) @extern("GetRayCollisionMesh");
-// Get collision info between ray and triangle
-extern fn RayCollision get_ray_collision_triangle(Ray ray, Vector3 p1, Vector3 p2, Vector3 p3) @extern("GetRayCollisionTriangle");
-// Get collision info between ray and quad
-extern fn RayCollision get_ray_collision_quad(Ray ray, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4) @extern("GetRayCollisionQuad");
 
 

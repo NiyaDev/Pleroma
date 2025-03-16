@@ -2,6 +2,41 @@
 module pleroma::raylib;
 
 
+struct Wave {
+  uint frame_count;
+  uint sample_rate;
+  uint sample_size;
+  uint channels;
+  void* data;
+}
+struct Sound {
+	AudioStream stream;
+  uint frameCount;
+}
+struct Music {
+	AudioStream stream;
+	uint frame_count;
+	bool looping;
+
+	int ctx_type;
+	void* ctx_data;
+}
+struct AudioStream {
+	AudioBufferRef buffer;
+	AudioProcessorRef processor;
+
+  uint sample_rate;
+  uint sample_size;
+  uint channels;
+}
+def AudioBufferRef = void*;
+def AudioProcessorRef = void*;
+
+
+struct BoundingBox {
+  Vector3 min, max;
+}
+
 <* Mouse buttons *>
 enum MouseButton {
   LEFT,       // Mouse button left
@@ -48,7 +83,6 @@ enum GamepadAxis : int {
   LEFT_TRIGGER,     // Gamepad back trigger left, pressure level: [1..-1]
   RIGHT_TRIGGER     // Gamepad back trigger right, pressure level: [1..-1]
 }
-
 
 <* Keyboard Keys *>
 distinct KeyboardKey = int;
@@ -167,4 +201,195 @@ const KeyboardKey KEY_BACK            = 4;        // Key: Android back button
 const KeyboardKey KEY_MENU            = 82;       // Key: Android menu button
 const KeyboardKey KEY_VOLUME_UP       = 24;       // Key: Android volume up button
 const KeyboardKey KEY_VOLUME_DOWN     = 25;       // Key: Android volume down button
+
+
+<* 2D Camera *>
+struct Camera2D {
+  Vector2 offset, target;
+  float rotation, zoom;
+}
+
+<* 3D Camera *>
+struct Camera3D {
+  Vector3 position, target, up;
+  float fovy;
+  CameraProjection projection;
+}
+
+<* Camera projection *>
+enum CameraProjection {
+  PERSPECTIVE,
+  ORTHOGRAPHIC,
+}
+
+
+<* File path list *>
+struct FilePathList {
+  uint capacity, count;
+  char** paths;
+}
+
+
+<* Mesh *>
+struct Mesh {
+	int vertexCount;			  // Number of vertices stored in arrays
+	int triangleCount;			// Number of triangles stored (indexed or not)
+
+	//* Vertex attributes data
+	float* vertices;			  // Vertex position (XYZ - 3 components per vertex) (shader-location = 0)
+	float* texcoords;		  	// Vertex texture coordinates (UV - 2 components per vertex) (shader-location = 1)
+	float* texcoords2;			// Vertex texture second coordinates (UV - 2 components per vertex) (shader-location = 5)
+	float* normals;				  // Vertex normals (XYZ - 3 components per vertex) (shader-location = 2)
+	float* tangents;			  // Vertex tangents (XYZW - 4 components per vertex) (shader-location = 4)
+	char* colors;				    // Vertex colors (RGBA - 4 components per vertex) (shader-location = 3)
+	ushort* indices;			  // Vertex indices (in case vertex data comes indexed)
+
+	//* Animation vertex data
+	float* animVertices;		// Animated vertex positions (after bones transformations)
+	float* animNormals;			// Animated normals (after bones transformations)
+	char* boneIds;				  // Vertex bone ids, max 255 bone ids, up to 4 bones influence by vertex (skinning) (shader-location = 6)
+	float* boneWeights;			// Vertex bone weight, up to 4 bones influence by vertex (skinning) (shader-location = 7)
+	Matrix* boneMatrices;		// Bones animated transformation matrices
+	int boneCount;				  // Number of bones
+
+	//* OpenGL identifiers
+	uint vaoId;					    // OpenGL Vertex Array Object id
+	uint *vboId;				    // OpenGL Vertex Buffer Objects id (default vertex data)
+}
+
+<* Model *>
+struct Model {
+	Matrix transform;			  // Local transform matrix
+
+	int meshCount;				  // Number of meshes
+	int materialCount;			// Number of materials
+	Mesh* meshes;			    	// Meshes array
+	Material* materials;		// Materials array
+	int* meshMaterial;			// Mesh material number
+
+	//* Animation data
+	int boneCount;				  // Number of bones
+	BoneInfo* bones;			  // Bones information (skeleton)
+	Transform* bindPose;		// Bones base transformation (pose)
+}
+<* Model Fault *>
+fault ModelFault {
+	FAILED_FIND_FILE,
+}
+<* Transform *>
+struct Transform {
+	Vector3 translation;		// Translation
+	Quaternion rotation;		// Rotation
+	Vector3 scale;			  	// Scale
+}
+
+<* Bone info *>
+struct BoneInfo {
+	char[32] name;				// Bone name
+	int parent;					// Bone parent
+}
+
+<* Model Animation
+  TODO:  
+ *>
+struct ModelAnimation {
+	int n;
+}
+
+
+enum PixelFormat : int {
+	GRAYSCALE,
+	GRAYALPHA,
+	R5G6B5,
+	R8G8B8,
+	R5G5B5A1,
+	R4G4B4A4,
+	R8G8B8A8,
+	R32,
+	R32G32B32,
+	R32G32B32A32,
+	R16,
+	R16G16B16,
+	R16G16B16A16,
+	DXT1RGB,
+	DXT1RGBA,
+	DXT3RGBA,
+	DXT5RGBA,
+	ETC1RGB,
+	ETC2RGB,
+	ETC2EACRGBA,
+	PVRTRGB,
+	PVRTRGBA,
+	ASTC4X4RGBA,
+	ASTC8X8RGBA,
+	UNKNOWN,
+}
+
+
+<* Ray *>
+struct Ray {
+  Vector3 position, direction;
+}
+<* Ray Collision *>
+struct RayCollision {
+  bool hit;
+  float distance;
+  Vector3 point, normal;
+}
+
+
+<* Rectangle *>
+struct Rectangle {
+  float x, y, width, height;
+}
+
+
+<* Render Texture *>
+struct RenderTexture {
+	uint id;
+	Texture texture, depth;
+}
+
+
+<* Shader *>
+struct Shader {
+  uint id;
+  int* locs;
+}
+
+
+<* Trace log level
+  NOTE: Organized by priority level
+ *>
+enum TraceLogLevel : int {
+  ALL,            // Display all logs (0)
+  TRACE,          // Trace logging, intended for internal use only
+  DEBUG,          // Debug logging, used for internal debugging, it should be disabled on release builds
+  INFO,           // Info logging, used for program execution info
+  WARNING,        // Warning logging, used on recoverable failures
+  ERROR,          // Error logging, used on unrecoverable failures
+  FATAL,          // Fatal logging, used to abort program: exit(EXIT_FAILURE)
+  NONE            // Disable logging
+}
+
+
+<* VR stuff *>
+struct VrDeviceInfo {
+	int h_resolution, v_resolution;
+	float h_screen_size, v_screen_size;
+	float eye_to_screen_distance;
+	float lens_seperation_distance;
+	float interpupillary_distance;
+	float[4] lens_distortion_values;
+	float[4] chroma_aberration_correction;
+}
+struct VrStereoConfig {
+	Matrix[2] projection, view_offset;
+	float[2] left_lens_center, right_lens_center;
+	float[2] left_screen_center, right_screen_center;
+	float[2] scale, scale_in;
+}
+
+
+
 

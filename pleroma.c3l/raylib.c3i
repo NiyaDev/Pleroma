@@ -96,6 +96,9 @@ struct BoundingBox {
   Vector3 min, max;
 }
 extern fn void BoundingBox.draw(self, Color) @extern("DrawBoundingBox");
+extern fn bool check_collision_sphere(Vector3, float, Vector3, float) @extern("CheckCollisionSpheres");
+extern fn bool check_collision_boxes(BoundingBox, BoundingBox) @extern("CheckCollisionBoxes");
+extern fn bool check_collision_box_sphere(BoundingBox, Vector3, float) @extern("CheckCollisionBoxSphere");
 
 //= Buttons
 enum MouseButton {
@@ -156,6 +159,9 @@ enum CameraProjection {
   PERSPECTIVE,
   ORTHOGRAPHIC,
 }
+extern fn void Camera3D.draw_billboard(self, Texture, Vector3, float, Color) @extern("DrawBillboard");
+extern fn void Camera3D.draw_billboard_rec(self, Texture, Rectangle, Vector3, Vector2, Color) @extern("DrawBillboardRec");
+extern fn void Camera3D.draw_billboard_pro(self, Texture, Rectangle, Vector3, Vector3, Vector2, Vector2, float, Color) @extern("DrawBillboardPro");
 
 //= Color
 struct Color {
@@ -194,7 +200,7 @@ struct Font {
 struct GlyphInfo {
 	int value;
 	int offset_x;
-int offset_y;
+  int offset_y;
 	int advance_x;
 	Image image;
 }
@@ -330,8 +336,6 @@ struct Mesh {
 	uint vaoId;
 	uint *vboId;
 }
-
-<* Model *>
 struct Model {
 	Matrix transform;
 	int meshCount;
@@ -342,9 +346,6 @@ struct Model {
 	int boneCount;
 	BoneInfo* bones;
 	Transform* bindPose;
-}
-fault ModelFault {
-	FAILED_FIND_FILE,
 }
 struct Transform {
 	Vector3 translation;
@@ -358,6 +359,22 @@ struct BoneInfo {
 struct ModelAnimation {
 	int n;
 }
+extern fn void Mesh.draw(self, Material, Matrix) @extern("DrawMesh");
+extern fn void Mesh.draw_instanced(self, Material, Matrix*, int) @extern("DrawMeshInstanced");
+extern fn BoundingBox Mesh.bounds(self) @extern("GetMeshBoundingBox");
+extern fn bool Mesh.save(self, String) @extern("ExportMesh");
+extern fn void Mesh.unload(self) @extern("UnloadMesh");
+extern fn void Mesh.gen_tangents(&self) @extern("GenMeshTangents");
+extern fn bool Model.ready(self) @extern("IsModelValid");
+extern fn void Model.unload(self) @extern("UnloadModel");
+extern fn BoundingBox Model.bounds(self) @extern("GetModelBoundingBox");
+extern fn void Model.draw(self, Vector3, float, Color) @extern("DrawModel");
+extern fn void Model.draw_ex(self, Vector3, Vector3, float, Vector3, Color) @extern("DrawModelEx");
+extern fn void Model.draw_wires(self, Vector3, float, Color) @extern("DrawModelWires");
+extern fn void Model.draw_wires_ex(self, Vector3, Vector3, float, Vector3, Color) @extern("DrawModelWiresEx");
+extern fn void Model.draw_points(self, Vector3, float, Color) @extern("DrawModelPoints");
+extern fn void Model.draw_points_ex(self, Vector3, Vector3, float, Vector3, Color) @extern("DrawModelPointsEx");
+extern fn void Model.set_material(&self, int, int) @extern("SetModelMeshMaterial");
 
 //= Quaternion
 distinct Quaternion = Vector4;
@@ -365,6 +382,16 @@ struct AxisAngle {
 	Vector3 axis;
 	float angle;
 }
+extern fn float Quaternion.length(self) @export("quaternion_length");
+extern fn float Quaternion.dot_product(self, Quaternion) @export("quaternion_dotproduct");
+extern fn Quaternion Quaternion.normalize(self) @extern("quaternion_normalize");
+extern fn Quaternion Quaternion.invert(self) @extern("quaternion_invert");
+extern fn Quaternion Quaternion.lerp(self, Quaternion, float) @extern("quaternion_lerp");
+extern fn Quaternion Quaternion.n_lerp(self, Quaternion, float) @extern("quaternion_nlerp");
+extern fn Quaternion Quaternion.slerp(self, Quaternion, float) @extern("quaternion_slerp");
+extern fn AxisAngle Quaternion.to_axis_angle(self) @extern("quaternion_toaxisangle");
+extern fn Vector3 Quaternion.to_euler(self) @extern("quaternion_toeuler");
+extern fn Quaternion Quaternion.transform(self, Matrix) @extern("quaternion_transform");
 
 //= Ray
 struct Ray {
@@ -375,6 +402,11 @@ struct RayCollision {
   float distance;
   Vector3 point, normal;
 }
+extern fn RayCollision Ray.sphere(self, Vector3, float) @extern("GetRayCollisionSphere");
+extern fn RayCollision Ray.box(self, BoundingBox) @extern("GetRayCollisionBox");
+extern fn RayCollision Ray.mesh(self, Mesh, Matrix) @extern("GetRayCollisionMesh");
+extern fn RayCollision Ray.triangle(self, Vector3, Vector3, Vector3) @extern("GetRayCollisionTriangle");
+extern fn RayCollision Ray.quad(self, Vector3, Vector3, Vector3, Vector3) @extern("GetRayCollisionQuad");
 
 //= Rectangle
 struct Rectangle {
@@ -386,15 +418,26 @@ struct RenderTexture {
 	uint id;
 	Texture texture, depth;
 }
-fault RenderTextureFault {
-	FAILED_CREATE_RENDERTEXTURE,
-}
+extern fn void RenderTexture.unload(self) @extern("UnloadRenderTexture");
+extern fn bool RenderTexture.ready(self) @extern("IsRenderTextureValid");
+extern fn void RenderTexture.begin(self) @extern("BeginTextureMode");
+extern fn void RenderTexture.end(self) @extern("EndTextureMode");
 
 //= Shader
 struct Shader {
   uint id;
   int* locs;
 }
+extern fn void Shader.unload(self) @extern("UnloadShader");
+extern fn bool Shader.ready(self) @extern("IsShaderValid");
+extern fn void Shader.begin(self) @extern("BeginShaderMode");
+extern fn void Shader.end(self) @extern("EndShaderMode");
+extern fn int  Shader.get_loc(self, String) @extern("GetShaderLocation");
+extern fn int  Shader.get_atr(self, String) @extern("GetShaderLocationAttrib");
+extern fn void Shader.set_value(self, int, any, int) @extern("SetShaderValue");
+extern fn void Shader.set_vector(self, int, any, int) @extern("SetShaderValueV");
+extern fn void Shader.set_matrix(self, int, Matrix) @extern("SetShaderValueMatrix");
+extern fn void Shader.set_texture(self, int, any, int) @extern("SetShaderValueTexture");
 
 //= Texture
 struct Texture {
@@ -459,7 +502,21 @@ enum PixelFormat : int {
 	ASTC8X8RGBA,
 	UNKNOWN,
 }
-extern fn void Texture.draw(&self,int,int,Color) @extern("texture_draw");
+extern fn void Texture.unload(self) @extern("UnloadTexture");
+extern fn bool Texture.ready(self) @extern("IsTextureValid");
+extern fn void Texture.update(self, void*) @extern("UpdateTexture");
+extern fn void Texture.update_rec(self, Rectangle, void*) @extern("UpdateTextureRec");
+extern fn void Texture.gen_mipmaps(&self) @extern("GenTextureMipmaps");
+extern fn void Texture.set_filter(self, TextureFilter) @extern("SetTextureFilter");
+extern fn void Texture.set_wrap(self, TextureWrap) @extern("SetTextureWrap");
+extern fn void Texture.draw(self, int, int, Color) @extern("DrawTexture");
+extern fn void Texture.draw_v(self, Vector2, Color) @extern("DrawTextureV");
+extern fn void Texture.draw_ex(self, Vector2, float, float, Color) @extern("DrawTextureEx");
+extern fn void Texture.draw_rec(self, Rectangle, Vector2, Color) @extern("DrawTextureRec");
+extern fn void Texture.draw_pro(self, Rectangle, Rectangle, Vector2, float, Color) @extern("DrawTexturePro");
+extern fn void Texture.draw_npatch(self, NPatchInfo, Rectangle, Vector2, float, Color) @extern("DrawTextureNPatch");
+extern fn NPatchInfo Texture.npatch(self) @extern("texture_npatch");
+extern fn void Texture.print(self) @extern("texture_print");
 
 //= tracelog
 enum TraceLogLevel : int {
@@ -477,12 +534,80 @@ enum TraceLogLevel : int {
 struct Vector2 {
   float x,y;
 }
+extern fn float Vector2.length(self) @extern("vector2_length");
+extern fn float Vector2.length_sqr(self) @extern("vector2_lengthsqr");
+extern fn float Vector2.dot_product(self, Vector2) @extern("vector2_dotproduct");
+extern fn float Vector2.distance(self, Vector2) @extern("vector2_distance");
+extern fn float Vector2.distance_sqr(self, Vector2) @extern("vector2_distancesqr");
+extern fn float Vector2.angle(self, Vector2) @extern("vector2_angle");
+extern fn float Vector2.angle_line(self, Vector2) @extern("vector2_angleline");
+extern fn Vector2 Vector2.normalize(self) @extern("vector2_normalize");
+extern fn Vector2 Vector2.transform(self, Matrix) @extern("vector2_transform");
+extern fn Vector2 Vector2.lerp(self, Vector2, float) @extern("vector2_lerp");
+extern fn Vector2 Vector2.reflect(self, Vector2) @extern("vector2_reflect");
+extern fn Vector2 Vector2.rotate(self, float) @extern("vector2_rotate");
+extern fn Vector2 Vector2.move_towards(self, Vector2, float) @extern("vector2_movetowards");
+extern fn Vector2 Vector2.invert(self) @extern("vector2_invert");
+extern fn Vector2 Vector2.clamp(self, Vector2, Vector2) @extern("vector2_clamp");
+extern fn Vector2 Vector2.clamp_mag(self, float, float) @extern("vector2_clampmag");
+
 struct Vector3 {
   float x,y,z;
 }
+extern fn bool Vector3.equals(self, Vector3) @extern("vector3_equals");
+extern fn Vector3 Vector3.add(&self, Vector3) @extern("vector3_add");
+extern fn Vector3 Vector3.sub(&self, Vector3) @extern("vector3_sub");
+extern fn Vector3 Vector3.mul(&self, Vector3) @extern("vector3_mul");
+extern fn Vector3 Vector3.mul_f(&self, float) @extern("vector3_mulf");
+extern fn Vector3 Vector3.div(&self, Vector3) @extern("vector3_div");
+extern fn Vector3 Vector3.cross_product(self, Vector3) @extern("vector3_crossproduct");
+extern fn Vector3 Vector3.perpendicular(self) @extern("vector3_perpendicular");
+extern fn float Vector3.length(self) @extern("vector3_length");
+extern fn float Vector3.length_sqr(self) @extern("vector3_lengthsqr");
+extern fn float Vector3.dot_product(self, Vector3) @extern("vector3_dotproduct");
+extern fn float Vector3.distance(self, Vector3) @extern("vector3_distance");
+extern fn float Vector3.distance_sqr(self, Vector3) @extern("vector3_distancesqr");
+extern fn float Vector3.angle(self, Vector3) @extern("vector3_angle");
+extern fn Vector3 Vector3.normalize(self) @extern("vector3_normalize");
+extern fn Vector3 Vector3.project(self, Vector3) @extern("vector3_project");
+extern fn Vector3 Vector3.reject(self, Vector3) @extern("vector3_reject");
+extern fn void Vector3.orthinormalize(&self, Vector3*) @extern("vector3_orthinormalize");
+extern fn Vector3 Vector3.transform(self, Matrix) @extern("vector3_transform");
+extern fn Vector3 Vector3.rotate_quaternion(self, Quaternion) @extern("vector3_rotatequaternion");
+extern fn Vector3 Vector3.rotate(self, Vector3, float) @extern("vector3_rotate");
+extern fn Vector3 Vector3.rotate_axis(self, Vector3, float) @extern("vector3_rotateaxis");
+extern fn Vector3 Vector3.move_towards(self, Vector3, float) @extern("vector3_movetowards");
+extern fn Vector3 Vector3.lerp(self, Vector3, float) @extern("vector3_lerp");
+extern fn Vector3 Vector3.reflect(self, Vector3) @extern("vector3_reflect");
+extern fn Vector3 Vector3.min(self, Vector3) @extern("vector3_min");
+extern fn Vector3 Vector3.max(self, Vector3) @extern("vector3_max");
+extern fn Vector3 Vector3.barycenter(self, Vector3, Vector3, Vector3) @extern("vector3_barycenter");
+extern fn Vector3 Vector3.unproject(self, Matrix, Matrix) @extern("vector3_unproject");
+extern fn Vector3 Vector3.invert(self) @extern("vector3_invert");
+extern fn Vector3 Vector3.clamp(self, Vector3, Vector3) @extern("vector3_clamp");
+extern fn Vector3 Vector3.clamp_value(self, float, float) @extern("vector3_clampvalue");
+extern fn Vector3 Vector3.refract(self, Vector3, float) @extern("vector3_refract");
+extern fn Color Vector3.to_color(self) @extern("vector3_tocolor");
+
 struct Vector4 {
   float x,y,z,w;
 }
+extern fn Vector4 Vector4.add(self, Vector4) @extern("vector4_add");
+extern fn Vector4 Vector4.sub(self, Vector4) @extern("vector4_sub");
+extern fn Vector4 Vector4.mul(self, Vector4) @extern("vector4_mul");
+extern fn Vector4 Vector4.div(self, Vector4) @extern("vector4_div");
+extern fn float Vector4.length(self) @extern("vector4_length");
+extern fn float Vector4.length_sqr(self) @extern("vector4_lengthsqr");
+extern fn float Vector4.do_product(self, Vector4) @extern("vector4_dotproduct");
+extern fn float Vector4.distance(self, Vector4) @extern("vector4_distance");
+extern fn float Vector4.distance_sqr(self, Vector4) @extern("vector4_distancesqr");
+extern fn Vector4 Vector4.normalize(self) @extern("vector4_normalize");
+extern fn Vector4 Vector4.min(self, Vector4) @extern("vector4_min");
+extern fn Vector4 Vector4.max(self, Vector4) @extern("vector4_max");
+extern fn Vector4 Vector4.lerp(self, Vector4, float) @extern("vector4_lerp");
+extern fn Vector4 Vector4.move_towards(self, Vector4, float) @extern("vector4_movetowards");
+extern fn Vector4 Vector4.invert(self) @extern("vector4_invert");
+extern fn Color Vector4.to_color(self) @extern("vector4_tocolor");
 
 //= VRInfo
 struct VrDeviceInfo {
@@ -543,11 +668,11 @@ extern fn Image perlin_noise(int, int, int, int, float) @extern("GenImagePerlinN
 extern fn Image cellular(int, int, int) @extern("GenImageCellular");
 extern fn Image gen_text(int, int, String) @extern("GenImageText");
 extern fn Image text(String, int, Color) @extern("ImageText");
-extern fn Image text(Font, String, float, float, Color) @extern("ImageTextEx");
+extern fn Image text_ex(Font, String, float, float, Color) @extern("ImageTextEx");
 
 module pleroma::raylib::material;
 extern fn Material load_default() @extern("LoadMaterialDefault");
-extern fn Material[] load_model(String) @extern("material_moadmodel");
+extern fn Material[] load_model(String) @extern("material_loadmodel");
 
 module pleroma::raylib::matrix;
 const Matrix IDENTITY = {
@@ -567,7 +692,49 @@ extern fn Matrix scale(Vector3) @extern("matrix_scale");
 extern fn Matrix frustum(double, double, double, double, double, double) @extern("matrix_frustum");
 extern fn Matrix perspective(double, double, double, double) @extern("matrix_perspective");
 extern fn Matrix ortho(double, double, double, double, double, double) @extern("matrix_ortho");
-extern fn Matrix look_at(Vecxtor3, Vector3, Vector3) @extern("matrix_lookat");
+extern fn Matrix look_at(Vector3, Vector3, Vector3) @extern("matrix_lookat");
+
+module pleroma::raylib::mesh;
+extern fn Mesh poly(int, float) @extern("GenMeshPoly");
+extern fn Mesh plane(float, float, int, int) @extern("GenMeshPlane");
+extern fn Mesh cube(float, float, float) @extern("GenMeshCube");
+extern fn Mesh sphere(float, int, int) @extern("GenMeshSphere");
+extern fn Mesh hemisphere(float, int, int) @extern("GenMeshHemiSphere");
+extern fn Mesh cylinder(float, float, int) @extern("GenMeshCylinder");
+extern fn Mesh cone(float, float, int) @extern("GenMeshCone");
+extern fn Mesh torus(float, float, int, int) @extern("GenMeshTorus");
+extern fn Mesh knot(float, float, int, int) @extern("GenMeshKnot");
+extern fn Mesh heightmap(Image, Vector3) @extern("GenMeshHeightmap");
+extern fn Mesh cubicmap(Image, Vector3) @extern("GenMeshCubicmap");
+
+module pleroma::raylib::model;
+extern fn Model load(String) @extern("LoadModel");
+extern fn Model Mesh.model(self) @extern("LoadModelFromMesh");
+
+module pleroma::raylib::quaternion;
+extern fn Quaternion from_v3_to_v3(Vector3, Vector3) @extern("quaternion_fromv3tov3");
+extern fn Quaternion from_axis_angle(Vector3, float) @extern("quaternion_fromaxisangle");
+extern fn Quaternion from_euler(float, float, float) @extern("quaternion_fromeuler");
+
+module pleroma::raylib::ray;
+extern fn Ray screen_to_world(Vector2, Camera3D) @extern("GetScreenToWorldRay");
+extern fn Ray screen_to_world_ex(Vector2, Camera3D, int, int) @extern("GetScreenToWorldRayEx");
+extern fn Vector2 world_to_screen(Vector3, Camera3D) @extern("GetWorldToScreen");
+extern fn Vector2 world_to_screen_ex(Vector3, Camera3D, int, int) @extern("GetWorldToScreenEx");
+extern fn Vector2 world_to_screen_2d(Vector2, Camera2D) @extern("GetWorldToScreen2D");
+extern fn Vector2 screen_to_world_2d(Vector2, Camera2D) @extern("GetScreenToWorld2D");
+extern fn Matrix Camera3D.matrix(self) @extern("GetCameraMatrix");
+extern fn Matrix Camera2D.matrix(self) @extern("GetCameraMatrix2D");
+
+module pleroma::raylib::rendertexture;
+extern fn RenderTexture load(int, int) @extern("LoadRenderTexture");
+
+module pleroma::raylib::shader;
+extern fn Shader load(String, String) @extern("LoadShader");
+extern fn Shader load_mem(char*, char*) @extern("LoadShaderFromMemory");
+
+module pleroma::raylib::texture;
+extern fn Texture load(String) @extern("LoadTexture");
 
 module pleroma::raylib::color;
 const Color LIGHTGRAY		= {200, 200, 200, 255};

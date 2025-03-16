@@ -11,11 +11,11 @@ struct Vector3 {
 }
 
 <* Equals *>
-fn bool Vector3.equals(&self, Vector3 rhs) {
+fn bool Vector3.equals(self, Vector3 rhs) @export("vector3_equals") {
 	return ((self.x == rhs.x) && (self.y == rhs.y) && (self.z == rhs.z));
 }
 <* Add two Vector3s *>
-fn Vector3 Vector3.add(&self, Vector3 rhs) {
+fn Vector3 Vector3.add(&self, Vector3 rhs) @export("vector3_add") {
 	self.x += rhs.x;
 	self.y += rhs.y;
 	self.z += rhs.z;
@@ -23,7 +23,7 @@ fn Vector3 Vector3.add(&self, Vector3 rhs) {
 	return *self;
 }
 <* Subtract two Vector3s *>
-fn Vector3 Vector3.sub(&self, Vector3 rhs) {
+fn Vector3 Vector3.sub(&self, Vector3 rhs) @export("vector3_sub") {
 	self.x -= rhs.x;
 	self.y -= rhs.y;
 	self.z -= rhs.z;
@@ -31,7 +31,7 @@ fn Vector3 Vector3.sub(&self, Vector3 rhs) {
 	return *self;
 }
 <* Multiply two Vector3s *>
-fn Vector3 Vector3.mul(&self, Vector3 rhs) {
+fn Vector3 Vector3.mul(&self, Vector3 rhs) @export("vector3_mul") {
 	self.x *= rhs.x;
 	self.y *= rhs.y;
 	self.z *= rhs.z;
@@ -39,7 +39,7 @@ fn Vector3 Vector3.mul(&self, Vector3 rhs) {
 	return *self;
 }
 <* Multiply Vector3 by float *>
-fn Vector3 Vector3.mul_f(&self, float rhs) {
+fn Vector3 Vector3.mul_f(&self, float rhs) @export("vector3_mulf") {
 	self.x *= rhs;
 	self.y *= rhs;
 	self.z *= rhs;
@@ -47,7 +47,7 @@ fn Vector3 Vector3.mul_f(&self, float rhs) {
 	return *self;
 }
 <* Divide two Vector3s *>
-fn Vector3 Vector3.div(&self, Vector3 rhs) {
+fn Vector3 Vector3.div(&self, Vector3 rhs) @export("vector3_div") {
 	self.x = self.x / rhs.x;
 	self.y = self.y / rhs.y;
 	self.z = self.z / rhs.z;
@@ -55,7 +55,7 @@ fn Vector3 Vector3.div(&self, Vector3 rhs) {
 	return *self;
 }
 <* Calculate two vectors cross product *>
-fn Vector3 Vector3.cross_product(&self, Vector3 v2) {
+fn Vector3 Vector3.cross_product(self, Vector3 v2) @export("vector3_crossproduct") {
 	return {
 		.x = self.y * v2.z - self.z * v2.y,
 		.y = self.z * v2.x - self.x * v2.z,
@@ -63,7 +63,7 @@ fn Vector3 Vector3.cross_product(&self, Vector3 v2) {
 	};
 }
 <* Calculate one vector perpendicular vector *>
-fn Vector3 Vector3.perpendicular(&self) {
+fn Vector3 Vector3.perpendicular(self) @export("vector3_perpendicular") {
 	float min = math::abs(self.x);
 	Vector3 cardinal_axis = {.x = 1, .y = 0, .z = 0};
 
@@ -78,19 +78,19 @@ fn Vector3 Vector3.perpendicular(&self) {
 	return self.cross_product(cardinal_axis);
 }
 <* Calculate vector length *>
-fn float Vector3.length(&self) {
+fn float Vector3.length(self) @export("vector3_length") {
 	return math::sqrt(self.x.pow(2) + self.y.pow(2) + self.z.pow(2));
 }
 <* Calculate vector square length *>
-fn float Vector3.length_sqr(&self) {
+fn float Vector3.length_sqr(self) @export("vector3_lengthsqr") {
 	return self.x.pow(2) + self.y.pow(2) + self.z.pow(2);
 }
 <* Calculate two vectors dot product *>
-fn float Vector3.dot_product(&self, Vector3 v2) {
+fn float Vector3.dot_product(self, Vector3 v2) @export("vector3_dotproduct") {
 	return self.x * v2.x + self.y * v2.y + self.z * v2.z;
 }
 <* Calculate distance between two vectors *>
-fn float Vector3.distance(&self, Vector3 v2) {
+fn float Vector3.distance(self, Vector3 v2) @export("vector3_distance") {
 	return Vector3{
 		.x = v2.x - self.x,
 		.y = v2.y - self.y,
@@ -98,7 +98,7 @@ fn float Vector3.distance(&self, Vector3 v2) {
 	}.length();
 }
 <* Calculate square distance between two vectors *>
-fn float Vector3.distance_sqr(&self, Vector3 v2) {
+fn float Vector3.distance_sqr(self, Vector3 v2) @export("vector3_distancesqr") {
 	return Vector3{
 		.x = v2.x - self.x,
 		.y = v2.y - self.y,
@@ -106,7 +106,7 @@ fn float Vector3.distance_sqr(&self, Vector3 v2) {
 	}.length_sqr();
 }
 <* Calculate angle between two vectors *>
-fn float Vector3.angle(&self, Vector3 v2) {
+fn float Vector3.angle(self, Vector3 v2) @export("vector3_angle") {
 	Vector3 cross = self.cross_product(v2);
 	float len = cross.length();
 	float dot = self.dot_product(v2);
@@ -114,7 +114,7 @@ fn float Vector3.angle(&self, Vector3 v2) {
 	return math::atan2(len, dot);
 }
 <* Normalize provided vector *>
-fn Vector3 Vector3.normalize(&self) {
+fn Vector3 Vector3.normalize(self) @export("vector3_normalize") {
 	float len = self.length();
 	if (len != 0) {
 		float ilen = self.length();
@@ -124,10 +124,10 @@ fn Vector3 Vector3.normalize(&self) {
 			.y = self.y * ilen,
 			.z = self.z * ilen,
 		};
-	} else { return *self; }
+	} else { return self; }
 }
 <* Calculate the projection of the vector v1 on to v2 *>
-fn Vector3 Vector3.project(&self, Vector3 v2) {
+fn Vector3 Vector3.project(self, Vector3 v2) @export("vector3_project") {
 	float v1dv2 = self.x*v2.x + self.y*v2.y + self.z*v2.z;
 	float v2dv2 = v2.length_sqr();
 
@@ -140,7 +140,7 @@ fn Vector3 Vector3.project(&self, Vector3 v2) {
 	};
 }
 <* Calculate the rejection of the vector v1 on to v2 *>
-fn Vector3 Vector3.reject(&self, Vector3 v2) {
+fn Vector3 Vector3.reject(self, Vector3 v2) @export("vector3_reject") {
 	float v1dv2 = self.x*v2.x + self.y*v2.y + self.z*v2.z;
 	float v2dv2 = v2.length_sqr();
 
@@ -153,7 +153,7 @@ fn Vector3 Vector3.reject(&self, Vector3 v2) {
 	};
 }
 <* Orthonormalize provided vectors. Makes vectors normalized and orthogonal to each other. Gram-Schmidt function implementation *>
-fn void Vector3.orthinormalize(&self, Vector3* v2) {
+fn void Vector3.orthinormalize(&self, Vector3* v2) @export("vector3_ortinormalize") {
 	float len;
 	float ilen;
 
@@ -184,7 +184,7 @@ fn void Vector3.orthinormalize(&self, Vector3* v2) {
 	v2.z = vn2.z;
 }
 <* Transforms a Vector3 by a given Matrix *>
-fn Vector3 Vector3.transform(&self, Matrix mat) {
+fn Vector3 Vector3.transform(self, Matrix mat) @export("vector3_transform") {
 	return {
 		.x = mat.m0 * self.x + mat.m4 * self.y + mat.m8  * self.z + mat.m12,
 		.y = mat.m1 * self.x + mat.m5 * self.y + mat.m9  * self.z + mat.m13,
@@ -192,7 +192,7 @@ fn Vector3 Vector3.transform(&self, Matrix mat) {
 	};
 }
 <* Transform a vector by quaternion rotation *>
-fn Vector3 Vector3.rotate_quaternion(&self, Quaternion q) {
+fn Vector3 Vector3.rotate_quaternion(self, Quaternion q) @export("vector3_rotatequaternion") {
 	return {
 		.x = self.x * (double)(q.x.pow(2) + q.w.pow(2) - q.y.pow(2) - q.z.pow(2)) + self.y * (2.0 * q.x * q.y - 2.0 * q.w * q.z) + self.z * (2.0 * q.x * q.z + 2.0 * q.w * q.y),
 		.y = self.x * (2.0 * q.w * q.z + 2.0 * q.x * q.y) + self.y * (double)(q.w.pow(2) - q.x.pow(2) + q.y.pow(2) - q.z.pow(2)) + self.z * (-2.0 * q.w * q.x + 2.0 * q.y * q.z),
@@ -204,7 +204,7 @@ fn Vector3 Vector3.rotate_quaternion(&self, Quaternion q) {
 	@param rot
 	@return "Point"
  *>
-fn Vector3 Vector3.rotate(&self, Vector3 dist, float rot) {
+fn Vector3 Vector3.rotate(self, Vector3 dist, float rot) @export("vector3_rotate") {
 	Vector3 position;
 
 	position.x = dist.x * (float)math::cos(rot / 57.3) - dist.z * (float)math::sin(rot / 57.3);
@@ -217,7 +217,7 @@ fn Vector3 Vector3.rotate(&self, Vector3 dist, float rot) {
 	return position;
 }
 <* Rotates a vector around an axis Using Euler-Rodrigues Formula *>
-fn Vector3 Vector3.rotate_axis(&self, Vector3 axis, float angle) {
+fn Vector3 Vector3.rotate_axis(self, Vector3 axis, float angle) @export("vector3_rotateaxis") {
 	//* normalize
 	float len = axis.length();
 	if (len == 0) len = 1;
@@ -236,7 +236,7 @@ fn Vector3 Vector3.rotate_axis(&self, Vector3 axis, float angle) {
 	Vector3 w = {.x = b, .y = c, .z = d };
 
 	//* Cross product
-	Vector3 wv = w.cross_product(*self);
+	Vector3 wv = w.cross_product(self);
 	Vector3 wwv = w.cross_product(wv);
 
 	//* Scale
@@ -259,7 +259,7 @@ fn Vector3 Vector3.rotate_axis(&self, Vector3 axis, float angle) {
 	};
 }
 <* Move Vector towards target *>
-fn Vector3 Vector3.move_towards(&self, Vector3 target, float max_distance) {
+fn Vector3 Vector3.move_towards(self, Vector3 target, float max_distance) @export("vector3_movetowards") {
 	float dx = target.x - self.x;
 	float dy = target.y - self.y;
 	float dz = target.z - self.z;
@@ -276,7 +276,7 @@ fn Vector3 Vector3.move_towards(&self, Vector3 target, float max_distance) {
 	};
 }
 <* Calculate linear interpolation between two vectors *>
-fn Vector3 Vector3.lerp(&self, Vector3 target, float amount) {
+fn Vector3 Vector3.lerp(self, Vector3 target, float amount) @export("vector3_lerp") {
 	return {
 		.x = self.x + amount * (target.x - self.x),
 		.y = self.y + amount * (target.y - self.y),
@@ -284,7 +284,7 @@ fn Vector3 Vector3.lerp(&self, Vector3 target, float amount) {
 	};
 }
 <* Calculate reflected vector to normal *>
-fn Vector3 Vector3.reflect(&self, Vector3 normal) {
+fn Vector3 Vector3.reflect(self, Vector3 normal) @export("vector3_reflect") {
 	float dot = self.dot_product(normal);
 
 	return {
@@ -294,7 +294,7 @@ fn Vector3 Vector3.reflect(&self, Vector3 normal) {
 	};
 }
 <* Get min value for each pair of components *>
-fn Vector3 Vector3.min(&self, Vector3 v2) {
+fn Vector3 Vector3.min(self, Vector3 v2) @export("vector3_min") {
 	return {
 		.x = math::min(self.x, v2.x),
 		.y = math::min(self.y, v2.y),
@@ -302,7 +302,7 @@ fn Vector3 Vector3.min(&self, Vector3 v2) {
 	};
 }
 <* Get max value for each pair of components *>
-fn Vector3 Vector3.max(&self, Vector3 v2) {
+fn Vector3 Vector3.max(self, Vector3 v2) @export("vector3_max") {
 	return {
 		.x = math::max(self.x, v2.x),
 		.y = math::max(self.y, v2.y),
@@ -310,7 +310,7 @@ fn Vector3 Vector3.max(&self, Vector3 v2) {
 	};
 }
 <* Compute barycenter coordinates (u, v, w) for point p with respect to triangle (a, b, c) *>
-fn Vector3 Vector3.barycenter(&self, Vector3 a, Vector3 b, Vector3 c) {
+fn Vector3 Vector3.barycenter(self, Vector3 a, Vector3 b, Vector3 c) @export("vector3_barycenter") {
 	Vector3 v0 = {
 		.x = b.x - a.x,
 		.y = b.y - a.y,
@@ -344,7 +344,7 @@ fn Vector3 Vector3.barycenter(&self, Vector3 a, Vector3 b, Vector3 c) {
 	};
 }
 <* Projects a Vector3 from screen space into object space *>
-fn Vector3 Vector3.unproject(&self, Matrix projection, Matrix view) {
+fn Vector3 Vector3.unproject(self, Matrix projection, Matrix view) @export("vector3_unproject") {
 	//* Calculate unprojected matrix (multiply view matrix by projection matrix) and invert it
 	Matrix mat_view_proj = {
 		.m0  = view.m0  * projection.m0 + view.m1  * projection.m4 + view.m2  * projection.m8  + view.m3  * projection.m12,
@@ -415,11 +415,11 @@ fn Vector3 Vector3.unproject(&self, Matrix projection, Matrix view) {
 	};
 }
 <* Invert the given vector *>
-fn Vector3 Vector3.invert(&self) {
+fn Vector3 Vector3.invert(self) @export("vector3_invert") {
 	return {.x = 1 / self.x, .y = 1 / self.y, .z = 1 / self.z };
 }
 <* Clamp the components of the vector between min and max values specified by the given vectors *>
-fn Vector3 Vector3.clamp(&self, Vector3 min, Vector3 max) {
+fn Vector3 Vector3.clamp(self, Vector3 min, Vector3 max) @export("vector3_clamp") {
 	return {
 		.x = math::min(max.x, math::max(min.x, self.x)),
 		.y = math::min(max.y, math::max(min.y, self.y)),
@@ -427,8 +427,8 @@ fn Vector3 Vector3.clamp(&self, Vector3 min, Vector3 max) {
 	};
 }
 <* Clamp the magnitude of the vector between two values *>
-fn Vector3 Vector3.clamp_value(&self, float min, float max) {
-	Vector3 result = *self;
+fn Vector3 Vector3.clamp_value(self, float min, float max) @export("vector3_clampvalue") {
+	Vector3 result = self;
 
 	float len = self.length_sqr();
 	if (len > 0) {
@@ -453,7 +453,7 @@ fn Vector3 Vector3.clamp_value(&self, float min, float max) {
 	};
 }
 <* Compute the direction of a refracted ray *>
-fn Vector3 Vector3.refract(Vector3 v, Vector3 n, float r) {
+fn Vector3 Vector3.refract(Vector3 v, Vector3 n, float r) @export("vector3_refract") {
 	Vector3 result = {};
 
 	float dot = v.dot_product(n);
@@ -472,7 +472,7 @@ fn Vector3 Vector3.refract(Vector3 v, Vector3 n, float r) {
 	return result;
 }
 <* Converts input HSV into  it's equivalent color *>
-fn Color Vector3.to_color(&self) {
+fn Color Vector3.to_color(self) @export("vector3_tocolor") {
 	Color result = {
 		.r = 0,
 		.g = 0,

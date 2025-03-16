@@ -15,16 +15,16 @@ struct AxisAngle {
 }
 
 <* Computes the length of a quaternion *>
-fn float Quaternion.length(&self) {
+fn float Quaternion.length(self) @export("quaternion_length") {
 	return math::sqrt(self.x.pow(2) + self.y.pow(2) + self.z.pow(2) + self.w.pow(2));
 }
 <* Calculate two quaternions dot product *>
-fn float Quaternion.dot_product(&self, Quaternion v2) {
+fn float Quaternion.dot_product(self, Quaternion v2) @export("quaternion_dotproduct") {
 	return self.x * v2.x + self.y * v2.y + self.z * v2.z + self.w * v2.w;
 }
 <* Normalize provided quaternion *>
-fn Quaternion Quaternion.normalize(&self) {
-	Quaternion result = {};
+fn Quaternion Quaternion.normalize(self) @export("quaternion_normalize") {
+	Quaternion result;
 
 	float len = self.length();
 	if (len > 0) {
@@ -40,7 +40,7 @@ fn Quaternion Quaternion.normalize(&self) {
 	return result;
 }
 <* Invert provided quaternion *>
-fn Quaternion Quaternion.invert(&self) {
+fn Quaternion Quaternion.invert(self) @export("quaternion_invert") {
 	return {
 		.x = 1 / self.x,
 		.y = 1 / self.y,
@@ -49,7 +49,7 @@ fn Quaternion Quaternion.invert(&self) {
 	};
 }
 <* Calculate linear interpolation between two quaternions *>
-fn Quaternion Quaternion.lerp(&self, Quaternion target, float amount) {
+fn Quaternion Quaternion.lerp(self, Quaternion target, float amount) @export("quaternion_lerp") {
 	return {
 		.x = self.x + amount * (target.x - self.x),
 		.y = self.y + amount * (target.y - self.y),
@@ -58,7 +58,7 @@ fn Quaternion Quaternion.lerp(&self, Quaternion target, float amount) {
 	};
 }
 <* Calculate slerp-optimized interpolation between two quaternions *>
-fn Quaternion Quaternion.n_lerp(&self, Quaternion target, float amount) {
+fn Quaternion Quaternion.n_lerp(self, Quaternion target, float amount) @export("quaternion_nlerp") {
 	Quaternion result = {
 		.x = self.x + amount * (target.x - self.x),
 		.y = self.y + amount * (target.y - self.y),
@@ -78,8 +78,8 @@ fn Quaternion Quaternion.n_lerp(&self, Quaternion target, float amount) {
 	};
 }
 <* Calculates spherical linear interpolation between two quaternions *>
-fn Quaternion Quaternion.slerp(&self, Quaternion target, float amount) {
-	Quaternion result = {};
+fn Quaternion Quaternion.slerp(self, Quaternion target, float amount) @export("quaternion_slerp") {
+	Quaternion result;
 
 	float cos_half_theta = self.dot_product(target);
 	Quaternion new_target = target;
@@ -91,7 +91,7 @@ fn Quaternion Quaternion.slerp(&self, Quaternion target, float amount) {
 		cos_half_theta = -cos_half_theta;
 	}
 
-	if (math::abs(cos_half_theta) >= 1) { result = *self; }
+	if (math::abs(cos_half_theta) >= 1) { result = self; }
 	else if (cos_half_theta > 0.95) { result = self.n_lerp(target, amount); }
 	else {
 		float half_theta = math::acos(cos_half_theta);
@@ -120,8 +120,8 @@ fn Quaternion Quaternion.slerp(&self, Quaternion target, float amount) {
 	return result;
 }
 <* Get the rotation angle and axis for a given quaternion *>
-fn AxisAngle Quaternion.to_axis_angle(&self) {
-	Quaternion new_quat = *self;
+fn AxisAngle Quaternion.to_axis_angle(self) @export("quaternion_toaxisangle") {
+	Quaternion new_quat = self;
 
 	if (math::abs(self.w) > 1) {
 		float len = self.length();
@@ -149,7 +149,7 @@ fn AxisAngle Quaternion.to_axis_angle(&self) {
 	return { .axis = res_axis, .angle = res_angle };
 }
 <* Get the Euler angles equivalent to quaternion (roll, pitch, yaw) *>
-fn Vector3 Quaternion.to_euler(&self) {
+fn Vector3 Quaternion.to_euler(self) @export("quaternion_toeuler") {
 	float pitch;
 	float yaw;
 	float roll;
@@ -173,7 +173,7 @@ fn Vector3 Quaternion.to_euler(&self) {
 	return { .x = pitch, .y = yaw, .z = roll };
 }
 <* Transform a quaternion given a transformation matrix *>
-fn Quaternion Quaternion.transform(&self, Matrix mat) {
+fn Quaternion Quaternion.transform(self, Matrix mat) @export("quaternion_transform") {
 	return {
 		.x = mat.m0 * self.x + mat.m4 * self.y + mat.m8  * self.z + mat.m12 * self.w,
 		.y = mat.m1 * self.x + mat.m5 * self.y + mat.m9  * self.z + mat.m13 * self.w,
@@ -186,7 +186,7 @@ module pleroma::raylib::quaternion;
 import std::math;
 
 <* Calculate quaternion based on the rotation from one vector to another *>
-fn raylib::Quaternion from_v3_to_v3(Vector3 from, Vector3 to) {
+fn raylib::Quaternion from_v3_to_v3(Vector3 from, Vector3 to) @export("quaternion_fromv3tov3") {
 	raylib::Quaternion result;
 
 	float cos2_theta = from.dot_product(to);
@@ -211,7 +211,7 @@ fn raylib::Quaternion from_v3_to_v3(Vector3 from, Vector3 to) {
 	};
 }
 <* Get rotation quaternion for an angle and axis *>
-fn raylib::Quaternion quaternion_from_axis_angle(Vector3 axis, float angle) {
+fn raylib::Quaternion from_axis_angle(Vector3 axis, float angle) @export("quaternion_fromaxisangle") {
 	raylib::Quaternion result;
 
 	float axis_len = axis.length();
@@ -250,7 +250,7 @@ fn raylib::Quaternion quaternion_from_axis_angle(Vector3 axis, float angle) {
 	return result;
 }
 <* Get the quaternion equivalent to Euler angles *>
-fn raylib::Quaternion from_euler(float pitch, float yaw, float roll) {
+fn raylib::Quaternion from_euler(float pitch, float yaw, float roll) @export("quaternion_fromeuler") {
 	raylib::Quaternion result;
 
 	float x0 = math::cos((float)(pitch * 0.5));

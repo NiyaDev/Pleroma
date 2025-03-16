@@ -37,10 +37,12 @@ enum MaterialMapIndex : int {
 
 module pleroma::raylib::material;
 
+extern fn Material* load_materials(char* filename, int* materialCount) @extern("LoadMaterials");
+
 <* Load materials from model *>
 fn Material[] load_from_model(String filename) @export("material_loadmodel") {
   int material_count = 0;
-  Material* mats = raylib::load_materials(filename, &material_count);
+  Material* mats = load_materials(filename, &material_count);
 
   Material[] output = mem::new_array(Material, material_count);
   

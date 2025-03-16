@@ -9,38 +9,38 @@ struct Vector2 {
 	float y;
 }
 <* Calculate vector length *>
-fn float Vector2.length(&self) {
+fn float Vector2.length(self) @export("vector2_length") {
 	return math::sqrt(self.x.pow(2) + self.y.pow(2));
 }
 <* Calculate vector square length *>
-fn float Vector2.length_sqr(&self) {
+fn float Vector2.length_sqr(self) @export("vector2_lengthsqr") {
 	return self.x.pow(2) + self.y.pow(2);
 }
 <* Calculate the dot product of two vectors *>
-fn float Vector2.dot_product(&self, Vector2 v2) {
+fn float Vector2.dot_product(self, Vector2 v2) @export("vector2_dotproduct") {
 	return (self.x * v2.x) + (self.y * v2.y);
 }
 <* Calculate distance between two vectors *>
-fn float Vector2.distance(&self, Vector2 v2) {
+fn float Vector2.distance(self, Vector2 v2) @export("vector2_distance") {
 	return math::sqrt((self.x - v2.x).pow(2) + (self.y - v2.y).pow(2));
 }
 <* Calculate square distance between two vectors *>
-fn float Vector2.distance_sr(&self, Vector2 v2) {
+fn float Vector2.distance_sqr(self, Vector2 v2) @export("vector2_distancesqr") {
 	return (self.x - v2.x).pow(2) + (self.y - v2.y).pow(2);
 }
 <* Calculate angle between two vectors *>
-fn float Vector2.angle(&self, Vector2 v2) {
+fn float Vector2.angle(self, Vector2 v2) @export("vector2_angle") {
 	float dot = self.dot_product(v2);
 	float det = (self.x * v2.x) - (self.y * v2.y);
 
 	return math::atan2(dot,det);
 }
 <* Calculate angle defined by a line made by two vectors *>
-fn float Vector2.angle_line(&self, Vector2 end) {
+fn float Vector2.angle_line(self, Vector2 end) @export("vector2_angleline") {
 	return -math::atan2(end.y - self.y,end.x - self.x);
 }
 <* Normalize provided vector *>
-fn Vector2 Vector2.normalize(&self) {
+fn Vector2 Vector2.normalize(self) @export("vector2_normalize") {
 	float length = self.length();
 
 	if (length > 0.0) {
@@ -48,10 +48,10 @@ fn Vector2 Vector2.normalize(&self) {
 		return {.x = self.x * ilength, .y = self.y * ilength};
 	}
 
-	return *self;
+	return self;
 }
 <* Transform a Vector2 by a given Matrix *>
-fn Vector2 Vector2.transform(&self, Matrix mat) {
+fn Vector2 Vector2.transform(self, Matrix mat) @export("vector2_transform") {
 	float x = self.x;
 	float y = self.y;
 	float z = 0;
@@ -62,14 +62,14 @@ fn Vector2 Vector2.transform(&self, Matrix mat) {
 	};
 }
 <* Calculate linear interpolation between two vectors *>
-fn Vector2 Vector2.lerp(&self, Vector2 v2, float amount) {
+fn Vector2 Vector2.lerp(self, Vector2 v2, float amount) @export("vector2_lerp") {
 	return {
 		.x = self.x + (amount * (v2.x - self.x)),
 		.y = self.y + (amount * (v2.y - self.y)),
 	};
 }
 <* Calculate reflected vector to normal *>
-fn Vector2 Vector2.reflect(&self, Vector2 normal) {
+fn Vector2 Vector2.reflect(self, Vector2 normal) @export("vector2_reflect") {
 	float dot = self.dot_product(normal);
 
 	return {
@@ -78,7 +78,7 @@ fn Vector2 Vector2.reflect(&self, Vector2 normal) {
 	};
 }
 <* Rotate vecotr by angle *>
-fn Vector2 Vector2.rotate(&self, float angle) {
+fn Vector2 Vector2.rotate(self, float angle) @export("vector2_rotate") {
 	float cosres = math::cos(angle);
 	float sinres = math::sin(angle);
 
@@ -88,7 +88,7 @@ fn Vector2 Vector2.rotate(&self, float angle) {
 	};
 }
 <* Move vector towards target *>
-fn Vector2 Vector2.move_towards(&self, Vector2 target, float max_distance) {
+fn Vector2 Vector2.move_towards(self, Vector2 target, float max_distance) @export("vector2_movetowards") {
 	float dx = target.x - self.x;
 	float dy = target.y - self.y;
 	float value = dx.pow(2) + dy.pow(2);
@@ -102,14 +102,14 @@ fn Vector2 Vector2.move_towards(&self, Vector2 target, float max_distance) {
 	};
 }
 <* Invert given vector *>
-fn Vector2 Vector2.invert(&self) {
+fn Vector2 Vector2.invert(self) @export("vector2_invert") {
 	return {
 		.x = 1 / self.x,
 		.y = 1 / self.y,
 	};
 }
 <* Clamp the components of the vector between min and max values specified byt the given vectors *>
-fn Vector2 Vector2.clamp(&self, Vector2 min, Vector2 max) {
+fn Vector2 Vector2.clamp(self, Vector2 min, Vector2 max) @export("vector2_clamp") {
 	return {
 		.x = math::clamp(self.x, min.x, max.x),
 		.y = math::clamp(self.y, min.y, max.y),
@@ -118,7 +118,7 @@ fn Vector2 Vector2.clamp(&self, Vector2 min, Vector2 max) {
 <* Clamp the magnitude of the vector between two min ans max values
   @require min < max
  *>
-fn Vector2 Vector2.clamp_mag(&self, float min, float max) {
+fn Vector2 Vector2.clamp_mag(self, float min, float max) @export("vector2_mag") {
 	float length = self.length();
 
 	if (length > 0) {
