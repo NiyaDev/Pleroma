@@ -1,0 +1,24 @@
+
+module pleroma::bulk;
+
+//= Bulk
+struct Bulk {
+  String name;
+  String path;
+
+  char major, minor, patch;
+
+  HashMap(<String, BulkEntry>) entries;
+}
+struct BulkEntry {
+  char[] value;
+}
+
+extern fn Bulk new(String, String path = "resources/") @extern("bulk_new");
+extern fn void Bulk.free(&self) @extern("bulk_free");
+extern fn Bulk load(String, Compression) @extern("bulk_load");
+extern fn void Bulk.save(&self, Compression) @extern("bulk_save");
+extern fn void Bulk.print(&self) @extern("bulk_print");
+extern fn String Bulk.save_path(&self) @extern("bulk_path");
+extern fn String Bulk.version(&self) @extern("bulk_version");
+
