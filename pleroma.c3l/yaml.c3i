@@ -1,0 +1,51 @@
+
+module pleroma::yaml;
+
+
+enum YAMLType {
+  NONE,
+  INT,
+  DOUBLE,
+  STRING,
+  ARRAY,
+  BOOL,
+  OBJECT,
+}
+
+struct NamedValue {
+  String name;
+  YAMLType type;
+  union {
+    void* value;
+    bool  v_bool;
+    int   v_int;
+    double v_double;
+    String v_string;
+    Object v_object;
+    Array v_array;
+  }
+}
+
+struct TypedValue {
+  YAMLType type;
+  union {
+    void* value;
+    bool  v_bool;
+    int   v_int;
+    double v_double;
+    String v_string;
+    Object v_object;
+    Array v_array;
+  }
+}
+
+def Array  = List(<TypedValue>);
+def Yaml   = HashMap(<String, TypedValue>);
+def Object = Yaml;
+
+extern fn usz TypedValue.size(&self) @extern("yaml_size");
+extern fn TypedValue TypedValue.get_array(&self, usz) @extern("yaml_getarray");
+extern fn TypedValue TypedValue.get_object(&self, String) @extern("yaml_getobject");
+extern fn Yaml parse_file(String) @extern("yaml_parsefile");
+extern fn Yaml parse(String) @extern("yaml_parse");
+

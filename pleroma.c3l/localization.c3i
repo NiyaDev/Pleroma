@@ -1,0 +1,21 @@
+
+module pleroma::localization;
+
+
+enum Language {
+  ENGLISH,
+  FRENCH,
+  GERMAN,
+  SPANISH,
+  POLISH,
+  CHINESE_T,
+  CHINESE_S,
+  ARABIC,
+  JAPANESE,
+}
+
+def Localization = HashMap(<String, String>);
+
+extern fn Localization new() @export("local_new");
+extern fn void Localization.add(&self, Language, String) @extern("local_add");
+

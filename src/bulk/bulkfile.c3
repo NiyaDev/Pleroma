@@ -22,7 +22,7 @@ fn BulkFile new(usz size, Compression comp = NONE) {
     .compression = comp,
     .data = mem::new_array(char, size),
     .head = 0,
-};
+  };
 }
 <* Load file and decompress
   @param filename "Name of file to load"

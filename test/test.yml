@@ -1,0 +1,17 @@
+%YAML 1.2
+---
+
+Singleline test: Testing a single line.
+
+Object test:  #testing comments
+  A string: test
+  A Collection:
+    Entry A
+    Entry B
+  A Tag:
+    int: 10
+    float: 0.1
+    bool: true
+    str: i42
+  Array test: [10, 9, 25, 6]
+
