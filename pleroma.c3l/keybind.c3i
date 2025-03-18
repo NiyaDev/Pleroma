@@ -1,0 +1,49 @@
+
+module pleroma::keybinds;
+
+
+struct Keybind {
+  KeyType type;
+
+  union {
+    KeyboardKey kb;
+    MouseButton mb;
+    MouseAxis ma;
+    GamepadButton gpb;
+    GamepadAxis gpa;
+  }
+  union {
+    KeyboardKey kb_m;
+    MouseButton mb_m;
+    GamepadButton gpb_m;
+  }
+
+  int pad;
+}
+
+enum KeyType {
+  KEYBOARD,
+  MOUSE_BUTTON,
+  MOUSE_AXIS,
+  GAMEPAD_BUTTON,
+  GAMEPAD_AXIS,
+}
+
+def Keybindings = HashMap(<String, Keybind>);
+Keybindings data;
+
+KeyType last_type = KEYBOARD;
+
+extern fn char[] save() @extern("keybind_save");
+extern fn void load(char[]) @extern("keybind_load");
+extern fn void clear() @extern("keybind_clear");
+extern fn void set(String, Keybind) @extern("keybind_set");
+extern fn Keybind get(String) @extern("keybind_get");
+
+extern fn bool is_pressed(String) @extern("keybind_pressed");
+extern fn bool is_down(String) @extern("keybind_down");
+
+extern fn void ready_scan(float) @extern("keybind_readyscan");
+extern fn void scan() @extern("keybind_scan");
+extern fn Keybind conver_scan() @extern("keybind_convertscan");
+
