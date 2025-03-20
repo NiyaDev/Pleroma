@@ -683,11 +683,11 @@ const Matrix IDENTITY = {
 };
 extern fn Matrix translate(Vector3) @extern("matrix_translate");
 extern fn Matrix rotate(Vector3, float) @extern("matrix_rotate");
-extern fn Matrix rotate_x(Vector3, float) @extern("matrix_rotatex");
-extern fn Matrix rotate_y(Vector3, float) @extern("matrix_rotatey");
-extern fn Matrix rotate_z(Vector3, float) @extern("matrix_rotatez");
-extern fn Matrix rotate_xyz(Vector3, float) @extern("matrix_rotatexyz");
-extern fn Matrix rotate_zyx(Vector3, float) @extern("matrix_rotatezyx");
+extern fn Matrix rotate_x(float) @extern("matrix_rotatex");
+extern fn Matrix rotate_y(float) @extern("matrix_rotatey");
+extern fn Matrix rotate_z(float) @extern("matrix_rotatez");
+extern fn Matrix rotate_xyz(float) @extern("matrix_rotatexyz");
+extern fn Matrix rotate_zyx(float) @extern("matrix_rotatezyx");
 extern fn Matrix scale(Vector3) @extern("matrix_scale");
 extern fn Matrix frustum(double, double, double, double, double, double) @extern("matrix_frustum");
 extern fn Matrix perspective(double, double, double, double) @extern("matrix_perspective");

@@ -16,7 +16,7 @@ enum Language {
 }
 
 <* Converts a language to string *>
-fn String Language.to_string(self) {
+fn String Language.to_string(self) @export("local_tostring") {
   switch (self) {
     case ENGLISH:   return "English";
     case FRENCH:    return "French";
@@ -30,7 +30,7 @@ fn String Language.to_string(self) {
   }
 }
 <* Converts a string to language *>
-fn Language String.to_language(self) {
+fn Language String.to_language(self) @export("local_tolanguage") {
   switch (self) {
     case "English":   return ENGLISH;
     case "French":    return FRENCH;

@@ -1,6 +1,7 @@
 
-module pleroma::keybinds;
-
+module pleroma::keybind;
+import std::collections;
+import pleroma::raylib;
 
 struct Keybind {
   KeyType type;

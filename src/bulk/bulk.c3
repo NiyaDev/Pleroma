@@ -37,7 +37,7 @@ fn Bulk new(String name, String path = "resources/") @export("bulk_new") {
     .minor = MINOR,
     .patch = PATCH,
   };
-  output.entries.new_init();
+  //output.entries.new_init();
 
   return output;
 }
