@@ -64,7 +64,7 @@ fn Bulk load(String filename, Compression comp = NONE) @export("bulk_load") {
   Bulk output = new(name, path);
 
   //* Create File
-  BulkFile file = file::load(filename, comp);
+  BulkFile file = bulk::file::load(filename, comp);
 
   //* Read Version
   output.major = file.read_8();

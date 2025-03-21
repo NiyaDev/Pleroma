@@ -226,7 +226,7 @@ fn NamedValue String.to_value(&self) {
       val.v_string = name_value[1].copy();
     case ARRAY:
       val.value = mem::new(Array);
-      ((Array*)val.value).new_init();
+      //((Array*)val.value).new_init();
       String[] values_split = name_value[1].split_array();
       for (int i; i < values_split.len; i++) {
         String named_val = string::tformat("_:%s", values_split[i]);

@@ -40,7 +40,7 @@ struct Color {
 
 <* Apply alpha to color
   @param alpha "Value to change alpha to"
-  @require alpha <= 1, alpha >= 0, "Alpha not withing proper range of 0 -> 1"
+  @require alpha <= 1, alpha >= 0 : "Alpha not within proper range of 0 -> 1"
  *>
 fn void Color.fade(&self, float alpha) @export("color_fade") {
 	self.a = (char)(255 * alpha);
@@ -100,7 +100,7 @@ fn Color Color.tint(self, Color tint) @export("color_tint") {
 }
 <* Corrects color for brightness
   @param factor "Percentage to increase brightness"
-  @require factor <= 1, factor >= -1, "Brightness factor not within range"
+  @require factor <= 1, factor >= -1 : "Brightness factor not within range"
  *>
 fn Color Color.brightness(self, float factor) @export("color_brightness") {
 	Color result = self;
@@ -128,7 +128,7 @@ fn Color Color.brightness(self, float factor) @export("color_brightness") {
 }
 <* Corrects color for contrast
   @param contrast "Percentage to change brightness"
-  @require contrast <= 1, contrast >= -1, "Contrast not within proper range"
+  @require contrast <= 1, contrast >= -1 : "Contrast not within proper range"
  *>
 fn Color Color.contrast(self, float contrast) @export("color_contrast") {
 	Color result = self;
@@ -168,7 +168,7 @@ fn Color Color.contrast(self, float contrast) @export("color_contrast") {
 }
 <* Get color with alpha applied
   @param alpha "Alpha to apply to color"
-  @require alpha >= 0, alpha <= 1, "Alpha not within proper range"
+  @require alpha >= 0, alpha <= 1 : "Alpha not within proper range"
  *>
 fn Color Color.alpha(self, float alpha) @export("color_alpha") {
 	Color result = self;

@@ -51,7 +51,7 @@ def Localization = HashMap(<String, String>);
 <* Create new localiztion struct *>
 fn Localization new() @export("local_new") {
   Localization output;
-  output.new_init();
+  //output.new_init();
   return output;
 }
 <* Add string to localization *>
