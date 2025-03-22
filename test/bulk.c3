@@ -85,7 +85,7 @@ fn void file_save() @test {
   file.save("resources/test.bin");
   file.free();
 
-  BulkFile new = file::load("resources/test.bin");
+  BulkFile new = bulk::file::load("resources/test.bin");
   
   assert(new.read_8() == 1, "save - read_8");
   assert(new.read_16() == 2, "save - read_16");

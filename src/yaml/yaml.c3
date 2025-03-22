@@ -82,41 +82,30 @@ fn TypedValue TypedValue.get_object(self, String name) @export("yaml_getobject")
   return ((Object*)self.value).get(name)!!;
 }
 
-<* Counts the number of spaces set at the beginning of a string *>
-fn int String.count_spaces(self, int tab_spaces = 4) {
-  int spaces = 0;
-  for (int i; i < self.len; i++) {
-    if (self[i] == ' ') {
-      spaces++;
-    } else if (self[i] == '\t') {
-      spaces += tab_spaces;
-    } else {
-      return spaces;
-    } 
-  }
-  return spaces;
-}
 <* Removes tabs and spaces at the beginning and end of the string
   E.g. "   name: person " -> "name: person"
  *>
 fn String String.truncate_spaces(self) {
-  List(<char>) new_str;
-  int trailing = 0;
+  int trailing;
+  int forward;
 
   for (int i = self.len - 1; i >= 0; i--) {
-    if (new_str.len() == 0 && (self[i] == ' ' || self[i] == '\t')) {
+    if (self[i] == ' ' || self[i] == '\t') {
       trailing++;
       continue;
     }
     break;
   }
-  
+
   for (int i; i < self.len - trailing; i++) {
-    if (new_str.len() == 0 && (self[i] == ' ' || self[i] == '\t')) continue;
-    new_str.push(self[i]);
+    if (self[i] == ' ' || self[i] == '\t') {
+      forward++;
+      continue;
+    }
+    break;
   }
 
-  return new_str.string();
+  return self[forward .. self.len - trailing - 1];
 }
 <* Removes excess spaces and tabs that come after a line *>
 fn String String.truncate_spaces_after(self) {
@@ -204,7 +193,7 @@ fn String[] String.split_array(&self) {
   return output;
 }
 <* Converts a value string to an actual value *>
-fn NamedValue String.to_value(&self) {
+fn NamedValue String.to_value(self) {
   NamedValue val;
 
   String[] name_value = self.split_variable();
@@ -226,7 +215,6 @@ fn NamedValue String.to_value(&self) {
       val.v_string = name_value[1].copy();
     case ARRAY:
       val.value = mem::new(Array);
-      //((Array*)val.value).new_init();
       String[] values_split = name_value[1].split_array();
       for (int i; i < values_split.len; i++) {
         String named_val = string::tformat("_:%s", values_split[i]);
@@ -235,10 +223,12 @@ fn NamedValue String.to_value(&self) {
         new_val = nval.to_typed();
         ((Array*)val.value).push(new_val);
       }
+      free(values_split);
     case BOOL:
       val.v_bool = (name_value[1] == "true");
     default:
   }
+  free(name_value);
 
   return val;
 }
@@ -275,7 +265,7 @@ fn Yaml parse(String file) @export("yaml_parse") {
     }
 
     //* Ignore empty lines
-    if (temp.truncate_spaces().len == 0) continue;
+    if (temp.count_spaces() == temp.len) continue;
 
     //* Count indent
     int spaces = temp.count_spaces();
@@ -283,8 +273,11 @@ fn Yaml parse(String file) @export("yaml_parse") {
 
     //* Remove spaces
     if (temp.contains(":")) {
-      //lines_array[i] = temp.truncate_spaces_after().remove_spaces_after_char(',').remove_spaces_after_char(':');
-      lines.push(temp.truncate_spaces_after().remove_spaces_after_char(',').remove_spaces_after_char(':'));
+      String truncated = temp.truncate_spaces_after();
+      String removed_comma = truncated.remove_spaces_after_char(',');
+      lines.push(removed_comma.remove_spaces_after_char(':'));
+      truncated.free();
+      removed_comma.free();
     } else {
       //lines_array[lines_array.len-1] = string::tformat("%s%s", lines_array[lines_array.len-1], temp.truncate_spaces().remove_spaces_after_char(':').remove_spaces_after_char(','));
       lines[lines.len()-1] = string::format("%s %s", lines[lines.len()-1], temp.truncate_spaces().remove_spaces_after_char(':').remove_spaces_after_char(','), allocator: allocator::heap());
@@ -306,7 +299,12 @@ fn Yaml parse(String file) @export("yaml_parse") {
       }
     }
 
+    //String trunc = lines[i].truncate_spaces();
+    //defer trunc.free();
+    //NamedValue v = trunc.to_value();
+
     NamedValue v = lines[i].truncate_spaces().to_value();
+
 
     if (v.valid()) {
       //* Adding value to deepest object
@@ -317,7 +315,11 @@ fn Yaml parse(String file) @export("yaml_parse") {
       scope_stack.push((*((Object*)(scope_stack[scope_stack.len()-1]))).get(v.name)!!.value);
     }
     prev_indent = indent;
+
+    //
   }
+  lines.free();
+  free(lines_array);
   //yaml.print();
 
   return yaml;

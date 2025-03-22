@@ -172,24 +172,35 @@ fn char BulkFile.read_8(&self) {
 }
 <* Reads short from the bulkfile *>
 fn short BulkFile.read_16(&self) {
-  short* result = (short*)&self.data[self.head];
-  self.head += 2;
+  short result;
+  result += (short)self.data[self.head++] <<  0;
+  result += (short)self.data[self.head++] <<  8;
 	
-	return *result;
+	return result;
 }
 <* Reads int from the bulkfile *>
 fn int BulkFile.read_32(&self) {
-  int* result = (int*)&self.data[self.head];
-	self.head += 4;
+  int result;
+  result += (int)self.data[self.head++] <<  0;
+  result += (int)self.data[self.head++] <<  8;
+  result += (int)self.data[self.head++] << 16;
+  result += (int)self.data[self.head++] << 24;
 
-  return *result;
+  return result;
 }
 <* Reads long from the bulkfile *>
 fn long BulkFile.read_64(&self) {
-  long* result = (long*)&self.data[self.head];
-  self.head += 8;
+  long result;
+  result += (long)self.data[self.head++] <<  0;
+  result += (long)self.data[self.head++] <<  8;
+  result += (long)self.data[self.head++] << 16;
+  result += (long)self.data[self.head++] << 24;
+  result += (long)self.data[self.head++] << 32;
+  result += (long)self.data[self.head++] << 40;
+  result += (long)self.data[self.head++] << 48;
+  result += (long)self.data[self.head++] << 56;
 
-	return *result;
+	return result;
 }
 <* Reads float from the bulkfile *>
 fn float BulkFile.read_float(&self) {

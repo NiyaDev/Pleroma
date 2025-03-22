@@ -96,9 +96,13 @@ fn String char[].read_str(self, int start) {
 }
 <* Read four bytes into an integer *>
 fn int char[].read_int(self, int ptr) {
-  int* result = (int*)&self[ptr];
+  int result;
+  result += (int)self[ptr + 0] <<  0;
+  result += (int)self[ptr + 1] <<  8;
+  result += (int)self[ptr + 2] << 16;
+  result += (int)self[ptr + 3] << 24;
 
-  return *result;
+  return result;
 }
 
 <* Core keybind structure *>

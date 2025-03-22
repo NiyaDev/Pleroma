@@ -12,7 +12,7 @@
   "targets": {
     "pleroma": {
       "name": "libpleroma", 
-      "type": "static-lib",
+      "type": "dynamic-lib",
     },
   },
   "cpu": "generic",

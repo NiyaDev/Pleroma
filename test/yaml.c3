@@ -71,6 +71,7 @@ fn void yaml_test() @test {
 
   //* Singleline test
   TypedValue singleline = yml.get("Singleline test")!!;
+  io::printfn("%s",singleline.v_string);
   assert(singleline.v_string == "Testing a single line.", "Failed to parse Single line");
 
   //* Object test
@@ -93,7 +94,3 @@ fn void yaml_test() @test {
   assert(array.get_array(0).v_int == 10 && array.get_array(1).v_int == 9 && array.get_array(2).v_int == 25 && array.get_array(3).v_int == 6, "Failed to validate array");
 }
 
-
-fn void yaml_test_2() @test {
-  //Yaml yml = yaml::parse_file("yaml.c3l/tests/test2.yml")!!;
-}
