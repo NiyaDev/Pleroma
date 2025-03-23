@@ -11,9 +11,6 @@ struct Font {
 	Rectangle* recs;
 	GlyphInfo* glyphs;
 }
-fault FontFault {
-	FILE_NOT_FOUND,
-}
 <* Glyph Information *>
 struct GlyphInfo {
 	int value;

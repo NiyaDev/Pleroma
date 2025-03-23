@@ -9,7 +9,7 @@ struct Bulk {
 
   char major, minor, patch;
 
-  HashMap(<String, BulkEntry>) entries;
+  HashMap{String, BulkEntry} entries;
 }
 struct BulkEntry {
   char[] value;

@@ -28,8 +28,8 @@ struct AudioStream {
   uint sample_size;
   uint channels;
 }
-def AudioBufferRef = void*;
-def AudioProcessorRef = void*;
+alias AudioBufferRef = void*;
+alias AudioProcessorRef = void*;
 
 extern fn void  init_audio_device() 								@extern("InitAudioDevice");
 extern fn void  close_audio_device() 								@extern("CloseAudioDevice");
@@ -61,7 +61,7 @@ extern fn void   AudioStream.volume(self) 					@extern("SetAudioStreamVolume");
 extern fn void   AudioStream.pitch(self) 						@extern("SetAudioStreamPitch");
 extern fn void   AudioStream.pan(self) 							@extern("SetAudioStreamPan");
 
-extern fn Sound  Sound.alias(self) 									@extern("LoadSoundAlias");
+extern fn Sound  Sound.n_alias(self) 								@extern("LoadSoundAlias");
 extern fn bool   Sound.ready(self) 									@extern("IsSoundValid");
 extern fn void   Sound.update(self, void*, int) 		@extern("UpdateSound");
 extern fn void   Sound.unload(self) 								@extern("UnloadSound");
@@ -143,7 +143,7 @@ enum GamepadAxis : int {
   LEFT_TRIGGER,
   RIGHT_TRIGGER,
 }
-distinct KeyboardKey = int;
+typedef KeyboardKey = int;
 
 //= Camera
 struct Camera2D {
@@ -377,7 +377,7 @@ extern fn void Model.draw_points_ex(self, Vector3, Vector3, float, Vector3, Colo
 extern fn void Model.set_material(&self, int, int) @extern("SetModelMeshMaterial");
 
 //= Quaternion
-distinct Quaternion = Vector4;
+typedef Quaternion = Vector4;
 struct AxisAngle {
 	Vector3 axis;
 	float angle;
@@ -444,9 +444,6 @@ struct Texture {
 	uint id;
 	int width, height, mipmaps;
 	PixelFormat format;
-}
-fault TextureFault {
-	FAILED_FIND_FILE,
 }
 struct NPatchInfo {
 	Rectangle source;

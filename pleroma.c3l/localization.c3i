@@ -15,7 +15,7 @@ enum Language {
   JAPANESE,
 }
 
-def Localization = HashMap(<String, String>);
+alias Localization = HashMap{String, String};
 
 extern fn Localization new() @export("local_new");
 extern fn void Localization.add(&self, Language, String) @extern("local_add");

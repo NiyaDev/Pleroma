@@ -28,17 +28,22 @@ fn void yaml_test() @test {
 
   //* Truncate Spaces at end
   String tra = str.truncate_spaces_after();
+  defer tra.free(allocator::heap());
   assert(tra == "  \t test", "Failed to truncate later spaces");
 
   //* Remove spaces/tabs
   String rst = pair.remove_spaces_after_char(':');
+  defer rst.free(allocator::heap());
   assert(rst == "test:test", "Failed to remove spaces");
 
   //* Checking for variable pair
   assert(pair.is_value_pair(), "Failed to check if pair was a value");
 
   //* Split variable
-  String[] spv = pair.remove_spaces_after_char(':').split_variable();
+  String rem = pair.remove_spaces_after_char(':');
+  defer rem.free(allocator::heap());
+  String[] spv = rem.split_variable();
+  defer free(spv);
   assert(spv[0] == "test" && spv[1] == "test", "Failed to split variable");
 
   //* Testing for variable
@@ -51,8 +56,10 @@ fn void yaml_test() @test {
 
   //* Split Array
   String[] l1 = str_split_array_s.split_array();
+  defer free(l1);
   assert(l1[0] == "test" && l1[1] == "10" && l1[2] == "false" && l1[3] == "buckwheat", "Failed to split single line array");
   String[] l2 = str_split_array_m.split_array();
+  defer free(l2);
   assert(l2[0] == "test" && l2[1] == "10" && l2[2] == "false" && l2[3] == "buckwheat", "Failed to split multi-line array");
 
   //* Named Value validity
@@ -67,11 +74,11 @@ fn void yaml_test() @test {
 
   //* Yaml Parsing
   Yaml yml = yaml::parse_file("test/test.yml");
+  defer yml.clean();
   assert(yml.len() == 2, "Failed to organize yaml");
 
   //* Singleline test
   TypedValue singleline = yml.get("Singleline test")!!;
-  io::printfn("%s",singleline.v_string);
   assert(singleline.v_string == "Testing a single line.", "Failed to parse Single line");
 
   //* Object test

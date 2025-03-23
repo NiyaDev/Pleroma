@@ -46,7 +46,7 @@ fn Language String.to_language(self) @export("local_tolanguage") {
 }
 
 
-def Localization = HashMap(<String, String>);
+alias Localization = HashMap{String, String};
 
 <* Create new localiztion struct *>
 fn Localization new() @export("local_new") {

@@ -6,7 +6,7 @@ import std::math;
 const float EPSILON = 1.1920929E-7;
 
 <* Quaternion *>
-distinct Quaternion = Vector4;
+alias Quaternion = Vector4;
 
 <* Axis and Angle tuple *>
 struct AxisAngle {
@@ -14,49 +14,6 @@ struct AxisAngle {
 	float angle;
 }
 
-<* Computes the length of a quaternion *>
-fn float Quaternion.length(self) @export("quaternion_length") {
-	return math::sqrt(self.x.pow(2) + self.y.pow(2) + self.z.pow(2) + self.w.pow(2));
-}
-<* Calculate two quaternions dot product *>
-fn float Quaternion.dot_product(self, Quaternion v2) @export("quaternion_dotproduct") {
-	return self.x * v2.x + self.y * v2.y + self.z * v2.z + self.w * v2.w;
-}
-<* Normalize provided quaternion *>
-fn Quaternion Quaternion.normalize(self) @export("quaternion_normalize") {
-	Quaternion result;
-
-	float len = self.length();
-	if (len > 0) {
-		float ilen = 1 / len;
-		result = {
-			.x = self.x * ilen,
-			.y = self.y * ilen,
-			.z = self.z * ilen,
-			.w = self.w * ilen,
-		};
-	}
-
-	return result;
-}
-<* Invert provided quaternion *>
-fn Quaternion Quaternion.invert(self) @export("quaternion_invert") {
-	return {
-		.x = 1 / self.x,
-		.y = 1 / self.y,
-		.z = 1 / self.z,
-		.w = 1 / self.w,
-	};
-}
-<* Calculate linear interpolation between two quaternions *>
-fn Quaternion Quaternion.lerp(self, Quaternion target, float amount) @export("quaternion_lerp") {
-	return {
-		.x = self.x + amount * (target.x - self.x),
-		.y = self.y + amount * (target.y - self.y),
-		.z = self.z + amount * (target.z - self.z),
-		.w = self.w + amount * (target.w - self.w),
-	};
-}
 <* Calculate slerp-optimized interpolation between two quaternions *>
 fn Quaternion Quaternion.n_lerp(self, Quaternion target, float amount) @export("quaternion_nlerp") {
 	Quaternion result = {

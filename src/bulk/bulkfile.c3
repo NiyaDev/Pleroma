@@ -30,8 +30,14 @@ fn BulkFile new(usz size, Compression comp = NONE) {
  *>
 fn BulkFile load(String filename, Compression comp = NONE) {
   //* Load file and error check
-  char[]! buffer = file::load_new(filename);
-  if (catch buffer) unreachable();
+  // load_new isn't recognized, using load_temp but unknown if works
+  //char[]? buffer = io::file::load_temp(filename);
+  //if (catch buffer) unreachable();
+  usz length = file::get_size(filename)!!;
+  File file = file::open(filename, "rb")!!;
+  defer file.close()!!;
+  char[] buffer = mem::new_array(char, length);
+  file.read(buffer)!!;
 
   BulkFile output = new(buffer.len, comp);
 
@@ -52,7 +58,7 @@ fn void BulkFile.free(&self) {
 <* Saves file *>
 fn void BulkFile.save(&self, String filename) {
   //* Open file and error check
-  File! file = file::open(filename, "wb");
+  File? file = file::open(filename, "wb");
   assert(@ok(file), "Failed to open file for saving.");
 
   //* Write data to file based on compression

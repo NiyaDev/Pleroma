@@ -16,7 +16,7 @@ struct Bulk {
 
   char major, minor, patch;
 
-  HashMap(<String, BulkEntry>) entries;
+  HashMap{String, BulkEntry} entries;
 }
 
 <* Compression method *>
@@ -29,10 +29,10 @@ enum Compression {
   @param name "Name of file"
   @param path "Path to where file is saved"
  *>
-fn Bulk new(String name, String path = "resources/") @export("bulk_new") {
+fn Bulk new(String name, String path = "resources/") @export("bulk_new") => @pool() {
   Bulk output = {
-    .name = name.copy(),
-    .path = path.copy(),
+    .name = name.copy(allocator::heap()),
+    .path = path.copy(allocator::heap()),
     .major = MAJOR,
     .minor = MINOR,
     .patch = PATCH,
@@ -44,8 +44,8 @@ fn Bulk new(String name, String path = "resources/") @export("bulk_new") {
 <* Frees up Bulk *>
 fn void Bulk.free(&self) @export("bulk_free") {
   //* Free strings
-  self.name.free();
-  self.path.free();
+  self.name.free(allocator::heap());
+  self.path.free(allocator::heap());
   
   //* Free entries
   self.entries.@each(; String key, BulkEntry val) { val.free(); };
@@ -56,7 +56,7 @@ fn void Bulk.free(&self) @export("bulk_free") {
  *>
 fn Bulk load(String filename, Compression comp = NONE) @export("bulk_load") {
   //* Grab name of file
-  String[] path_split = filename.split("/");
+  String[] path_split = filename.split(allocator: allocator::heap(), needle: "/");
   String name = path_split[path_split.len-1];
   String path = filename.trim(name);
 
@@ -149,10 +149,10 @@ fn String Bulk.save_path(&self) @export("bulk_path") {
   assert(self.name != "", "Bulk name empty.");
   assert(self.path != "", "Bulk path empty.");
 
-  return self.path.concat(self.name);
+  return self.path.concat(allocator::heap(), self.name);
 }
 <* Returns bulk version as string *>
 fn String Bulk.version(&self) @export("bulk_version") {
-  return string::format("%d.%d.%d", self.major, self.minor, self.patch, allocator: allocator::heap());
+  return string::format(allocator::heap(), "%d.%d.%d", self.major, self.minor, self.patch);
 }
 

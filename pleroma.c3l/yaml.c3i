@@ -40,9 +40,9 @@ struct TypedValue {
   }
 }
 
-def Array  = List(<TypedValue>);
-def Yaml   = HashMap(<String, TypedValue>);
-def Object = Yaml;
+alias Array  = List{TypedValue};
+alias Yaml   = HashMap{String, TypedValue};
+alias Object = Yaml;
 
 extern fn usz TypedValue.size(&self) @extern("yaml_size");
 extern fn TypedValue TypedValue.get_array(&self, usz) @extern("yaml_getarray");

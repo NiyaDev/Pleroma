@@ -17,6 +17,7 @@ fn void keyb_init_close() @test {
   keybind::set("move_right", kb_right);
 
   char[] saved_kb = keybind::save();
+  defer free(saved_kb);
 
   //* KB move_left
   assert((String)saved_kb[0:9] == "move_left", "Failed to save Keybind \"move_left\"");
@@ -25,7 +26,7 @@ fn void keyb_init_close() @test {
   //* KB move_right
   assert((String)saved_kb[52:10] == "move_right", "Failed to save Keybind \"move_right\"");
   //* KB move_right
-  assert((String)saved_kb[79:7] == "move_up", "Failed to save Keybind \"move_up\"");
+  assert((String)saved_kb[79:7] == "move_up", "Failed to save Keybind \"move_up\""); 
 
   //* Clear old keybinding and load from saved
   keybind::clear();

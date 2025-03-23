@@ -16,6 +16,16 @@ fn int String.count_spaces(self, int tab_spaces = 4) {
   }
   return spaces;
 }
+<**>
+fn int String.count_spaces_after_char(self, char c) {
+  int count;
+  char last = '\0';
+  for (int i; i < self.len; i++) {
+    if (self[i] != ' ') last = self[i];
+    if (last == c && self[i] == ' ') count++;
+  }
+  return count;
+}
 /*
 <**>
 fn int String.count_spaces(&self) {

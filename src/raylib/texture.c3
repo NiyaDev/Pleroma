@@ -9,10 +9,6 @@ struct Texture {
 	int width, height, mipmaps;
 	PixelFormat format;
 }
-<* Texture faults *>
-fault TextureFault {
-	FAILED_FIND_FILE,
-}
 
 <* Data to tile image *>
 struct NPatchInfo {

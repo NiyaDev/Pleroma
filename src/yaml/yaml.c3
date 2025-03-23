@@ -53,21 +53,27 @@ struct TypedValue {
   }
 }
 
-def Array  = List(<TypedValue>);
-def Yaml   = HashMap(<String, TypedValue>);
-def Object = Yaml;
+alias Array  = List{TypedValue};
+alias Yaml   = HashMap{String, TypedValue};
+alias Object = Yaml;
 
 <* Creates a TypedValue out of NamedValue *>
 fn TypedValue NamedValue.to_typed(&self) {
-  return { self.type, self.value };
+  TypedValue output;
+  output.type = self.type;
+  switch (self.type) {
+    case STRING: output.v_string = self.v_string.copy(allocator::heap());
+    default: output.value = self.value;
+  }
+  return output;
 }
 
 <* Get size of Array or Object member *>
 fn usz TypedValue.size(&self) @export("yaml_size") {
   assert(self.type == ARRAY || self.type == OBJECT, "Tried to get length of incorrect type.");
   switch (self.type) {
-    case ARRAY:  return ((List(<TypedValue>)*)self.value).len();
-    case OBJECT: return ((HashMap(<String, TypedValue>)*)self.value).len();
+    case ARRAY:  return ((List{TypedValue}*)self.value).len();
+    case OBJECT: return ((HashMap{String, TypedValue}*)self.value).len();
     default: return 0;
   }
 }
@@ -127,15 +133,20 @@ fn String String.truncate_spaces_after(self) {
   E.g. "name:    person" -> "name:person"
  *>
 fn String String.remove_spaces_after_char(self, char c) {
-  List(<char>) new_str;
+  char[] newstr = mem::new_array(char, self.len - self.count_spaces_after_char(c));
   char last = '\0';
-  for (int i = (int)new_str.len(); i < self.len; i++) {
+  usz head;
+
+  for (int i; i < self.len; i++) {
     if (self[i] != ' ') last = self[i];
     if (last == c && self[i] == ' ') continue;
-    new_str.push(self[i]);
+    newstr[head++] = self[i];
   }
 
-  return new_str.string();
+  String str = ((String)newstr).copy(allocator::heap());
+  free(newstr);
+
+  return str;
 }
 <*Returns true if the YAML line is a variable-value pair, otherwise returns false *>
 fn bool String.is_value_pair(&self) {
@@ -145,7 +156,7 @@ fn bool String.is_value_pair(&self) {
   Example: "variable_name:value" -> {"variable_name", "value"}
  *>
 fn String[] String.split_variable(&self) {
-  return self.split(":");
+  return self.split(allocator::heap(), ":");
 } 
 <* Get the data type of the YAML value *>
 fn YAMLType String.get_type(self) {
@@ -186,7 +197,7 @@ fn YAMLType String.get_type(self) {
 }
 <* Splits array string into multiple *>
 fn String[] String.split_array(&self) { 
-  String[] output = self.strip("[").strip_end("]").split(",");
+  String[] output = self.strip("[").strip_end("]").split(allocator::heap(), ",");
 
   for (int i; i < output.len; i++) output[i] = output[i].strip("\n\t");
 
@@ -197,6 +208,8 @@ fn NamedValue String.to_value(self) {
   NamedValue val;
 
   String[] name_value = self.split_variable();
+  defer free(name_value);
+
   if (name_value.len > 1) {
     val.type = name_value[1].get_type();
   } else {
@@ -212,23 +225,24 @@ fn NamedValue String.to_value(self) {
     case DOUBLE:
       val.v_double = name_value[1].to_double()!!;
     case STRING:
-      val.v_string = name_value[1].copy();
+      val.v_string = name_value[1].copy(allocator::heap());
     case ARRAY:
       val.value = mem::new(Array);
+
       String[] values_split = name_value[1].split_array();
+      defer free(values_split);
+
       for (int i; i < values_split.len; i++) {
-        String named_val = string::tformat("_:%s", values_split[i]);
+        String named_val = string::format(allocator::heap(), "_:%s", values_split[i]);
         TypedValue new_val;
         NamedValue nval = named_val.to_value();
         new_val = nval.to_typed();
         ((Array*)val.value).push(new_val);
       }
-      free(values_split);
     case BOOL:
       val.v_bool = (name_value[1] == "true");
     default:
   }
-  free(name_value);
 
   return val;
 }
@@ -238,8 +252,7 @@ fn bool NamedValue.valid(&self) {
 }
 <* Loads a file to pass into parse function *>
 fn Yaml parse_file(String filename) @export("yaml_parsefile") {
-  char[]! buffer = file::load_new(filename);
-  if (catch buffer) unreachable();
+  char[] buffer = io::file::load_temp(filename)!!;
 
   return parse((String)buffer);
 }
@@ -248,12 +261,12 @@ fn Yaml parse(String file) @export("yaml_parse") {
   Yaml yaml;
 
   //* Split up lines
-  String[] lines_array = file.split("\n");
+  String[] lines_array = file.split(allocator::heap(), "\n");
   assert(lines_array[0][0..4] == "%YAML", "No header found.");
   assert(lines_array[0][6..8] == "1.2", "Incorrect version.");
 
   int file_indent;
-  List(<String>) lines;
+  List{String} lines;
   for (int i = 2; i < lines_array.len; i++) {
     String temp;
 
@@ -274,18 +287,32 @@ fn Yaml parse(String file) @export("yaml_parse") {
     //* Remove spaces
     if (temp.contains(":")) {
       String truncated = temp.truncate_spaces_after();
+      defer truncated.free(allocator::heap());
+
       String removed_comma = truncated.remove_spaces_after_char(',');
-      lines.push(removed_comma.remove_spaces_after_char(':'));
-      truncated.free();
-      removed_comma.free();
+      defer removed_comma.free(allocator::heap());
+
+      String removed_colon = removed_comma.remove_spaces_after_char(':');
+      lines.push(removed_colon);
     } else {
+      String trunc = temp.truncate_spaces();
+      String after_c = trunc.remove_spaces_after_char(':');
+      defer after_c.free(allocator::heap());
+      String after_m = after_c.remove_spaces_after_char(',');
+      defer after_m.free(allocator::heap());
+      lines[lines.len()-1] = string::format(
+        allocator::heap(),
+        "%s %s",
+        lines[lines.len()-1],
+        after_m,
+      );
       //lines_array[lines_array.len-1] = string::tformat("%s%s", lines_array[lines_array.len-1], temp.truncate_spaces().remove_spaces_after_char(':').remove_spaces_after_char(','));
-      lines[lines.len()-1] = string::format("%s %s", lines[lines.len()-1], temp.truncate_spaces().remove_spaces_after_char(':').remove_spaces_after_char(','), allocator: allocator::heap());
+      //lines[lines.len()-1] = string::format(allocator::heap(), "%s %s", lines[lines.len()-1], temp.truncate_spaces().remove_spaces_after_char(':').remove_spaces_after_char(','));
       //lines[lines.len()-1] = string::tformat("%s %s", lines[lines.len()-1], temp.truncate_spaces().remove_spaces_after_char(':').remove_spaces_after_char(','));
     }
   }
 
-  List(<void*>) scope_stack;
+  List{void*} scope_stack;
   scope_stack.push(&yaml);
   int prev_indent;
 
@@ -299,15 +326,11 @@ fn Yaml parse(String file) @export("yaml_parse") {
       }
     }
 
-    //String trunc = lines[i].truncate_spaces();
-    //defer trunc.free();
-    //NamedValue v = trunc.to_value();
-
     NamedValue v = lines[i].truncate_spaces().to_value();
-
 
     if (v.valid()) {
       //* Adding value to deepest object
+      TypedValue tv = v.to_typed();
       (*((Object*)(scope_stack[scope_stack.len()-1]))).set(v.name, v.to_typed());
     } else {
       //* Add a new object to the deepest object if no value
@@ -315,21 +338,51 @@ fn Yaml parse(String file) @export("yaml_parse") {
       scope_stack.push((*((Object*)(scope_stack[scope_stack.len()-1]))).get(v.name)!!.value);
     }
     prev_indent = indent;
-
-    //
   }
-  lines.free();
   free(lines_array);
+  for (int i; i < lines.len(); i++) {
+    //lines.get_ref(i).free(allocator::heap());
+    free((char[])*lines.get_ref(i));
+  }
   //yaml.print();
 
   return yaml;
+}
+<**>
+fn void Yaml.clean(&self) @export("yaml_free") {
+  //io::printfn("fug");
+  self.@each(; String key, TypedValue val) {
+    self.get_ref(key)!!.free();
+    //free(self.get_ref(key)!!.value);
+  };
+  self.free();
+}
+<**>
+fn void TypedValue.free(&self) {
+  //io::printfn("[%s]",self.type);
+  switch (self.type) {
+    case STRING: self.v_string.free(allocator::heap());
+    case OBJECT:
+      ((Object*)self.value).@each(; String key, TypedValue val) {
+        ((Object*)self.value).get_ref(key)!!.free(); 
+      };
+      ((Object*)self.value).free();
+      free(self.value);
+    case ARRAY:
+      for (int i; i < self.size(); i++) {
+        ((Array*)self.value)[i].free();
+      }
+      //free((Array*)self.value);
+      free(self.value);
+    default:
+  }
 }
 
 <* Prints yaml info *>
 fn void Yaml.print(&self) @export("yaml_print") {
   io::print("\n");
   self.@each(; String key, TypedValue val) {
-    self.get(key)!!.print(1);
+    self.get_ref(key)!!.print(1);
   };
 }
 
@@ -358,13 +411,13 @@ fn void TypedValue.print(&self, int tabs = 0) {
 
 
 <* Pushes an entire String into VString *>
-fn void List(<char>).push_string(&self, String str) {
+fn void List{char}.push_string(&self, String str) {
   for (int i; i < str.len; i++) {
     self.push(str[i]);
   }
 }
 <* Converts VString into String and frees original *>
-fn String List(<char>).string(&self) {
+fn String List{char}.string(&self) {
   char[] output = mem::new_array(char, self.len());
 
   for (int i; i < self.len(); i++) output[i] = self.get(i);

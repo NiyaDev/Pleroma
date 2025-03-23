@@ -91,19 +91,21 @@ fn float Vector3.dot_product(self, Vector3 v2) @export("vector3_dotproduct") {
 }
 <* Calculate distance between two vectors *>
 fn float Vector3.distance(self, Vector3 v2) @export("vector3_distance") {
-	return Vector3{
-		.x = v2.x - self.x,
-		.y = v2.y - self.y,
-		.z = v2.z - self.z,
-	}.length();
+	Vector3 sub = {
+		v2.x - self.x,
+		v2.y - self.y,
+		v2.z - self.z,
+	};
+	return sub.length();
 }
 <* Calculate square distance between two vectors *>
 fn float Vector3.distance_sqr(self, Vector3 v2) @export("vector3_distancesqr") {
-	return Vector3{
-		.x = v2.x - self.x,
-		.y = v2.y - self.y,
-		.z = v2.z - self.z,
-	}.length_sqr();
+	Vector3 sub = {
+		v2.x - self.x,
+		v2.y - self.y,
+		v2.z - self.z,
+	};
+	return sub.length_sqr();
 }
 <* Calculate angle between two vectors *>
 fn float Vector3.angle(self, Vector3 v2) @export("vector3_angle") {
@@ -146,10 +148,10 @@ fn Vector3 Vector3.reject(self, Vector3 v2) @export("vector3_reject") {
 
 	float mag = v1dv2 / v2dv2;
 
-	return Vector3{
-		.x = self.x - (v2.x * mag),
-		.y = self.y - (v2.y * mag),
-		.z = self.z - (v2.z * mag),
+	return {
+		self.x - (v2.x * mag),
+		self.y - (v2.y * mag),
+		self.z - (v2.z * mag),
 	};
 }
 <* Orthonormalize provided vectors. Makes vectors normalized and orthogonal to each other. Gram-Schmidt function implementation *>
@@ -186,9 +188,9 @@ fn void Vector3.orthinormalize(&self, Vector3* v2) @export("vector3_ortinormaliz
 <* Transforms a Vector3 by a given Matrix *>
 fn Vector3 Vector3.transform(self, Matrix mat) @export("vector3_transform") {
 	return {
-		.x = mat.m0 * self.x + mat.m4 * self.y + mat.m8  * self.z + mat.m12,
-		.y = mat.m1 * self.x + mat.m5 * self.y + mat.m9  * self.z + mat.m13,
-		.z = mat.m2 * self.x + mat.m6 * self.y + mat.m10 * self.z + mat.m14,
+		mat.m0 * self.x + mat.m4 * self.y + mat.m8  * self.z + mat.m12,
+		mat.m1 * self.x + mat.m5 * self.y + mat.m9  * self.z + mat.m13,
+		mat.m2 * self.x + mat.m6 * self.y + mat.m10 * self.z + mat.m14,
 	};
 }
 <* Transform a vector by quaternion rotation *>

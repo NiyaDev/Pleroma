@@ -29,8 +29,8 @@ struct AudioStream {
   uint sample_size;
   uint channels;
 }
-def AudioBufferRef = void*;
-def AudioProcessorRef = void*;
+typedef AudioBufferRef = void*;
+typedef AudioProcessorRef = void*;
 
 
 struct BoundingBox {
@@ -85,7 +85,7 @@ enum GamepadAxis : int {
 }
 
 <* Keyboard Keys *>
-distinct KeyboardKey = int;
+alias KeyboardKey = int;
 
 const KeyboardKey KEY_NULL            = 0;        // Key: NULL; used for no key pressed
 // Alphanumeric keys
@@ -271,10 +271,6 @@ struct Model {
 	int boneCount;				  // Number of bones
 	BoneInfo* bones;			  // Bones information (skeleton)
 	Transform* bindPose;		// Bones base transformation (pose)
-}
-<* Model Fault *>
-fault ModelFault {
-	FAILED_FIND_FILE,
 }
 <* Transform *>
 struct Transform {

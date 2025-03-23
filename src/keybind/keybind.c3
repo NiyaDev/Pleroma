@@ -6,7 +6,7 @@ import pleroma::raylib;
 
 
 <* Define Keybindings structure that is a global *>
-def Keybindings = HashMap(<String, Keybind>);
+alias Keybindings = HashMap{String, Keybind};
 Keybindings data;
 
 KeyType last_type = KEYBOARD;

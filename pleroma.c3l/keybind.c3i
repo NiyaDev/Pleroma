@@ -30,7 +30,7 @@ enum KeyType {
   GAMEPAD_AXIS,
 }
 
-def Keybindings = HashMap(<String, Keybind>);
+alias Keybindings = HashMap{String, Keybind};
 Keybindings data;
 
 KeyType last_type = KEYBOARD;
