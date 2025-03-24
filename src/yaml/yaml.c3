@@ -62,7 +62,7 @@ fn TypedValue NamedValue.to_typed(&self) {
   TypedValue output;
   output.type = self.type;
   switch (self.type) {
-    case STRING: output.v_string = self.v_string.copy(allocator::heap());
+    case STRING: output.v_string = self.v_string;
     default: output.value = self.value;
   }
   return output;
@@ -233,7 +233,8 @@ fn NamedValue String.to_value(self) {
       defer free(values_split);
 
       for (int i; i < values_split.len; i++) {
-        String named_val = string::format(allocator::heap(), "_:%s", values_split[i]);
+        //String named_val = string::format(allocator::heap(), "_:%s", values_split[i]);
+        String named_val = string::tformat("_:%s", values_split[i]);
         TypedValue new_val;
         NamedValue nval = named_val.to_value();
         new_val = nval.to_typed();
@@ -300,12 +301,16 @@ fn Yaml parse(String file) @export("yaml_parse") {
       defer after_c.free(allocator::heap());
       String after_m = after_c.remove_spaces_after_char(',');
       defer after_m.free(allocator::heap());
+
+      String lineminusone = lines[lines.len()-1].copy(allocator::heap());
+      lines.get_ref(lines.len()-1).free(allocator::heap());
       lines[lines.len()-1] = string::format(
         allocator::heap(),
         "%s %s",
-        lines[lines.len()-1],
+        lineminusone,
         after_m,
       );
+      lineminusone.free(allocator::heap());
       //lines_array[lines_array.len-1] = string::tformat("%s%s", lines_array[lines_array.len-1], temp.truncate_spaces().remove_spaces_after_char(':').remove_spaces_after_char(','));
       //lines[lines.len()-1] = string::format(allocator::heap(), "%s %s", lines[lines.len()-1], temp.truncate_spaces().remove_spaces_after_char(':').remove_spaces_after_char(','));
       //lines[lines.len()-1] = string::tformat("%s %s", lines[lines.len()-1], temp.truncate_spaces().remove_spaces_after_char(':').remove_spaces_after_char(','));
@@ -342,7 +347,8 @@ fn Yaml parse(String file) @export("yaml_parse") {
   free(lines_array);
   for (int i; i < lines.len(); i++) {
     //lines.get_ref(i).free(allocator::heap());
-    free((char[])*lines.get_ref(i));
+    //free((char[])*lines.get_ref(i));
+    lines[i].free(allocator::heap());
   }
   //yaml.print();
 

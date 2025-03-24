@@ -83,6 +83,7 @@ fn void yaml_test() @test {
 
   //* Object test
   TypedValue object_test = yml.get("Object test")!!;
+  io::printfn("[%s]%d",object_test.type,object_test.size());
   assert(object_test.type == OBJECT && object_test.size() == 4, "Failed to load Object test");
 
   //* String inside object

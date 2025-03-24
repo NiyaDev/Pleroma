@@ -57,6 +57,7 @@ fn void Bulk.free(&self) @export("bulk_free") {
 fn Bulk load(String filename, Compression comp = NONE) @export("bulk_load") {
   //* Grab name of file
   String[] path_split = filename.split(allocator: allocator::heap(), needle: "/");
+  defer free(path_split);
   String name = path_split[path_split.len-1];
   String path = filename.trim(name);
 
@@ -93,6 +94,7 @@ fn void Bulk.load_v1(&self, BulkFile* file) {
   for (int i; i < number_of_entries; i++) {
     usz data_len = file.read_64();
     String entry_name = file.read_string();
+    defer entry_name.free(allocator::heap());
 
     //* Create entry
     BulkEntry entry = { file.read_array(data_len) };
@@ -129,8 +131,11 @@ fn void Bulk.save_v1(&self, Compression comp = NONE) {
     file.write_string(key);
     file.write_array(entry.value);
   };
+  
+  String path = self.save_path();
+  defer path.free(allocator::heap());
 
-  file.save(self.save_path());
+  file.save(path);
   file.free();
 }
 

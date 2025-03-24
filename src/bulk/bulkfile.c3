@@ -14,13 +14,15 @@ struct BulkFile {
 
 <* Create a new file for loading bulk
   @param size "Size of file"
-  @require size > 0
   @param comp "Compression algo for file"
  *>
 fn BulkFile new(usz size, Compression comp = NONE) {
+  char[] data;
+  if (size != 0) data = mem::new_array(char, size);
+
   return {
     .compression = comp,
-    .data = mem::new_array(char, size),
+    .data = data,
     .head = 0,
   };
 }
@@ -39,7 +41,7 @@ fn BulkFile load(String filename, Compression comp = NONE) {
   char[] buffer = mem::new_array(char, length);
   file.read(buffer)!!;
 
-  BulkFile output = new(buffer.len, comp);
+  BulkFile output = new(0, comp);
 
   //* Decompress data
   switch (comp) {
@@ -124,13 +126,10 @@ fn void BulkFile.write_64(&self, long input) {
 }
 <* Writes float to the bulkfile *>
 fn void BulkFile.write_float(&self, float input) {
-	float* fl = mem::new(float);
-	*fl = input;
-
-	self.data[self.head++] = *((char*)fl);
-	self.data[self.head++] = *(((char*)fl)+1);
-	self.data[self.head++] = *(((char*)fl)+2);
-	self.data[self.head++] = *(((char*)fl)+3);
+  self.data[self.head++] = *(((char*)&input)+0);
+	self.data[self.head++] = *(((char*)&input)+1);
+	self.data[self.head++] = *(((char*)&input)+2);
+	self.data[self.head++] = *(((char*)&input)+3);
 }
 <* Writes contents of ptr to the bulkfile
   @param ptr "Pointer to data to write"
@@ -210,16 +209,17 @@ fn long BulkFile.read_64(&self) {
 }
 <* Reads float from the bulkfile *>
 fn float BulkFile.read_float(&self) {
-	float* result = (float*)&self.data[self.head];
-	self.head += 4;
+  float output;
+  mem::copy(&output, &self.data[self.head], 4);
+  self.head += 4;
 
-	return *result;
+  return output;
 }
 <* Reads string from the bulkfile *>
 fn String BulkFile.read_string(&self) {
   usz start = self.head;
 
-  //* Count characters
+  // Count characters
   int count = 0;
   for (int i; self.data[self.head] != '\0'; i++) {
     count++;
@@ -227,14 +227,14 @@ fn String BulkFile.read_string(&self) {
   }
   self.head = start;
 
-  //* Copy string
-  String output = (String)mem::new_array(char,count);
+  // Copy string
+  char[] output = mem::new_array(char,count);
   for (int i; i < count; i++) {
     output[i] = self.data[self.head++];
   }
   self.head++;
   
-  return output;
+  return (String)output;
 }
 <* Read data at pointer to array
  @param length "Amount of data to copy"

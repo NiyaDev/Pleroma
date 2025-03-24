@@ -11,12 +11,19 @@ fn void bulk_new() @test {
   //* Name and path
   assert(new_bulk.name == "TEST", "Name is incorrect");
   assert(new_bulk.path == "resources/", "Path is incorrect");
-  assert(new_bulk.save_path() == "resources/TEST", "Full path is incorrect");
+
+  String path = new_bulk.save_path();
+  defer path.free(allocator::heap());
+  assert(path == "resources/TEST", "Full path is incorrect");
+
   //* Version
   assert(new_bulk.major == bulk::MAJOR, "Major incorrect");
   assert(new_bulk.minor == bulk::MINOR, "Minor incorrect");
   assert(new_bulk.patch == bulk::PATCH, "Patch incorrect");
-  assert(new_bulk.version() == "1.0.0", "Version string incorrect");
+
+  String version = new_bulk.version();
+  defer version.free(allocator::heap());
+  assert(version == "1.0.0", "Version string incorrect");
 }
 
 fn void bulk_save() @test {
@@ -28,8 +35,11 @@ fn void bulk_save() @test {
   new_bulk.save();
 
   Bulk bulk_2 = bulk::load("resources/Test");
+  defer bulk_2.free();
+
   char[] ent = bulk_2.get("test");
   assert(ent == test_str, "Loading failed");
+  free(ent);
 }
 
 fn void file_new() @test {
@@ -51,9 +61,10 @@ fn void file_new() @test {
   new.write_float(0.5);
   new.write_string("TEST");
   new.write_array({10,11,12,13,14});
-  char[] ptr = mem::new_array(char, 3);
-  ptr = {15};
+  char[] ptr = mem::new_array(char, 1);
+  ptr[0] = 15;
   new.write_ptr(ptr,1);
+  free(ptr);
 
   new.head = 0;
   assert(new.read_8() == 1, "new -read_8");
@@ -61,9 +72,15 @@ fn void file_new() @test {
   assert(new.read_32() == 3, "new - read_32");
   assert(new.read_64() == 4, "new - read_64");
   assert(new.read_float() == 0.5, "new - read_float");
-  assert(new.read_string() == "TEST", "new - read_string");
-  assert(new.read_array(5) == {10,11,12,13,14}, "new - read_array");
-  assert(*new.read_ptr(1) == 15, "new - read_ptr");
+  String str = new.read_string();
+  assert(str == "TEST", "new - read_string");
+  str.free(allocator::heap());
+  char[] arr = new.read_array(5);
+  assert(arr == {10,11,12,13,14}, "new - read_array");
+  free(arr);
+  char* r_ptr = new.read_ptr(1);
+  assert(*r_ptr == 15, "new - read_ptr");
+  free(r_ptr);
 
   new.free();
 }
@@ -79,8 +96,9 @@ fn void file_save() @test {
   file.write_string("TEST");
   file.write_array({10,11,12,13,14});
   char[] ptr = mem::new_array(char, 3);
-  ptr = {15};
+  ptr[0] = 15;
   file.write_ptr(ptr,1);
+  free(ptr);
 
   file.save("resources/test.bin");
   file.free();
@@ -92,9 +110,15 @@ fn void file_save() @test {
   assert(new.read_32() == 3, "save - read_32");
   assert(new.read_64() == 4, "save - read_64");
   assert(new.read_float() == 0.5, "save - read_float");
-  assert(new.read_string() == "TEST", "save - read_string");
-  assert(new.read_array(5) == {10,11,12,13,14}, "save - read_array");
-  assert(*new.read_ptr(1) == 15, "save - read_ptr");
+  String str = new.read_string();
+  assert(str == "TEST", "save - read_string");
+  str.free(allocator::heap());
+  char[] arr = new.read_array(5);
+  assert(arr == {10,11,12,13,14}, "save - read_array");
+  free(arr);
+  char* r_ptr = new.read_ptr(1);
+  assert(*r_ptr == 15, "save - read_ptr");
+  free(r_ptr);
 
   new.free();
 }
