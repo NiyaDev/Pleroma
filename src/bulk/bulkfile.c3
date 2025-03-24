@@ -1,6 +1,7 @@
 
 module pleroma::bulk::file;
 import std::io;
+import std::os;
 
 
 <* File for reading a bulk from file *>
@@ -12,6 +13,11 @@ struct BulkFile {
 }
 
 
+faultdef TESTFAULT;
+<**>
+fn bool? test() @export("bulk_test") {
+  return TESTFAULT?;
+}
 <* Create a new file for loading bulk
   @param size "Size of file"
   @param comp "Compression algo for file"

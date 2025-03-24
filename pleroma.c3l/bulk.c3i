@@ -29,3 +29,6 @@ extern fn String Bulk.version(&self) @extern("bulk_version");
 
 extern fn void Bulk.add(&self, String, char[]) @extern("bulk_add");
 extern fn char[] Bulk.get(&self, String) @extern("bulk_get");
+
+extern fn bool? test() @extern("bulk_test");
+
