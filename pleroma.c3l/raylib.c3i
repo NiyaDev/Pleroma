@@ -206,7 +206,8 @@ struct GlyphInfo {
 }
 extern fn bool Font.ready(self)  @extern("IsFontValid");
 extern fn void Font.unload(self) @extern("UnloadFont");
-extern fn void Font.draw(self, String, Vector2, float, float, Color) @extern("DrawTextEx");
+//extern fn void Font.draw(self, String, Vector2, float, float, Color) @extern("DrawTextEx");
+extern fn void draw_font(Font, String, Vector2, float, float, Color) @extern("DrawTextEx");
 extern fn void Font.draw_pro(self, String, Vector2, Vector2, float, float, float, Color) @extern("DrawTextPro");
 extern fn Vector2 Font.measure(self, String, float, float) @extern("MeasureTextEx");
 

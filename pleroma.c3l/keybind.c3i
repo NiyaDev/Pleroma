@@ -35,14 +35,11 @@ Keybindings data;
 
 KeyType last_type = KEYBOARD;
 
-extern fn char[] save() @extern("keybind_save");
-extern fn void load(char[]) @extern("keybind_load");
-extern fn void clear() @extern("keybind_clear");
-extern fn void set(String, Keybind) @extern("keybind_set");
-extern fn Keybind get(String) @extern("keybind_get");
+extern fn char[] Keybindings.save(&self) @extern("keybind_save");
+extern fn void Keybindings.load(&self, char[]) @extern("keybind_load");
 
-extern fn bool is_pressed(String) @extern("keybind_pressed");
-extern fn bool is_down(String) @extern("keybind_down");
+extern fn bool Keybindings.is_pressed(&self, String) @extern("keybind_pressed");
+extern fn bool Keybindings.is_down(&self, String) @extern("keybind_down");
 
 extern fn void ready_scan(float) @extern("keybind_readyscan");
 extern fn void scan() @extern("keybind_scan");

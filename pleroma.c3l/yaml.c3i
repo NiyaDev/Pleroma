@@ -47,6 +47,7 @@ alias Object = Yaml;
 extern fn usz TypedValue.size(&self) @extern("yaml_size");
 extern fn TypedValue TypedValue.get_array(&self, usz) @extern("yaml_getarray");
 extern fn TypedValue TypedValue.get_object(&self, String) @extern("yaml_getobject");
+extern fn bool TypedValue.has_key(&self, String) @extern("yaml_haskey");
 extern fn Yaml parse_file(String) @extern("yaml_parsefile");
 extern fn Yaml parse(String) @extern("yaml_parse");
 extern fn void Yaml.print(&self) @extern("yaml_print");

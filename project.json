@@ -17,4 +17,5 @@
   },
   "cpu": "generic",
   "opt": "O0",
+  "single-module": true,
 }

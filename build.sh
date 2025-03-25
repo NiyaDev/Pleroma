@@ -2,7 +2,7 @@
 
 clear
 
-c3c build -l raylib
+c3c build -l raylib 
 
 cp build/libpleroma.a pleroma.c3l/linux-x64/libpleroma.a
 #cp build/libpleroma.so pleroma.c3l/linux-x64/libpleroma.so

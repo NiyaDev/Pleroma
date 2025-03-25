@@ -83,9 +83,13 @@ fn TypedValue TypedValue.get_array(&self, usz index) @export("yaml_getarray") {
   return ((Array*)self.value).get(index);
 }
 <* Indexes TypedValue as HashMap *>
-fn TypedValue TypedValue.get_object(self, String name) @export("yaml_getobject") {
+fn TypedValue TypedValue.get_object(&self, String name) @export("yaml_getobject") {
   assert(self.type == OBJECT, "Attempted to index non-Object as Object.");
   return ((Object*)self.value).get(name)!!;
+}
+<* Returns whether TypedValue objects contains a member with name *>
+fn bool TypedValue.has_key(&self, String key) @export("yaml_haskey") {
+  return ((Object*)self.value).has_key(key);
 }
 
 <* Removes tabs and spaces at the beginning and end of the string

@@ -12,17 +12,17 @@ Keybindings data;
 KeyType last_type = KEYBOARD;
 
 <* Saves keybindings as char array *>
-fn char[] save() @export("keybind_save") {
+fn char[] Keybindings.save(&self) @export("keybind_save") {
   //* Get length of data and strings
-  usz length = data.len() * 16;
-  data.@each(; String key, Keybind val) {
+  usz length = self.len() * 16;
+  self.@each(; String key, Keybind val) {
     length += key.len + 1;
   };
 
   char[] output = mem::new_array(char, length);
 
   usz ptr;
-  data.@each(; String key, Keybind val) {
+  self.@each(; String key, Keybind val) {
     //* Key string
     for (int i; i < key.len; i++) output[ptr++] = key[i];
     output[ptr++] = '\0';
@@ -55,7 +55,7 @@ fn char[] save() @export("keybind_save") {
   return output;
 }
 <* Loads keybindings from char array *>
-fn void load(char[] file) @export("keybind_load") {
+fn void Keybindings.load(&self, char[] file) @export("keybind_load") {
   int ptr;
   while (ptr < file.len) {
     String key = file.read_str(ptr);
@@ -70,29 +70,19 @@ fn void load(char[] file) @export("keybind_load") {
     kb.pad = file.read_int(ptr);
     ptr += 4;
 
-    data.set(key, kb);
+    self.set(key, kb);
   }
-}
-<* Clears keybindings *>
-fn void clear() @export("keybind_clear") {
-  data.clear();
-}
-<* Sets keybind into map *>
-fn void set(String key, Keybind val) @export("keybind_set") {
-  data.set(key, val);
-}
-<* Gets keybind *>
-fn Keybind get(String key) @export("keybind_get") {
-  return data.get(key)!!;
 }
 
 <* Read a range from a char array into a string *>
-fn String char[].read_str(self, int start) {
-  //* Count
-  int count;
-  for (int i; self[start + i] != '\0'; i++) count++;
+fn String char[].read_str(&self, int start) {
+  usz count;
 
-  return (String)self[start:count];
+  for (int i; (*self)[start + i] != '\0'; i++) count++;
+  char[] buf = mem::new_array(char, count);
+  for (int i; i < count; i++) buf[i] = (*self)[start+i];
+
+  return (String)buf;
 }
 <* Read four bytes into an integer *>
 fn int char[].read_int(self, int ptr) {
@@ -139,10 +129,10 @@ fn bool Keybind.equals(&self, Keybind rhs) {
 }
 
 <* Check if Keybind is pressed *>
-fn bool is_pressed(String name) @export("keybind_pressed") {
-  assert(!data.has_key(name), "Keybinding doesn't exist.");
+fn bool Keybindings.is_pressed(&self, String name) @export("keybind_pressed") {
+  assert(self.has_key(name), "Keybinding doesn't exist.");
 
-  Keybind bind = data[name]!!;
+  Keybind bind = self.get(name)!!;
 
   switch (bind.type) {
     case KEYBOARD:
@@ -153,10 +143,10 @@ fn bool is_pressed(String name) @export("keybind_pressed") {
   return false;
 }
 <* Check if Keybind is down *>
-fn bool is_down(String name) @export("keybind_down") {
-  assert(!data.has_key(name), "Keybinding doesn't exist.");
+fn bool Keybindings.is_down(&self, String name) @export("keybind_down") {
+  assert(self.has_key(name), "Keybinding doesn't exist.");
 
-  Keybind bind = data[name]!!;
+  Keybind bind = self.get(name)!!;
 
   switch (bind.type) {
     case KEYBOARD:
