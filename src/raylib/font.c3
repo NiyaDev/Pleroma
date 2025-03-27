@@ -1,5 +1,6 @@
 
 module pleroma::raylib;
+import std::io;
 
 
 <* Font *>
@@ -34,3 +35,12 @@ fn Font load_mem(String filetype, char[] data, int fontsize, int[] codepoints) @
 	return raylib::load_font_from_memory(filetype, data, data.len, fontsize, codepoints, codepoints.len);
 }
 
+<**>
+fn void Font.print(&self) @export("font_print") {
+	io::printf(
+		"{\n\tbase_size: %d\n\tglyph_count: %d\n\tglyph_padding: %d\n}",
+		self.base_size,
+		self.glyph_count,
+		self.glyph_padding,
+	);
+}
