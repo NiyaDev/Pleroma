@@ -752,6 +752,15 @@ extern fn Shader load_mem(char*, char*) @extern("LoadShaderFromMemory");
 module pleroma::raylib::texture;
 extern fn Texture load(String) @extern("LoadTexture");
 
+module pleroma::raylib::vector2;
+const Vector2 ZERO = {0.0, 0.0};
+
+module pleroma::raylib::vector3;
+const Vector3 ZERO = {0.0, 0.0, 0.0};
+
+module pleroma::raylib::vector4;
+const Vector4 ZERO = {0.0, 0.0, 0.0, 0.0};
+
 module pleroma::raylib::color;
 const Color LIGHTGRAY		= {200, 200, 200, 255};
 const Color GRAY		  	= {130, 130, 130, 255};
