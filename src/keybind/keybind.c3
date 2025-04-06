@@ -79,10 +79,7 @@ fn String char[].read_str(&self, int start) {
   usz count;
 
   for (int i; (*self)[start + i] != '\0'; i++) count++;
-  char[] buf = mem::new_array(char, count);
-  for (int i; i < count; i++) buf[i] = (*self)[start+i];
-
-  return (String)buf;
+  return (String)(*self)[start:count];
 }
 <* Read four bytes into an integer *>
 fn int char[].read_int(self, int ptr) {

@@ -10,11 +10,12 @@ fn void keyb_init_close() @test {
   Keybind kb_up    = {.type=KEYBOARD,.kb=raylib::KEY_W};
   Keybind kb_down  = {.type=KEYBOARD,.kb=raylib::KEY_S};
   Keybind kb_left  = {.type=KEYBOARD,.kb=raylib::KEY_A};
-  Keybind kb_right = {.type=KEYBOARD,.kb=raylib::KEY_D}; 
-  keybind::set("move_up",    kb_up);
-  keybind::set("move_down",  kb_down); 
-  keybind::set("move_left",  kb_left); 
-  keybind::set("move_right", kb_right);
+  Keybind kb_right = {.type=KEYBOARD,.kb=raylib::KEY_D};
+
+  keybind::data.set("move_up",    kb_up);
+  keybind::data.set("move_down",  kb_down); 
+  keybind::data.set("move_left",  kb_left); 
+  keybind::data.set("move_right", kb_right);
 
   char[] saved_kb = keybind::save();
   defer free(saved_kb);
@@ -29,12 +30,13 @@ fn void keyb_init_close() @test {
   assert((String)saved_kb[79:7] == "move_up", "Failed to save Keybind \"move_up\""); 
 
   //* Clear old keybinding and load from saved
-  keybind::clear();
+  keybind::data.clear();
   keybind::load(saved_kb);
   
-  assert(keybind::get("move_up").equals(kb_up), "Failed to load \"move_up\"");
-  assert(keybind::get("move_down").equals(kb_down), "Failed to load \"move_down\"");
-  assert(keybind::get("move_left").equals(kb_left), "Failed to load \"move_left\"");
-  assert(keybind::get("move_right").equals(kb_right), "Failed to load \"move_right\""); 
+  assert(keybind::data.get("move_up")!!.equals(kb_up), "Failed to load \"move_up\"");
+  assert(keybind::data.get("move_down")!!.equals(kb_down), "Failed to load \"move_down\"");
+  assert(keybind::data.get("move_left")!!.equals(kb_left), "Failed to load \"move_left\"");
+  assert(keybind::data.get("move_right")!!.equals(kb_right), "Failed to load \"move_right\""); 
+
 }
 
