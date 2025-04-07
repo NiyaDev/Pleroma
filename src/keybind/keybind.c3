@@ -7,22 +7,21 @@ import pleroma::raylib;
 
 <* Define Keybindings structure that is a global *>
 alias Keybindings = HashMap{String, Keybind};
-Keybindings data;
 
 KeyType last_type = KEYBOARD;
 
 <* Saves keybindings as char array *>
-fn char[] save() @export("keybind_save") {
+fn char[] Keybindings.save(&self) @export("keybind_save") {
   //* Get length of data and strings
-  usz length = data.len() * 16;
-  data.@each(; String key, Keybind val) {
+  usz length = self.len() * 16;
+  self.@each(; String key, Keybind val) {
     length += key.len + 1;
   };
 
   char[] output = mem::new_array(char, length);
 
   usz ptr;
-  data.@each(; String key, Keybind val) {
+  self.@each(; String key, Keybind val) {
     //* Key string
     for (int i; i < key.len; i++) output[ptr++] = key[i];
     output[ptr++] = '\0';
@@ -55,7 +54,9 @@ fn char[] save() @export("keybind_save") {
   return output;
 }
 <* Loads keybindings from char array *>
-fn void load(char[] file) @export("keybind_load") {
+fn Keybindings load(char[] file) @export("keybind_load") {
+  Keybindings kbds;
+
   int ptr;
   while (ptr < file.len) {
     String key = file.read_str(ptr);
@@ -70,8 +71,10 @@ fn void load(char[] file) @export("keybind_load") {
     kb.pad = file.read_int(ptr);
     ptr += 4;
 
-    data.set(key, kb);
+    kbds.set(key, kb);
   }
+
+  return kbds;
 }
 
 <* Read a range from a char array into a string *>
@@ -126,10 +129,10 @@ fn bool Keybind.equals(&self, Keybind rhs) {
 }
 
 <* Check if Keybind is pressed *>
-fn bool is_pressed(String name) @export("keybind_pressed") {
-  assert(data.has_key(name), "Keybinding doesn't exist.");
+fn bool Keybindings.is_pressed(&self, String name) @export("keybind_pressed") {
+  assert(self.has_key(name), "Keybinding doesn't exist.");
 
-  Keybind bind = data.get(name)!!;
+  Keybind bind = self.get(name)!!;
 
   switch (bind.type) {
     case KEYBOARD:
@@ -140,10 +143,10 @@ fn bool is_pressed(String name) @export("keybind_pressed") {
   return false;
 }
 <* Check if Keybind is down *>
-fn bool is_down(String name) @export("keybind_down") {
-  assert(data.has_key(name), "Keybinding doesn't exist.");
+fn bool Keybindings.is_down(&self, String name) @export("keybind_down") {
+  assert(self.has_key(name), "Keybinding doesn't exist.");
 
-  Keybind bind = data.get(name)!!;
+  Keybind bind = self.get(name)!!;
 
   switch (bind.type) {
     case KEYBOARD:

@@ -8,25 +8,32 @@ alias Options = HashMap{String, Option};
 struct Option {
   OptionType type;
   union {
+    bool as_bool;
+    char as_byte;
     short as_short;
     int as_int;
     long as_long;
     float as_float;
     double as_double;
     int[] as_array;
+    String as_string;
   }
 }
 
 enum OptionType {
+  BOOL,
+  BYTE,
   SHORT,
   INT,
   LONG,
   FLOAT,
   DOUBLE,
   ARRAY,
+  STRING,
 }
 
 faultdef INVALID_ENTRY;
 
-extern fn Option? new(any) @extern("options_new");
+extern fn Options? load(char[]) @extern("options_load");
+extern fn char[] Options.save(&self) @extern("options_save");
 

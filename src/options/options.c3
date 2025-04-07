@@ -144,35 +144,35 @@ fn char[] Options.save(&self) @export("options_save") {
     switch (opt.type) {
       case BOOL:
         output.write_8(opt.as_byte, head);
-        head += 1; //io::printfn("8:%s",opt.as_bool);
+        head += 1; io::printfn("8:%s",opt.as_bool);
       case BYTE:
         output.write_8(opt.as_byte, head);
-        head += 1; //io::printfn("8:%d",opt.as_byte); 
+        head += 1; io::printfn("8:%d",opt.as_byte); 
       case SHORT:
         output.write_16(opt.as_short, head);
-        head += 2; //io::printfn("16:%d",opt.as_short);
+        head += 2; io::printfn("16:%d",opt.as_short);
       case INT:
         output.write_32(opt.as_int, head);
-        head += 4; //io::printfn("32:%d",opt.as_int); 
+        head += 4; io::printfn("32:%d",opt.as_int); 
       case LONG:
         output.write_64(opt.as_long, head);
-        head += 8; //io::printfn("64:%d",opt.as_long);
+        head += 8; io::printfn("64:%d",opt.as_long);
       case FLOAT:
         output.write_float(opt.as_float, head);
-        head += 4; //io::printfn("32:%.8f",opt.as_float); 
+        head += 4; io::printfn("32:%.8f",opt.as_float); 
       case DOUBLE:
         output.write_double(opt.as_double, head);
-        head += 8; //io::printfn("64:%.16f",opt.as_double); 
+        head += 8; io::printfn("64:%.16f",opt.as_double); 
       case ARRAY:
         output.write_64(opt.as_array.len, head);
-        head += 8; //io::printfn("array:%d",opt.as_array.len);
+        head += 8; io::printfn("array:%d",opt.as_array.len);
         for (int i; i < opt.as_array.len; i++) {
           output.write_32(opt.as_array[i], head);
-          head += 4; //io::printfn("  32:%d",opt.as_array[i]);
+          head += 4; io::printfn("  32:%d",opt.as_array[i]);
         }
       case STRING:
         output.write_string(opt.as_string, head);
-        head += opt.as_string.len + 1; //io::printfn("string:%s",opt.as_string); 
+        head += opt.as_string.len + 1; io::printfn("string:%s",opt.as_string); 
     }
   };
 
