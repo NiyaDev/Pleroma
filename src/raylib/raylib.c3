@@ -406,6 +406,8 @@ extern fn void draw_text_codepoints(Font font, int* codepoints, int codepointCou
 extern fn void set_text_line_spacing(int spacing) @extern("SetTextLineSpacing");
 // Measure string width for default font
 extern fn int measure_text(char* text, int fontSize) @extern("MeasureText");
+// Measure string size for Font
+extern fn Vector2 measure_text_ex(Font font, char* text, float fontSize, float spacing) @extern("MeasureTextEx");
 // Get glyph index position in font for a codepoint (unicode character), fallback to '?' if not found
 extern fn int get_glyph_index(Font font, int codepoint) @extern("GetGlyphIndex");
 // Get glyph font info data for a codepoint (unicode character), fallback to '?' if not found
