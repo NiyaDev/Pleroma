@@ -75,7 +75,7 @@ fn void yaml_test() @test {
   //* Yaml Parsing
   Yaml yml = yaml::parse_file("test/test.yml");
   defer yml.clean();
-  assert(yml.len() == 2, "Failed to organize yaml");
+  assert(yml.len() == 3, "Failed to organize yaml");
 
   //* Singleline test
   TypedValue singleline = yml.get("Singleline test")!!;

@@ -1,6 +1,7 @@
 
 module pleroma::localization;
 import std::collections;
+import pleroma;
 
 
 enum Language {
@@ -15,10 +16,15 @@ enum Language {
   JAPANESE,
 }
 
-alias Localization = HashMap{String, String};
+alias Local = HashMap{Language, String};
+alias Localization = HashMap{String, Local};
 
-extern fn Localization new() @export("local_new");
-extern fn void Localization.add(&self, Language, String) @extern("local_add");
+
+extern fn Local new(TypedValue) @export("local_new");
+extern fn Localization Yaml.localization(&self) @extern("local_localization");
+extern fn void Localization.add(&self, Yaml) @extern("local_add");
 
 extern fn String Language.to_string(self) @extern("local_tostring");
 extern fn Language String.to_language(self) @extern("local_tolanguage");
+extern fn uint Language.hash(&self) @extern("local_hash");
+

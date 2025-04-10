@@ -14,4 +14,6 @@ Object test:  #testing comments
     bool: true
     str: i42
   Array test: [10, 9, 25, 6]
+a second object:
+  string: inside object
 

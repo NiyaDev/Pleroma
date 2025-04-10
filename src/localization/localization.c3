@@ -1,6 +1,7 @@
 
 module pleroma::localization;
 import std::collections;
+import pleroma::yaml;
 
 
 enum Language {
@@ -15,7 +16,47 @@ enum Language {
   JAPANESE,
 }
 
-<* Converts a language to string *>
+alias Local = HashMap{Language, String};
+alias Localization = HashMap{String, Local};
+
+
+<* Go through each member of a TypedValue object and copy into a Local *>
+fn Local new(TypedValue obj) @export("local_new") {
+  assert(obj.type == OBJECT, "Tried to convert a non-object to a localization.");
+
+  Local local;
+
+  yaml::Object o = *((yaml::Object*)obj.value);
+  o.@each(; String key, TypedValue val) {
+    assert(val.type == STRING, "Localization isn't string.");
+
+    local.set(key.to_language(), val.v_string);
+  };
+
+  return local;
+}
+
+<* Convert the data in a Yaml file to a localization map *>
+fn Localization Yaml.localization(&self) @export("local_localization") {
+  Localization localization;
+
+  self.@each(; String key, TypedValue val) {
+    Local local = new(val);
+    localization.set(key, local);
+  };
+
+  return localization;
+}
+
+<* Add all yaml data into alrerady existing localization *>
+fn void Localization.add(&self, Yaml yaml) @export("local_add") {
+  yaml.@each(; String key, TypedValue val) {
+    Local local = new(val);
+    self.set(key, local);
+  };
+}
+
+<* Converts a language to a string *>
 fn String Language.to_string(self) @export("local_tostring") {
   switch (self) {
     case ENGLISH:   return "English";
@@ -44,17 +85,7 @@ fn Language String.to_language(self) @export("local_tolanguage") {
   }
   return ENGLISH;
 }
-
-
-alias Localization = HashMap{String, String};
-
-<* Create new localiztion struct *>
-fn Localization new() @export("local_new") {
-  Localization output;
-  return output;
+<**>
+fn uint Language.hash(&self) @export("local_hash") {
+  return self.to_string().hash();
 }
-<* Add string to localization *>
-fn void Localization.add(&self, Language lang, String str) @export("local_add") {
-  self.set(lang.to_string(), str);
-}
-
