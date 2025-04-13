@@ -56,7 +56,7 @@ fn void Bulk.free(&self) @export("bulk_free") {
  *>
 fn Bulk load(String filename, Compression comp = NONE) @export("bulk_load") {
   //* Grab name of file
-  String[] path_split = filename.split(allocator: allocator::heap(), needle: "/");
+  String[] path_split = filename.split(allocator::heap(), "/");
   defer free(path_split);
   String name = path_split[path_split.len-1];
   String path = filename.trim(name);
