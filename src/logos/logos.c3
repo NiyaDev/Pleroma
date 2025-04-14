@@ -143,7 +143,7 @@ fn void Logos.write(&self, LogosData data) {
       default:           new_size +=  data.type.size;
     }
     // TODO: debug mode that enables/disables this
-    io::printfn("Allocating more to logos [%d]->[%d]",self.data.len, new_size);
+    // io::printfn("Allocating more to logos [%d]->[%d]",self.data.len, new_size);
     char[] new_array = mem::new_array(char, new_size);
     mem::copy(new_array, self.data, self.data.len);
     free(self.data);
@@ -207,13 +207,82 @@ fn void Logos.write(&self, LogosData data) {
 	      self.data[self.head++] = (char)(data.as_short_array[i] >> 0);
         self.data[self.head++] = (char)(data.as_short_array[i] >> 8);
 	    }
+	  case INT_ARRAY:
+	    // Write length of array
+	    int length = (int)data.as_int_array.len;
+	    self.data[self.head++] = (char)(length >>  0);
+      self.data[self.head++] = (char)(length >>  8);
+      self.data[self.head++] = (char)(length >> 16);
+      self.data[self.head++] = (char)(length >> 24);
+      // Write each member
+	    for (int i; i < data.as_int_array.len; i++) {
+	      self.data[self.head++] = (char)(data.as_int_array[i] >>  0);
+        self.data[self.head++] = (char)(data.as_int_array[i] >>  8);
+        self.data[self.head++] = (char)(data.as_int_array[i] >> 16);
+        self.data[self.head++] = (char)(data.as_int_array[i] >> 24);
+	    }
+	  case LONG_ARRAY:
+	    // Write length of array
+	    int length = (int)data.as_long_array.len;
+	    self.data[self.head++] = (char)(length >>  0);
+      self.data[self.head++] = (char)(length >>  8);
+      self.data[self.head++] = (char)(length >> 16);
+      self.data[self.head++] = (char)(length >> 24);
+      // Write each member
+	    for (int i; i < data.as_long_array.len; i++) {
+	      self.data[self.head++] = (char)(data.as_long_array[i] >>  0);
+        self.data[self.head++] = (char)(data.as_long_array[i] >>  8);
+        self.data[self.head++] = (char)(data.as_long_array[i] >> 16);
+        self.data[self.head++] = (char)(data.as_long_array[i] >> 24);
+        self.data[self.head++] = (char)(data.as_long_array[i] >> 32);
+        self.data[self.head++] = (char)(data.as_long_array[i] >> 40);
+        self.data[self.head++] = (char)(data.as_long_array[i] >> 48);
+        self.data[self.head++] = (char)(data.as_long_array[i] >> 56);
+	    }
+	  case FLOAT_ARRAY:
+	    // Write length of array
+	    int length = (int)data.as_float_array.len;
+	    self.data[self.head++] = (char)(length >>  0);
+      self.data[self.head++] = (char)(length >>  8);
+      self.data[self.head++] = (char)(length >> 16);
+      self.data[self.head++] = (char)(length >> 24);
+      // Write each member
+	    for (int i; i < data.as_float_array.len; i++) {
+	      self.data[self.head++] = *(((char*)&data.as_float_array[i])+0);
+	      self.data[self.head++] = *(((char*)&data.as_float_array[i])+1);
+	      self.data[self.head++] = *(((char*)&data.as_float_array[i])+2);
+	      self.data[self.head++] = *(((char*)&data.as_float_array[i])+3);
+	    }
+	  case DOUBLE_ARRAY:
+	    // Write length of array
+	    int length = (int)data.as_double_array.len;
+	    self.data[self.head++] = (char)(length >>  0);
+      self.data[self.head++] = (char)(length >>  8);
+      self.data[self.head++] = (char)(length >> 16);
+      self.data[self.head++] = (char)(length >> 24);
+      // Write each member
+	    for (int i; i < data.as_double_array.len; i++) {
+	      self.data[self.head++] = *(((char*)&data.as_double_array[i])+0);
+	      self.data[self.head++] = *(((char*)&data.as_double_array[i])+1);
+	      self.data[self.head++] = *(((char*)&data.as_double_array[i])+2);
+	      self.data[self.head++] = *(((char*)&data.as_double_array[i])+3);
+	      self.data[self.head++] = *(((char*)&data.as_double_array[i])+4);
+	      self.data[self.head++] = *(((char*)&data.as_double_array[i])+5);
+	      self.data[self.head++] = *(((char*)&data.as_double_array[i])+6);
+	      self.data[self.head++] = *(((char*)&data.as_double_array[i])+7);
+	    }
+	  case STRING:
+	    for (int i; i < data.as_string.len; i++) {
+	      self.data[self.head++] = data.as_string[i];
+	    }
+	    self.data[self.head++] = '\0';
     default: io::printfn("ERROR - Type(%s) not yet implemented!", data.type);
   }
 }
 <* Reads data from logos *>
 fn LogosData Logos.read(&self, LogosType type) {
   // TODO: debug mode that enables/disables this
-  io::printfn("Reading [%s] at %d",type,self.head);
+  // io::printfn("Reading [%s] at %d",type,self.head);
   assert(self.head < self.data.len, "Position of head out of range of data.");
 
   switch (type) {
@@ -274,6 +343,56 @@ fn LogosData Logos.read(&self, LogosType type) {
       for (int i; i < length; i++) {
         output.as_short_array[i] = self.read(SHORT).as_short;
       }
+      return output;
+    case INT_ARRAY:
+      LogosData output;
+      output.type = INT_ARRAY;
+      usz length = (usz)self.read(INT).as_int;
+      output.as_int_array = mem::new_array(int, length);
+      for (int i; i < length; i++) {
+        output.as_int_array[i] = self.read(INT).as_int;
+      }
+      return output;
+    case LONG_ARRAY:
+      LogosData output;
+      output.type = LONG_ARRAY;
+      usz length = (usz)self.read(INT).as_int;
+      output.as_long_array = mem::new_array(long, length);
+      for (int i; i < length; i++) {
+        output.as_long_array[i] = self.read(LONG).as_long;
+      }
+      return output;
+    case FLOAT_ARRAY:
+      LogosData output;
+      output.type = FLOAT_ARRAY;
+      usz length = (usz)self.read(INT).as_int;
+      output.as_float_array = mem::new_array(float, length);
+      for (int i; i < length; i++) {
+        output.as_float_array[i] = self.read(FLOAT).as_float;
+      }
+      return output;
+    case DOUBLE_ARRAY:
+      LogosData output;
+      output.type = DOUBLE_ARRAY;
+      usz length = (usz)self.read(INT).as_int;
+      output.as_double_array = mem::new_array(double, length);
+      for (int i; i < length; i++) {
+        output.as_double_array[i] = self.read(DOUBLE).as_double;
+      }
+      return output;
+    case STRING:
+      LogosData output;
+      output.type = STRING;
+      // Get length of string
+      usz length;
+      usz start = self.head;
+      for (int i; self.data[start++] != '\0'; i++) length++;
+      // Create string and copy
+      output.as_string = (String)mem::new_array(char, length);
+      for (int i; i < length; i++) {
+        output.as_string[i] = self.read(CHAR).as_char;
+      }
+      io::printfn("[%s]",output.as_string); 
       return output;
     default: io::printfn("ERROR - Type(%s) not yet implemented!", type); return {};
   }
