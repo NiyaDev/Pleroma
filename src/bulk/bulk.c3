@@ -2,10 +2,11 @@
 module pleroma::bulk;
 import std::collections;
 import std::io;
+import pleroma::logos;
 
 
 const char MAJOR = 1;
-const char MINOR = 0;
+const char MINOR = 1;
 const char PATCH = 0;
 
 
@@ -19,11 +20,6 @@ struct Bulk {
   HashMap{String, BulkEntry} entries;
 }
 
-<* Compression method *>
-enum Compression {
-  NONE,
-  DEFLATE,
-}
 
 <* Create a new Bulk for saving data
   @param name "Name of file"
@@ -37,7 +33,6 @@ fn Bulk new(String name, String path = "resources/") @export("bulk_new") => @poo
     .minor = MINOR,
     .patch = PATCH,
   };
-  //output.entries.new_init();
 
   return output;
 }
@@ -65,15 +60,15 @@ fn Bulk load(String filename, Compression comp = NONE) @export("bulk_load") {
   Bulk output = new(name, path);
 
   //* Create File
-  BulkFile file = bulk::file::load(filename, comp);
+  Logos file = logos::file(filename, comp);
 
   //* Read Version
-  output.major = file.read_8();
-  output.minor = file.read_8();
-  output.patch = file.read_8();
+  output.major = file.read(CHAR).as_char;
+  output.minor = file.read(CHAR).as_char;
+  output.patch = file.read(CHAR).as_char;
 
   switch (output.major) {
-    case 1: output.load_v1(&file);
+    case 1: output.load_v11(&file);
     default: unreachable(); 
   }
 
@@ -81,35 +76,38 @@ fn Bulk load(String filename, Compression comp = NONE) @export("bulk_load") {
 
   return output;
 }
-<* Loading algorithm Ver 1
+<* Loading algorithm Ver 1.0.x *>
+fn void Bulk.load_v10(&self, void* file) @deprecated => unreachable();
+<* Loading algorithm Ver 1.1.x
   @param file "File to load data from"
   @require file != null
  *>
-fn void Bulk.load_v1(&self, BulkFile* file) {
+fn void Bulk.load_v11(&self, Logos* file) {
   //* Get number of entries
-  char number_of_entries = file.read_8();
+  char number_of_entries = file.read(CHAR).as_char;
   usz offset = 4;
 
   //* Load each entry from file
   for (int i; i < number_of_entries; i++) {
-    usz data_len = file.read_64();
-    String entry_name = file.read_string();
-    defer entry_name.free(allocator::heap());
+    LogosData entry_name = file.read(STRING);
+    defer entry_name.free();
 
     //* Create entry
-    BulkEntry entry = { file.read_array(data_len) };
-    self.entries.set(entry_name, entry);
+    BulkEntry entry = { file.read(CHAR_ARRAY).as_char_array };
+    self.entries.set(entry_name.as_string, entry);
   }
 }
 
 <* Save Bulk to file *>
 fn void Bulk.save(&self, Compression comp = NONE) @export("bulk_save") {
   switch (self.major) {
-    case 1: self.save_v1(comp);
+    case 1: self.save_v11(comp);
   }
 }
-<* Saving algorithm Ver 1 *>
-fn void Bulk.save_v1(&self, Compression comp = NONE) {
+<* Saving algorithm Ver 1.0.x *>
+fn void Bulk.save_v10(&self, Compression comp = NONE) @deprecated => unreachable();
+<* Saving algorithm Ver 1.1.x *>
+fn void Bulk.save_v11(&self, Compression comp = NONE) {
   //* Calculate size
   usz size = 4;
   self.entries.@each(; String key, BulkEntry entry) {
@@ -119,17 +117,16 @@ fn void Bulk.save_v1(&self, Compression comp = NONE) {
   };
 
   //* Save to file
-  BulkFile file = file::new(size, comp);
+  Logos file = logos::new(comp:comp);
 
-  file.write_8(self.major);
-  file.write_8(self.minor);
-  file.write_8(self.patch);
-  file.write_8((char)self.entries.len());
+  file.write({.type=CHAR,.as_char=self.major});
+  file.write({.type=CHAR,.as_char=self.minor});
+  file.write({.type=CHAR,.as_char=self.patch});
+  file.write({.type=CHAR,.as_char=(char)self.entries.len()});
 
   self.entries.@each(; String key, BulkEntry entry) {
-    file.write_64(entry.value.len);
-    file.write_string(key);
-    file.write_array(entry.value);
+    file.write({.type=STRING,.as_string=key});
+    file.write({.type=CHAR_ARRAY,.as_char_array=entry.value});
   };
   
   String path = self.save_path();

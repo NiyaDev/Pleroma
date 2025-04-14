@@ -54,7 +54,7 @@ enum LogosType : char (usz size) {
 }
 
 <* Convert a char array into a logos *>
-fn Logos char[].to_logos(&self) {
+fn Logos char[].to_logos(&self) @export("logos_tologos") {
   return {
     *self,
     NONE,
@@ -62,7 +62,7 @@ fn Logos char[].to_logos(&self) {
   };
 }
 <* Create new empty logos *>
-fn Logos new(usz size = 0, Compression comp = NONE) {
+fn Logos new(usz size = 0, Compression comp = NONE) @export("logos_new") {
   Logos output;
   output.data = mem::new_array(char, size);
   output.compression = comp;
@@ -70,7 +70,7 @@ fn Logos new(usz size = 0, Compression comp = NONE) {
   return output;
 }
 <* Load file into logos *>
-fn Logos file(String filename, Compression comp = NONE) {
+fn Logos file(String filename, Compression comp = NONE) @export("logos_file") {
   raylib::set_trace_log_level(NONE);
   // Grab data from file
   char[] data = file::load(allocator::heap(), filename)!!;
@@ -97,8 +97,8 @@ fn Logos file(String filename, Compression comp = NONE) {
     0,
   };
 }
-<* Saves mlogos to file *>
-fn void Logos.save(&self, String filename) {
+<* Saves logos to file *>
+fn void Logos.save(&self, String filename) @export("logos_save") {
   raylib::set_trace_log_level(NONE);
   // Open file to write
   File file = file::open(filename, "wb")!!;
@@ -124,12 +124,12 @@ fn void Logos.save(&self, String filename) {
   file.close()!!;
 }
 <* Frees logos *>
-fn void Logos.free(&self) {
+fn void Logos.free(&self) @export("logos_free") {
   free(self.data);
 }
 
 <* Writes data into logos *>
-fn void Logos.write(&self, LogosData data) {
+fn void Logos.write(&self, LogosData data) @export("logos_write") {
   if (self.head + data.type.size >= self.data.len) {
     usz new_size = self.data.len;
     switch (data.type) {
@@ -143,7 +143,7 @@ fn void Logos.write(&self, LogosData data) {
       default:           new_size +=  data.type.size;
     }
     // TODO: debug mode that enables/disables this
-    // io::printfn("Allocating more to logos [%d]->[%d]",self.data.len, new_size);
+     io::printfn("Allocating more to logos [%d]->[%d]",self.data.len, new_size);
     char[] new_array = mem::new_array(char, new_size);
     mem::copy(new_array, self.data, self.data.len);
     free(self.data);
@@ -280,9 +280,9 @@ fn void Logos.write(&self, LogosData data) {
   }
 }
 <* Reads data from logos *>
-fn LogosData Logos.read(&self, LogosType type) {
+fn LogosData Logos.read(&self, LogosType type) @export("logos_read") {
   // TODO: debug mode that enables/disables this
-  // io::printfn("Reading [%s] at %d",type,self.head);
+   io::printfn("Reading [%s] at %d",type,self.head);
   assert(self.head < self.data.len, "Position of head out of range of data.");
 
   switch (type) {
@@ -392,23 +392,22 @@ fn LogosData Logos.read(&self, LogosType type) {
       for (int i; i < length; i++) {
         output.as_string[i] = self.read(CHAR).as_char;
       }
-      io::printfn("[%s]",output.as_string); 
+      self.head++;
       return output;
     default: io::printfn("ERROR - Type(%s) not yet implemented!", type); return {};
   }
 }
 
 <* Frees Logos data struct if it contains an array *>
-fn void LogosData.free(&self) {
+fn void LogosData.free(&self) @export("logos_freedata") {
   switch (self.type) {
-    case CHAR_ARRAY:
-    case SHORT_ARRAY:
-    case INT_ARRAY:
-    case LONG_ARRAY:
-    case FLOAT_ARRAY:
-    case DOUBLE_ARRAY:
-    case STRING:
-      free(self.as_char_array);
+    case CHAR_ARRAY:   free(self.as_char_array);
+    case SHORT_ARRAY:  free(self.as_short_array);
+    case INT_ARRAY:    free(self.as_int_array);
+    case LONG_ARRAY:   free(self.as_long_array);
+    case FLOAT_ARRAY:  free(self.as_float_array);
+    case DOUBLE_ARRAY: free(self.as_double_array);
+    case STRING:       free(self.as_string);
     default:
   }
 }

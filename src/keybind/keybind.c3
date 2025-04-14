@@ -3,6 +3,7 @@ module pleroma::keybind;
 import std::io;
 import std::collections;
 import pleroma::raylib;
+import pleroma::logos;
 
 
 <* Define Keybindings structure that is a global *>
@@ -54,45 +55,22 @@ fn char[] Keybindings.save(&self) @export("keybind_save") {
   return output;
 }
 <* Loads keybindings from char array *>
-fn Keybindings load(char[] file) @export("keybind_load") {
-  Keybindings kbds;
+fn Keybindings load(char[] data) @export("keybind_load") {
+  Keybindings output;
 
-  int ptr;
-  while (ptr < file.len) {
-    String key = file.read_str(ptr);
-    ptr += key.len + 1;
-    Keybind kb;
-    kb.type = KeyType.from_ordinal(file.read_int(ptr));
-    ptr += 4;
-    kb.kb = (KeyboardKey)file.read_int(ptr);
-    ptr += 4;
-    kb.kb_m = (KeyboardKey)file.read_int(ptr);
-    ptr += 4;
-    kb.pad = file.read_int(ptr);
-    ptr += 4;
+  Logos file = data.to_logos();
 
-    kbds.set(key, kb);
+  while (file.head < file.data.len) {
+    LogosData key = file.read(STRING);
+    defer key.free();
+    output.set(key.as_string, {
+      .type = KeyType.from_ordinal(file.read(INT).as_int),
+      .kb   = (KeyboardKey)file.read(INT).as_int,
+      .kb_m = (KeyboardKey)file.read(INT).as_int,
+      .pad  = file.read(INT).as_int,
+    });
   }
-
-  return kbds;
-}
-
-<* Read a range from a char array into a string *>
-fn String char[].read_str(&self, int start) {
-  usz count;
-
-  for (int i; (*self)[start + i] != '\0'; i++) count++;
-  return (String)(*self)[start:count];
-}
-<* Read four bytes into an integer *>
-fn int char[].read_int(self, int ptr) {
-  int result;
-  result += (int)self[ptr + 0] <<  0;
-  result += (int)self[ptr + 1] <<  8;
-  result += (int)self[ptr + 2] << 16;
-  result += (int)self[ptr + 3] << 24;
-
-  return result;
+  return output;
 }
 
 <* Core keybind structure *>
