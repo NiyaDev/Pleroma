@@ -54,6 +54,14 @@ fn Vector3 Vector3.div(&self, Vector3 rhs) @export("vector3_div") {
 
 	return *self;
 }
+<**>
+fn float[] Vector3.to_array(self) @export("vector3_toarray") {
+	float[] output = mem::new_array(float, 3);
+	output[0] = self.x;
+	output[1] = self.y;
+	output[2] = self.z;
+	return output;
+}
 <* Calculate two vectors cross product *>
 fn Vector3 Vector3.cross_product(self, Vector3 v2) @export("vector3_crossproduct") {
 	return {

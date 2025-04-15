@@ -143,7 +143,7 @@ fn void Logos.write(&self, LogosData data) @export("logos_write") {
       default:           new_size +=  data.type.size;
     }
     // TODO: debug mode that enables/disables this
-     io::printfn("Allocating more to logos [%d]->[%d]",self.data.len, new_size);
+    // io::printfn("Allocating more to logos [%d]->[%d]",self.data.len, new_size);
     char[] new_array = mem::new_array(char, new_size);
     mem::copy(new_array, self.data, self.data.len);
     free(self.data);
@@ -282,7 +282,7 @@ fn void Logos.write(&self, LogosData data) @export("logos_write") {
 <* Reads data from logos *>
 fn LogosData Logos.read(&self, LogosType type) @export("logos_read") {
   // TODO: debug mode that enables/disables this
-   io::printfn("Reading [%s] at %d",type,self.head);
+  // io::printfn("Reading [%s] at %d",type,self.head);
   assert(self.head < self.data.len, "Position of head out of range of data.");
 
   switch (type) {

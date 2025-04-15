@@ -575,6 +575,7 @@ extern fn Vector3 Vector3.sub(&self, Vector3) @extern("vector3_sub");
 extern fn Vector3 Vector3.mul(&self, Vector3) @extern("vector3_mul");
 extern fn Vector3 Vector3.mul_f(&self, float) @extern("vector3_mulf");
 extern fn Vector3 Vector3.div(&self, Vector3) @extern("vector3_div");
+extern fn float[] Vector3.to_array(self) @extern("vector3_toarray");
 extern fn Vector3 Vector3.cross_product(self, Vector3) @extern("vector3_crossproduct");
 extern fn Vector3 Vector3.perpendicular(self) @extern("vector3_perpendicular");
 extern fn float Vector3.length(self) @extern("vector3_length");
