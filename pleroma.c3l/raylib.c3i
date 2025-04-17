@@ -169,6 +169,7 @@ struct Color {
 }
 extern fn void    Color.fade(&self, float) @extern("color_fade");
 extern fn uint    Color.to_int(self)       @extern("color_toint");
+extern fn Color   uint.to_color(self)      @extern("color_fromint");
 extern fn Vector4 Color.normalize(self)    @extern("color_normalize");
 extern fn Vector3 Color.hsv(self) 				 @extern("color_tint");
 extern fn Color   Color.tint(self, Color)  @extern("color_tint");

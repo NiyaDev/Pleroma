@@ -49,6 +49,9 @@ fn void Color.fade(&self, float alpha) @export("color_fade") {
 fn uint Color.to_int(self) @export("color_toint") {
 	return self.r << 24 | self.g << 16 | self.b << 8 | self.a;
 }
+fn Color uint.to_color(self) @export("color_fromint") {
+	return { (char)(self >> 24), (char)(self >> 16), (char)(self >> 8), (char)self };
+}
 <* Converts color into Vector4 representation *>
 fn Vector4 Color.normalize(self) @export("color_normalize") {
 	return {

@@ -21,10 +21,14 @@ struct GlyphInfo {
 	Image image;
 }
 
+extern fn void Font.unload(self) @extern("UnloadFont");
+
 
 module pleroma::raylib::font;
 import std::io;
 
+extern fn Font get_default() @extern("GetFontDefault");
+extern fn void Font.draw_pro(self, char*, Vector2, Vector2, float, float, float, Color) @extern("DrawTextPro");
 
 <* Load font from file with extra info *>
 fn Font load_ex(String filename, int fontsize, int[] codepoints) @export("font_loadex") {
