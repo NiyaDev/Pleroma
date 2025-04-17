@@ -1,0 +1,223 @@
+
+module pleroma::raygui;
+import pleroma::raylib;
+
+struct GuiStyleProp {
+  ushort control_id;
+  ushort property_id;
+  int property_value;
+}
+
+enum GuiState {
+  NORMAL,
+  FOCUSED,
+  PRESSED,
+  DISABLE,
+}
+
+enum GuiTextAlignment {
+  LEFT,
+  CENTER,
+  RIGHT,
+}
+
+enum GuiTextAlignmentVertical {
+  TOP,
+  MIDDLE,
+  BOTTOM,
+}
+
+enum GuiTextWrapMode {
+  NONE,
+  CHAR,
+  WORD,
+}
+
+enum GuiControl {
+  DEFAULT,
+  LABEL,
+  BUTTON,
+  TOGGLE,
+  SLIDER,
+  PROGRESSBAR,
+  CHECKBOX,
+  COMBOBOX,
+  DROPDOWNBOX,
+  TEXTBOX,
+  VALUEBOX,
+  CONTROL11,
+  LISTVIEW,
+  COLORPICKER,
+  SCROLLBAR,
+  STATUSBAR,
+}
+
+enum GuiControlProperty {
+  BORDER_COLOR_NORMAL,
+  BASE_COLOR_NORMAL,
+  TEXT_COLOR_NORMAL,
+  BORDER_COLOR_FOCUSED,
+  BASE_COLOR_FOCUSED,
+  TEXT_COLOR_FOCUSED,
+  BORDER_COLOR_PRESSED,
+  BASE_COLOR_PRESSED,
+  TEXT_COLOR_PRESSED,
+  BORDER_COLOR_DISABLED,
+  BASE_COLOR_DISABLED,
+  TEXT_COLOR_DISABLED,
+  BORDER_WIDTH,
+  //TEXT_SIZE,
+  //TEXT_SPACING,
+  //TEXT_LINE_SPACING,
+  TEXT_PADDING,
+  TEXT_ALIGNMENT,
+  //TEXT_WRAP_MODE,
+}
+
+enum GuiDefaultProperty {
+  TEXT_SIZE, // 16
+  TEXT_SPACING,
+  LINE_COLOR,
+  BACKGROUND_COLOR,
+  TEXT_LINE_SPACING,
+  TEXT_ALIGNMENT_VERTICAL,
+  TEXT_WRAP_MODE,
+}
+
+enum GuiToggleProperty {
+  GROUP_PADDING, // 16
+}
+
+enum GuiSliderProperty {
+  SLIDER_WIDTH, // 16
+  SLIDER_PADDING,
+}
+
+enum GuiProgressBarrProperty {
+  PROGRESS_PADDING, // 16
+}
+
+enum GuiScrollBarProperty {
+  ARROWS_SIZE, // 16
+  ARROWS_VISIBLE,
+  SCROLL_SLIDER_PADDING,
+  SCROLL_SLIDER_SIZE,
+  SCROLL_PADDING,
+  SCROLL_SPEED,
+}
+
+enum GuiCheckBoxProperty {
+  CHECK_PADDING, // 16
+}
+
+enum GuiComboBoxProperty {
+  COMBO_BUTTON_WIDTH, // 16
+  COMBO_BUTTON_SPACING,
+}
+
+enum GuiDropdownBoxProperty {
+  ARROW_PADDING, // 16
+  DROPDOWN_ITEMS_SPACING,
+  DROPDOWN_ARROW_HIDDEN,
+  DROPDOWN_ROLLUP,
+}
+
+enum GuiTextBoxProperty {
+  TEXT_READONLY, // 16
+}
+
+enum GuiValueBoxProperty {
+  SPINNER_BUTTON_WIDTH, // 16
+  SPINNER_BUTTON_SPACING,
+}
+
+enum GuiListViewProperty {
+  LIST_ITEMS_HEIGHT, // 16
+  LIST_ITEMS_SPACING,
+  SCROLLBAR_WIDTH,
+  SCROLLBAR_SIDE,
+  LIST_ITEMS_BORDER_NORMAL,
+  LIST_ITEMS_BORDER_WIDTH,
+}
+
+enum GuiColorPickerProperty {
+  COLOR_SELECTOR_SIZE, // 16
+  HUEBAR_WIDTH,
+  HUEBAR_PADDING,
+  HUEBAR_SELECTOR_HEIGHT,
+  HUEBAR_SELECTOR_OVERFLOW,
+}
+
+const int SCROLLBAR_LEFT_SIDE  = 0;
+const int SCROLLBAR_RIGHT_SIDE = 1;
+
+
+extern fn void enable() @extern("GuiEnable");
+extern fn void disable() @extern("GuiDisable");
+extern fn void lock() @extern("GuiLock");
+extern fn void unlock() @extern("GuiUnlock");
+extern fn bool is_locked() @extern("GuiIsLocked");
+extern fn void set_alpha(float) @extern("GuiSetAlpha");
+extern fn void set_state(int) @extern("GuiSetState");
+extern fn int  get_state() @extern("GuiGetState");
+
+extern fn void set_font(Font) @extern("GuiSetFont");
+extern fn Font get_font() @extern("GuiGetFont");
+
+extern fn void set_style(int, int, int) @extern("GuiSetStyle");
+extern fn int  get_style(int, int) @extern("GuiGetStyle");
+
+extern fn void load_style(char*) @extern("GuiLoadStyle");
+extern fn void load_style_def() @extern("GuiLoadStyleDefault");
+
+extern fn void enable_tooltip() @extern("GuiEnableTooltip");
+extern fn void disable_tooltip() @extern("GuiDisableTooltip");
+extern fn void set_tooltip(char*) @extern("GuiSetTooltip");
+
+extern fn char*  icon_text(int, char*) @extern("GuiIconText");
+extern fn void   set_icon_scale(int) @extern("GuiSetIconScale");
+extern fn uint*  get_icons() @extern("GuiGetIcons");
+extern fn char** load_icons(char*, bool) @extern("GuiLoadIcons");
+extern fn void   draw_icon(int, int, int, int, Color) @extern("GuiDrawIcon");
+
+
+extern fn int window_box(Rectangle, char*) @extern("GuiWindowBox");
+extern fn int group_box(Rectangle, char*) @extern("GuiGroupBox");
+extern fn int line(Rectangle, char*) @extern("GuiLine");
+extern fn int panel(Rectangle, char*) @extern("GuiPanel");
+extern fn int tab_bar(Rectangle, char**, int, int*) @extern("GuiTabBar");
+extern fn int scroll_panel(Rectangle, char*, Rectangle, Vector2*, Rectangle*) @extern("GuiScrollPanel");
+
+extern fn int label(Rectangle, char*) @extern("GuiLabel");
+extern fn int button(Rectangle, char*) @extern("GuiButton");
+extern fn int label_button(Rectangle, char*) @extern("GuiLabelButton");
+extern fn int toggle(Rectangle, char*, bool*) @extern("GuiToggle");
+extern fn int toggle_group(Rectangle, char*, int*) @extern("GuiToggleGroup");
+extern fn int toggle_slider(Rectangle, char*, int*) @extern("GuiSlider");
+extern fn int check_box(Rectangle, char*, bool*) @extern("GuiCheckBox");
+extern fn int combo_box(Rectangle, char*, int*) @extern("GuiComboBox");
+
+extern fn int dropdown_box(Rectangle, char*, int*, bool) @extern("GuiDropdownBox");
+extern fn int spinner(Rectangle, char*, int*, int, int, bool) @extern("GuiSpinner");
+extern fn int value_box(Rectangle, char*, int*, int, int, bool) @extern("GuiValueBox");
+extern fn int value_box_float(Rectangle, char*, char*, float*, bool) @extern("GuiValueBoxFloat");
+extern fn int text_box(Rectangle, char*, int, bool) @extern("GuiTextBox");
+
+extern fn int slider(Rectangle, char*, char*, float*, float, float) @extern("GuiSlider");
+extern fn int slider_bar(Rectangle, char*, char*, float*, float, float) @extern("GuiSliderBar");
+extern fn int progress_bar(Rectangle, char*, float*, float, float) @extern("GuiProgressBar");
+extern fn int status_bar(Rectangle, char*) @extern("GuiStatusBar");
+extern fn int dummy_rec(Rectangle, char*) @extern("GuiDummyRec");
+extern fn int grid(Rectangle, char*, float, int, Vector2*) @extern("GuiGrid");
+
+extern fn int list_view(Rectangle, char*, int*, int*) @extern("GuiListView");
+extern fn int list_view_ex(Rectangle, char**, int, int*, int*, int*) @extern("GuiListViewEx");
+extern fn int message_box(Rectangle, char*, char*, char*) @extern("GuiMessageBox");
+extern fn int text_input_box(Rectangle, char*, char*, char*, char*, int, bool*) @extern("GuiTextInputBox");
+extern fn int color_picker(Rectangle, char*, Color*) @extern("GuiColorPicker");
+extern fn int color_panel(Rectangle, char*, Color*) @extern("GuiColorPanel");
+extern fn int color_bar_alpha(Rectangle, char*, float*) @extern("GuiColorBarAlpha");
+extern fn int color_bar_hue(Rectangle, char*, float*) @extern("GuiColorBarHue");
+extern fn int color_picker_hsv(Rectangle, char*, Vector3*) @extern("GuiColorPickerHSV");
+extern fn int color_pane_hsv(Rectangle, char*, Vector3*) @extern("GuiColorPanelHSV");
+
