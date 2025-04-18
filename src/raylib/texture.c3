@@ -54,6 +54,12 @@ enum TextureWrap {
     WRAP_MIRROR_CLAMP
 }
 
+extern fn void Texture.draw(self, int, int, Color) @extern("DrawTexture");
+extern fn void Texture.draw_v(self, Vector2, Color) @extern("DrawTextureV");
+extern fn void Texture.draw_ex(self, Vector2, float, float, Color) @extern("DrawTextureEx");
+extern fn void Texture.draw_rec(self, Rectangle, Vector2, Color) @extern("DrawTextureRec");
+extern fn void Texture.draw_pro(self, Rectangle, Rectangle, Vector2, float, Color) @extern("DrawTexturePro");
+extern fn void Texture.draw_npatch(self, NPatchInfo, Rectangle, Vector2, float, Color) @extern("DrawTextureNPatch");
 
 <* Create NPatch for use *>
 fn NPatchInfo Texture.npatch(self) @export("texture_npatch") {

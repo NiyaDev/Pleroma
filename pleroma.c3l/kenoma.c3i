@@ -6,16 +6,22 @@ import pleroma;
 enum GuiStyle {
   FONT_SIZE,
   FONT_SPACING,
+  TEXT_HORIZONTAL_ALIGNMENT,
+  TEXT_VERTICAL_ALIGNMENT,
   FONT_COLOR,
   BG_COLOR_DEFAULT,
   BG_COLOR_SELECTED,
+  BG_COLOR_INTERACT,
   BG_COLOR_DISABLED,
+  RENDER_RESOLUTION,
 }
 
 
 extern fn void set_font(Font*) @extern("kenoma_setfont");
+extern fn void set_background(Texture*) @extern("kenoma_setbackground");
 extern fn void set_style(GuiStyle, int) @extern("kenoma_setstyle");
 
 extern fn void label(Rectangle, String) @extern("kenoma_label");
-extern fn void button(Rectangle, String) @extern("kenoma_button");
+extern fn void tiled_texture(Rectangle, Color) @extern("kenoma_tiledtexture");
+extern fn bool button(Rectangle, String, bool) @extern("kenoma_button");
 

@@ -29,6 +29,7 @@ import std::io;
 
 extern fn Font get_default() @extern("GetFontDefault");
 extern fn void Font.draw_pro(self, char*, Vector2, Vector2, float, float, float, Color) @extern("DrawTextPro");
+extern fn Vector2 Font.measure(self, char*, float, float) @extern("MeasureTextEx");
 
 <* Load font from file with extra info *>
 fn Font load_ex(String filename, int fontsize, int[] codepoints) @export("font_loadex") {

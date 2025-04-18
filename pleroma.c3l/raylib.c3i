@@ -550,6 +550,12 @@ enum TraceLogLevel : int {
 struct Vector2 {
   float x,y;
 }
+extern fn bool Vector2.equals(self, Vector2) @extern("vector2_equals");
+extern fn Vector2 Vector2.add(&self, Vector2) @extern("vector2_add");
+extern fn Vector2 Vector2.sub(&self, Vector2) @extern("vector2_sub");
+extern fn Vector2 Vector2.mul(&self, Vector2) @extern("vector2_mul");
+extern fn Vector2 Vector2.mul_f(&self, float) @extern("vector2_mulf");
+extern fn Vector2 Vector2.div(&self, Vector2) @extern("vector2_div");
 extern fn float Vector2.length(self) @extern("vector2_length");
 extern fn float Vector2.length_sqr(self) @extern("vector2_lengthsqr");
 extern fn float Vector2.dot_product(self, Vector2) @extern("vector2_dotproduct");

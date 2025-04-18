@@ -8,6 +8,45 @@ struct Vector2 {
 	float x;
 	float y;
 }
+<* Equals *>
+fn bool Vector2.equals(self, Vector2 rhs) @export("vector2_equals") {
+	return ((self.x == rhs.x) && (self.y == rhs.y));
+}
+<* Add two Vector3s *>
+fn Vector2 Vector2.add(&self, Vector2 rhs) @export("vector2_add") {
+	self.x += rhs.x;
+	self.y += rhs.y;
+
+	return *self;
+}
+<* Subtract two Vector3s *>
+fn Vector2 Vector2.sub(&self, Vector2 rhs) @export("vector2_sub") {
+	self.x -= rhs.x;
+	self.y -= rhs.y;
+
+	return *self;
+}
+<* Multiply two Vector3s *>
+fn Vector2 Vector2.mul(&self, Vector2 rhs) @export("vector2_mul") {
+	self.x *= rhs.x;
+	self.y *= rhs.y;
+
+	return *self;
+}
+<* Multiply Vector3 by float *>
+fn Vector2 Vector2.mul_f(&self, float rhs) @export("vector2_mulf") {
+	self.x *= rhs;
+	self.y *= rhs;
+
+	return *self;
+}
+<* Divide two Vector3s *>
+fn Vector2 Vector2.div(&self, Vector2 rhs) @export("vector2_div") {
+	self.x = self.x / rhs.x;
+	self.y = self.y / rhs.y;
+
+	return *self;
+}
 <* Calculate vector length *>
 fn float Vector2.length(self) @export("vector2_length") {
 	return math::sqrt(self.x.pow(2) + self.y.pow(2));
