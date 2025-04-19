@@ -14,14 +14,22 @@ enum GuiStyle {
   BG_COLOR_INTERACT,
   BG_COLOR_DISABLED,
   RENDER_RESOLUTION,
+  BAR_COLOR,
+}
+
+enum GuiTexture {
+  TILED_BACKGROUND,
+  BAR_BACKGROUND,
+  BAR_FILL,
 }
 
 
 extern fn void set_font(Font*) @extern("kenoma_setfont");
-extern fn void set_background(Texture*) @extern("kenoma_setbackground");
+extern fn void set_texture(GuiTexture, Texture*) @extern("kenoma_settexture");
 extern fn void set_style(GuiStyle, int) @extern("kenoma_setstyle");
 
 extern fn void label(Rectangle, String) @extern("kenoma_label");
 extern fn void tiled_texture(Rectangle, Color) @extern("kenoma_tiledtexture");
 extern fn bool button(Rectangle, String, bool) @extern("kenoma_button");
+extern fn void bar(Rectangle, float*, float*) @extern("kenoma_bar");
 

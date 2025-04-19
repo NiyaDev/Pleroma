@@ -5,6 +5,8 @@ import std::io;
 
 
 Texture* tiled_background;
+Texture* bar_bg;
+Texture* bar_fill;
 Font*    font;
 
 float font_size    = 12;
@@ -17,6 +19,7 @@ Color bg_default   = raylib::WHITE;
 Color bg_selected  = raylib::GRAY;
 Color bg_interact  = raylib::LIGHTGRAY;
 Color bg_disabled  = raylib::DARKGRAY;
+Color bar_color    = raylib::WHITE;
 
 
 
@@ -31,6 +34,13 @@ enum GuiStyle {
   BG_COLOR_INTERACT,
   BG_COLOR_DISABLED,
   RENDER_RESOLUTION,
+  BAR_COLOR,
+}
+
+enum GuiTexture {
+  TILED_BACKGROUND,
+  BAR_BACKGROUND,
+  BAR_FILL,
 }
 
 enum GuiTextAlignmentHori {
@@ -55,7 +65,13 @@ fn void check_font() {
 <* Sets the currently used font *>
 fn void set_font(Font* newfont) @export("kenoma_setfont") => font = newfont;
 <* Sets the currently used background texture *>
-fn void set_background(Texture* newtexture) @export("kenoma_setbackground") => tiled_background = newtexture;
+fn void set_texture(GuiTexture property, Texture* newtexture) @export("kenoma_settexture") {
+  switch (property) {
+    case TILED_BACKGROUND: tiled_background = newtexture;
+    case BAR_BACKGROUND:   bar_bg = newtexture;
+    case BAR_FILL:         bar_fill = newtexture;
+  }
+}
 <* Sets selected style property *>
 fn void set_style(GuiStyle style, int value) @export("kenoma_setstyle") {
   switch (style) {
@@ -69,6 +85,7 @@ fn void set_style(GuiStyle style, int value) @export("kenoma_setstyle") {
     case BG_COLOR_INTERACT: bg_interact  = ((uint)value).to_color();
     case BG_COLOR_DISABLED: bg_disabled  = ((uint)value).to_color();
     case RENDER_RESOLUTION: render_res   = (float)value / 100;
+    case BAR_COLOR:         bar_color    = ((uint)value).to_color();
     default:
   }
 }

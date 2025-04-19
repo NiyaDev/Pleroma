@@ -31,7 +31,24 @@ fn bool button(Rectangle rect, String text, bool active) @export("kenoma_button"
 }
 
 <* Drawing for tiled textures *>
-fn void tiled_texture(Rectangle rect, Color tint) @export("kenoma_tiletexture") {
+fn void tiled_texture(Rectangle rect, Color tint) @export("kenoma_tiledtexture") {
   tiled_background.draw_npatch(tiled_background.npatch(), rect, {0,0}, 0, tint);
+}
+
+<* Drawing for Labels *>
+fn void label(Rectangle rect, String text) @export("kenoma_label") {
+  check_font();
+  font.draw_pro((char*)text, {rect.x, rect.y}, {0,0}, 0, font_size, font_spacing, font_color);
+}
+
+<* Drawing for Bars *>
+fn void bar(Rectangle rect, float* current, float* max) @export("kenoma_bar") {
+  float percentage = *current / *max;
+  NPatchInfo np = {{0, 0, bar_bg.width, bar_bg.height}, bar_bg.width / 3, bar_bg.height, bar_bg.width / 3, bar_bg.height, THREE_PATCH_HORIZONTAL};
+  Rectangle fillrect = rect;
+  fillrect.width *= percentage;
+
+  bar_bg.draw_npatch(np, rect, {0,0}, 0, bar_color);
+  bar_fill.draw_npatch(np, fillrect, {0,0}, 0, bar_color);
 }
 
