@@ -32,4 +32,5 @@ extern fn void label(Rectangle, String) @extern("kenoma_label");
 extern fn void tiled_texture(Rectangle, Color) @extern("kenoma_tiledtexture");
 extern fn bool button(Rectangle, String, bool) @extern("kenoma_button");
 extern fn void bar(Rectangle, float*, float*) @extern("kenoma_bar");
+extern fn bool dropdown(Rectangle, String, int*, bool) @extern("kenoma_dropdown");
 
