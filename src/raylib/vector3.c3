@@ -1,6 +1,7 @@
 
 module pleroma::raylib;
 import std::math;
+import std::io;
 
 
 <* Vector3 *>
@@ -61,6 +62,13 @@ fn float[] Vector3.to_array(self) @export("vector3_toarray") {
 	output[1] = self.y;
 	output[2] = self.z;
 	return output;
+}
+fn int[3] Vector3.to_int_array(self) @export("vector3.tointarray") {
+	//int[] output = mem::new_array(int, 3);
+	//output[0] = (int)self.x;
+	//output[1] = (int)self.y;
+	//output[2] = (int)self.z;
+	return {(int)self.x, (int)self.y, (int)self.z};
 }
 <* Calculate two vectors cross product *>
 fn Vector3 Vector3.cross_product(self, Vector3 v2) @export("vector3_crossproduct") {
@@ -515,5 +523,9 @@ fn Color Vector3.to_color(self) @export("vector3_tocolor") {
 	result.b = (char)((self.z - self.z * self.y * k) * 255);
 
 	return result;
+}
+<* Prints vector3 *>
+fn void Vector3.print(self) @export("vector3_print") {
+	io::printfn("[%f,%f,%f]", self.x, self.y, self.z);
 }
 
