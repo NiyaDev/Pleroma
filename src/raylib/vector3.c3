@@ -12,50 +12,74 @@ struct Vector3 {
 }
 
 <* Equals *>
-fn bool Vector3.equals(self, Vector3 rhs) @export("vector3_equals") {
-	return ((self.x == rhs.x) && (self.y == rhs.y) && (self.z == rhs.z));
+fn bool Vector3.equals(self, Vector3 rhs) @operator(==) @export("vector3_equals") {
+	return (self.x == rhs.x && self.y == rhs.y && self.z == rhs.z);
 }
-<* Add two Vector3s *>
-fn Vector3 Vector3.add(&self, Vector3 rhs) @export("vector3_add") {
-	self.x += rhs.x;
-	self.y += rhs.y;
-	self.z += rhs.z;
-
-	return *self;
+<* Addition *>
+fn Vector3 Vector3.add(self, Vector3 rhs) @operator(+) @export("vector3_add") {
+	return {
+		self.x + rhs.x,
+		self.y + rhs.y,
+		self.z + rhs.z,
+	};
 }
-<* Subtract two Vector3s *>
-fn Vector3 Vector3.sub(&self, Vector3 rhs) @export("vector3_sub") {
-	self.x -= rhs.x;
-	self.y -= rhs.y;
-	self.z -= rhs.z;
-
-	return *self;
+<* Subtraction *>
+fn Vector3 Vector3.sub(self, Vector3 rhs) @operator(-) @export("vector3_sub") {
+	return {
+		self.x - rhs.x,
+		self.y - rhs.y,
+		self.z - rhs.z,
+	};
 }
-<* Multiply two Vector3s *>
-fn Vector3 Vector3.mul(&self, Vector3 rhs) @export("vector3_mul") {
-	self.x *= rhs.x;
-	self.y *= rhs.y;
-	self.z *= rhs.z;
-
-	return *self;
+<* Multiplication *>
+fn Vector3 Vector3.mul(self, Vector3 rhs) @operator(*) @export("vector3_mul") {
+	return {
+		self.x * rhs.x,
+		self.y * rhs.y,
+		self.z * rhs.z,
+	};
 }
-<* Multiply Vector3 by float *>
-fn Vector3 Vector3.mul_f(&self, float rhs) @export("vector3_mulf") {
-	self.x *= rhs;
-	self.y *= rhs;
-	self.z *= rhs;
-
-	return *self;
+<* Division *>
+fn Vector3 Vector3.div(self, Vector3 rhs) @operator(/) @export("vector3_div") {
+	return {
+		self.x / rhs.x,
+		self.y / rhs.y,
+		self.z / rhs.z,
+	};
 }
-<* Divide two Vector3s *>
-fn Vector3 Vector3.div(&self, Vector3 rhs) @export("vector3_div") {
-	self.x = self.x / rhs.x;
-	self.y = self.y / rhs.y;
-	self.z = self.z / rhs.z;
-
-	return *self;
+<* Add to with float *>
+fn Vector3 Vector3.pos_offset(self, float rhs) @operator_s(+) @export("vector3_posoffset") {
+	return {
+		self.x + rhs,
+		self.y + rhs,
+		self.z + rhs,
+	};
 }
-<**>
+<* Subtract from with float *>
+fn Vector3 Vector3.neg_offset(self, float rhs) @operator_s(-) @export("vector3_negoffset") {
+	return {
+		self.x - rhs,
+		self.y - rhs,
+		self.z - rhs,
+	};
+}
+<* Multiply by float *>
+fn Vector3 Vector3.scale(self, float rhs) @operator_s(*) @export("vector3_scale") {
+	return {
+		self.x * rhs,
+		self.y * rhs,
+		self.z * rhs,
+	};
+}
+<* Divide by float *>
+fn Vector3 Vector3.inverse(self, float rhs) @operator_s(/) @export("vector3_inverse") {
+	return {
+		self.x / rhs,
+		self.y / rhs,
+		self.z / rhs,
+	};
+}
+<* Convert Vector3 to allocated float array *>
 fn float[] Vector3.to_array(self) @export("vector3_toarray") {
 	float[] output = mem::new_array(float, 3);
 	output[0] = self.x;
@@ -63,11 +87,8 @@ fn float[] Vector3.to_array(self) @export("vector3_toarray") {
 	output[2] = self.z;
 	return output;
 }
+<* Convert Vector3 to int array *>
 fn int[3] Vector3.to_int_array(self) @export("vector3.tointarray") {
-	//int[] output = mem::new_array(int, 3);
-	//output[0] = (int)self.x;
-	//output[1] = (int)self.y;
-	//output[2] = (int)self.z;
 	return {(int)self.x, (int)self.y, (int)self.z};
 }
 <* Calculate two vectors cross product *>

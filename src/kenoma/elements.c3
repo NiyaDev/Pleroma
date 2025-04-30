@@ -11,7 +11,7 @@ fn bool button(Rectangle rect, String text, bool active) @export("kenoma_button"
   bool clicked = false;
 
   Color col = bg_default;
-  Vector2 mouse = raylib::get_mouse_position().mul_f(render_res);
+  Vector2 mouse = raylib::get_mouse_position() * render_res;
   if ((mouse.x > rect.x && mouse.x < rect.x + rect.width) && (mouse.y > rect.y && mouse.y < rect.y + rect.height)) {
     col = bg_selected;
     if (raylib::is_mouse_button_down(LEFT))  col = bg_interact;
@@ -55,7 +55,7 @@ fn bool dropdown(Rectangle rect, String text, int* value, bool open) @export("ke
   bool clicked = false;
 
   Color col = bg_default;
-  Vector2 mouse = raylib::get_mouse_position().mul_f(render_res);
+  Vector2 mouse = raylib::get_mouse_position() * render_res;
   if ((mouse.x > rect.x && mouse.x < rect.x + rect.width) && (mouse.y > rect.y && mouse.y < rect.y + rect.height)) {
     col = bg_selected;
     if (raylib::is_mouse_button_down(LEFT))  col = bg_interact;

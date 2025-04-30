@@ -9,43 +9,64 @@ struct Vector2 {
 	float y;
 }
 <* Equals *>
-fn bool Vector2.equals(self, Vector2 rhs) @export("vector2_equals") {
-	return ((self.x == rhs.x) && (self.y == rhs.y));
+fn bool Vector2.equals(self, Vector2 rhs) @operator(==) @export("vector2_equals") {
+	return (self.x == rhs.x && self.y == rhs.y);
 }
-<* Add two Vector3s *>
-fn Vector2 Vector2.add(&self, Vector2 rhs) @export("vector2_add") {
-	self.x += rhs.x;
-	self.y += rhs.y;
-
-	return *self;
+<* Addition *>
+fn Vector2 Vector2.add(self, Vector2 rhs) @operator(+) @export("vector2_add") {
+	return {
+		self.x + rhs.x,
+		self.y + rhs.y,
+	};
 }
-<* Subtract two Vector3s *>
-fn Vector2 Vector2.sub(&self, Vector2 rhs) @export("vector2_sub") {
-	self.x -= rhs.x;
-	self.y -= rhs.y;
-
-	return *self;
+<* Subtraction *>
+fn Vector2 Vector2.sub(self, Vector2 rhs) @operator(-) @export("vector2_sub") {
+	return {
+		self.x - rhs.x,
+		self.x - rhs.y,
+	};
 }
-<* Multiply two Vector3s *>
-fn Vector2 Vector2.mul(&self, Vector2 rhs) @export("vector2_mul") {
-	self.x *= rhs.x;
-	self.y *= rhs.y;
-
-	return *self;
+<* Multiplication *>
+fn Vector2 Vector2.mul(self, Vector2 rhs) @operator(*) @export("vector2_mul") {
+	return {
+		self.x * rhs.x,
+		self.y * rhs.y,
+	};
 }
-<* Multiply Vector3 by float *>
-fn Vector2 Vector2.mul_f(&self, float rhs) @export("vector2_mulf") {
-	self.x *= rhs;
-	self.y *= rhs;
-
-	return *self;
+<* Division *>
+fn Vector2 Vector2.div(&self, Vector2 rhs) @operator(/) @export("vector2_div") {
+	return {
+		self.x / rhs.x,
+		self.y / rhs.y,
+	};
 }
-<* Divide two Vector3s *>
-fn Vector2 Vector2.div(&self, Vector2 rhs) @export("vector2_div") {
-	self.x = self.x / rhs.x;
-	self.y = self.y / rhs.y;
-
-	return *self;
+<* Add to with float *>
+fn Vector2 Vector2.pos_offset(&self, float rhs) @operator_s(+) @export("vector2_posoffset") {
+	return {
+		self.x + rhs,
+		self.y + rhs,
+	};
+}
+<* Subtract from with float *>
+fn Vector2 Vector2.neg_offset(&self, float rhs) @operator_s(-) @export("vector2_negoffset") {
+	return {
+		self.x - rhs,
+		self.y - rhs,
+	};
+}
+<* Multiply by float *>
+fn Vector2 Vector2.scale(&self, float rhs) @operator_s(*) @export("vector2_scale") {
+	return {
+		self.x * rhs,
+		self.y * rhs,
+	};
+}
+<* Divide by float *>
+fn Vector2 Vector2.inverse(&self, float rhs) @operator_s(/) @export("vector2_inverse") {
+	return {
+		self.x / rhs,
+		self.y / rhs,
+	};
 }
 <* Calculate vector length *>
 fn float Vector2.length(self) @export("vector2_length") {

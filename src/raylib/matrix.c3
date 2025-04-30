@@ -11,80 +11,98 @@ struct Matrix {
 	float m3, m7, m11, m15;
 }
 
-<* Add two matrices returning the result *>
-fn Matrix Matrix.add(self, Matrix rhs) @export("matrix_add") {
-	Matrix result;
-	result.m0  = self.m0  + rhs.m0;
-	result.m1  = self.m1  + rhs.m1;
-	result.m2  = self.m2  + rhs.m2;
-	result.m3  = self.m3  + rhs.m3;
-	result.m4  = self.m4  + rhs.m4;
-	result.m5  = self.m5  + rhs.m5;
-	result.m6  = self.m6  + rhs.m6;
-	result.m7  = self.m7  + rhs.m7;
-	result.m8  = self.m8  + rhs.m8;
-	result.m9  = self.m9  + rhs.m9;
-	result.m10 = self.m10 + rhs.m10;
-	result.m11 = self.m11 + rhs.m11;
-	result.m12 = self.m12 + rhs.m12;
-	result.m13 = self.m13 + rhs.m13;
-	result.m14 = self.m14 + rhs.m14;
-	result.m15 = self.m15 + rhs.m15;
-
-	return result;
+<* Equals *>
+fn bool Matrix.equals(self, Matrix rhs) @operator(==) @export("matrix_equals") {
+	return (
+		self.m0  == rhs.m0 &&
+	  self.m1  == rhs.m1 &&
+	  self.m2  == rhs.m2 &&
+	  self.m3  == rhs.m3 &&
+	  self.m4  == rhs.m4 &&
+	  self.m5  == rhs.m5 &&
+	  self.m6  == rhs.m6 &&
+	  self.m7  == rhs.m7 &&
+	  self.m8  == rhs.m8 &&
+	  self.m9  == rhs.m9 &&
+	  self.m10 == rhs.m10 &&
+	  self.m11 == rhs.m11 &&
+	  self.m12 == rhs.m12 &&
+	  self.m13 == rhs.m13 &&
+	  self.m14 == rhs.m14 &&
+	  self.m15 == rhs.m15
+	);
 }
-<* Subtract two matrices returning the result *>
-fn Matrix Matrix.sub(self, Matrix rhs) @export("matrix_sub") {
-	Matrix result;
-	result.m0  = self.m0  - rhs.m0;
-	result.m1  = self.m1  - rhs.m1;
-	result.m2  = self.m2  - rhs.m2;
-	result.m3  = self.m3  - rhs.m3;
-	result.m4  = self.m4  - rhs.m4;
-	result.m5  = self.m5  - rhs.m5;
-	result.m6  = self.m6  - rhs.m6;
-	result.m7  = self.m7  - rhs.m7;
-	result.m8  = self.m8  - rhs.m8;
-	result.m9  = self.m9  - rhs.m9;
-	result.m10 = self.m10 - rhs.m10;
-	result.m11 = self.m11 - rhs.m11;
-	result.m12 = self.m12 - rhs.m12;
-	result.m13 = self.m13 - rhs.m13;
-	result.m14 = self.m14 - rhs.m14;
-	result.m15 = self.m15 - rhs.m15;
-
-	return result;
+<* Addition *>
+fn Matrix Matrix.add(self, Matrix rhs) @operator(+) @export("matrix_add") {
+	return {
+		self.m0  + rhs.m0,
+	  self.m1  + rhs.m1,
+	  self.m2  + rhs.m2,
+	  self.m3  + rhs.m3,
+	  self.m4  + rhs.m4,
+	  self.m5  + rhs.m5,
+	  self.m6  + rhs.m6,
+	  self.m7  + rhs.m7,
+	  self.m8  + rhs.m8,
+	  self.m9  + rhs.m9,
+	  self.m10 + rhs.m10,
+	  self.m11 + rhs.m11,
+	  self.m12 + rhs.m12,
+	  self.m13 + rhs.m13,
+	  self.m14 + rhs.m14,
+	  self.m15 + rhs.m15,
+	};
 }
-<* Multiply two matrices returning the result *>
-fn Matrix Matrix.mul(self, Matrix rhs) @export("matrix_mul") {
-	Matrix result;
-	result.m0  = self.m0  * rhs.m0 + self.m1  * rhs.m4 + self.m2  * rhs.m8  + self.m3  * rhs.m12;
-	result.m1  = self.m0  * rhs.m1 + self.m1  * rhs.m5 + self.m2  * rhs.m9  + self.m3  * rhs.m13;
-	result.m2  = self.m0  * rhs.m2 + self.m1  * rhs.m6 + self.m2  * rhs.m10 + self.m3  * rhs.m14;
-	result.m3  = self.m0  * rhs.m3 + self.m1  * rhs.m7 + self.m2  * rhs.m11 + self.m3  * rhs.m15;
-	result.m4  = self.m4  * rhs.m0 + self.m5  * rhs.m4 + self.m6  * rhs.m8  + self.m7  * rhs.m12;
-	result.m5  = self.m4  * rhs.m1 + self.m5  * rhs.m5 + self.m6  * rhs.m9  + self.m7  * rhs.m13;
-	result.m6  = self.m4  * rhs.m2 + self.m5  * rhs.m6 + self.m6  * rhs.m10 + self.m7  * rhs.m14;
-	result.m7  = self.m4  * rhs.m3 + self.m5  * rhs.m7 + self.m6  * rhs.m11 + self.m7  * rhs.m15;
-	result.m8  = self.m8  * rhs.m0 + self.m9  * rhs.m4 + self.m10 * rhs.m8  + self.m11 * rhs.m12;
-	result.m9  = self.m8  * rhs.m1 + self.m9  * rhs.m5 + self.m10 * rhs.m9  + self.m11 * rhs.m13;
-	result.m10 = self.m8  * rhs.m2 + self.m9  * rhs.m6 + self.m10 * rhs.m10 + self.m11 * rhs.m14;
-	result.m11 = self.m8  * rhs.m3 + self.m9  * rhs.m7 + self.m10 * rhs.m11 + self.m11 * rhs.m15;
-	result.m12 = self.m12 * rhs.m0 + self.m13 * rhs.m4 + self.m14 * rhs.m8  + self.m15 * rhs.m12;
-	result.m13 = self.m12 * rhs.m1 + self.m13 * rhs.m5 + self.m14 * rhs.m9  + self.m15 * rhs.m13;
-	result.m14 = self.m12 * rhs.m2 + self.m13 * rhs.m6 + self.m14 * rhs.m10 + self.m15 * rhs.m14;
-	result.m15 = self.m12 * rhs.m3 + self.m13 * rhs.m7 + self.m14 * rhs.m11 + self.m15 * rhs.m15;
-
-	return result;
+<* Subtraction *>
+fn Matrix Matrix.sub(self, Matrix rhs) @operator(-) @export("matrix_sub") {
+	return {
+		self.m0  - rhs.m0,
+	  self.m1  - rhs.m1,
+	  self.m2  - rhs.m2,
+	  self.m3  - rhs.m3,
+	  self.m4  - rhs.m4,
+	  self.m5  - rhs.m5,
+	  self.m6  - rhs.m6,
+	  self.m7  - rhs.m7,
+	  self.m8  - rhs.m8,
+	  self.m9  - rhs.m9,
+	  self.m10 - rhs.m10,
+	  self.m11 - rhs.m11,
+	  self.m12 - rhs.m12,
+	  self.m13 - rhs.m13,
+	  self.m14 - rhs.m14,
+	  self.m15 - rhs.m15,
+	};
+}
+<* Multiplication *>
+fn Matrix Matrix.mul(self, Matrix rhs) @operator(*) @export("matrix_mul") {
+	return {
+		self.m0  * rhs.m0 + self.m1  * rhs.m4 + self.m2  * rhs.m8  + self.m3  * rhs.m12,
+		self.m0  * rhs.m1 + self.m1  * rhs.m5 + self.m2  * rhs.m9  + self.m3  * rhs.m13,
+		self.m0  * rhs.m2 + self.m1  * rhs.m6 + self.m2  * rhs.m10 + self.m3  * rhs.m14,
+		self.m0  * rhs.m3 + self.m1  * rhs.m7 + self.m2  * rhs.m11 + self.m3  * rhs.m15,
+	  self.m4  * rhs.m0 + self.m5  * rhs.m4 + self.m6  * rhs.m8  + self.m7  * rhs.m12,
+		self.m4  * rhs.m1 + self.m5  * rhs.m5 + self.m6  * rhs.m9  + self.m7  * rhs.m13,
+	  self.m4  * rhs.m2 + self.m5  * rhs.m6 + self.m6  * rhs.m10 + self.m7  * rhs.m14,
+	  self.m4  * rhs.m3 + self.m5  * rhs.m7 + self.m6  * rhs.m11 + self.m7  * rhs.m15,
+		self.m8  * rhs.m0 + self.m9  * rhs.m4 + self.m10 * rhs.m8  + self.m11 * rhs.m12,
+		self.m8  * rhs.m1 + self.m9  * rhs.m5 + self.m10 * rhs.m9  + self.m11 * rhs.m13,
+		self.m8  * rhs.m2 + self.m9  * rhs.m6 + self.m10 * rhs.m10 + self.m11 * rhs.m14,
+		self.m8  * rhs.m3 + self.m9  * rhs.m7 + self.m10 * rhs.m11 + self.m11 * rhs.m15,
+		self.m12 * rhs.m0 + self.m13 * rhs.m4 + self.m14 * rhs.m8  + self.m15 * rhs.m12,
+		self.m12 * rhs.m1 + self.m13 * rhs.m5 + self.m14 * rhs.m9  + self.m15 * rhs.m13,
+		self.m12 * rhs.m2 + self.m13 * rhs.m6 + self.m14 * rhs.m10 + self.m15 * rhs.m14,
+		self.m12 * rhs.m3 + self.m13 * rhs.m7 + self.m14 * rhs.m11 + self.m15 * rhs.m15,
+	};
 }
 <* Compute matrix determinant *>
 fn float Matrix.determinant(self) @export("matrix_determinant") {
 	return self.m12 * self.m9 * self.m6*self.m3 - self.m8 * self.m13 * self.m6 * self.m3 - self.m12 * self.m5 * self.m10 * self.m3 + self.m4 * self.m13 * self.m10 * self.m3 +
-		self.m8  *self.m5 * self.m14 * self.m3  - self.m4 * self.m9  * self.m14 * self.m3  - self.m12 * self.m9 * self.m2  * self.m7  + self.m8 * self.m13 * self.m2  * self.m7  +
-		self.m12 *self.m1 * self.m10 * self.m7  - self.m0 * self.m13 * self.m10 * self.m7  - self.m8  * self.m1 * self.m14 * self.m7  + self.m0 * self.m9  * self.m14 * self.m7  +
-		self.m12 *self.m5 * self.m2  * self.m11 - self.m4 * self.m13 * self.m2  * self.m11 - self.m12 * self.m1 * self.m6  * self.m11 + self.m0 * self.m13 * self.m6  * self.m11 +
-		self.m4  *self.m1 * self.m14 * self.m11 - self.m0 * self.m5  * self.m14 * self.m11 - self.m8  * self.m5 * self.m2  * self.m15 + self.m4 * self.m9  * self.m2  * self.m15 +
-		self.m8  *self.m1 * self.m6  * self.m15 - self.m0 * self.m9  * self.m6  * self.m15 - self.m4  * self.m1 * self.m10 * self.m15 + self.m0 * self.m5  * self.m10 * self.m15;
+		self.m8  * self.m5 * self.m14 * self.m3  - self.m4 * self.m9  * self.m14 * self.m3  - self.m12 * self.m9 * self.m2  * self.m7  + self.m8 * self.m13 * self.m2  * self.m7  +
+		self.m12 * self.m1 * self.m10 * self.m7  - self.m0 * self.m13 * self.m10 * self.m7  - self.m8  * self.m1 * self.m14 * self.m7  + self.m0 * self.m9  * self.m14 * self.m7  +
+		self.m12 * self.m5 * self.m2  * self.m11 - self.m4 * self.m13 * self.m2  * self.m11 - self.m12 * self.m1 * self.m6  * self.m11 + self.m0 * self.m13 * self.m6  * self.m11 +
+		self.m4  * self.m1 * self.m14 * self.m11 - self.m0 * self.m5  * self.m14 * self.m11 - self.m8  * self.m5 * self.m2  * self.m15 + self.m4 * self.m9  * self.m2  * self.m15 +
+		self.m8  * self.m1 * self.m6  * self.m15 - self.m0 * self.m9  * self.m6  * self.m15 - self.m4  * self.m1 * self.m10 * self.m15 + self.m0 * self.m5  * self.m10 * self.m15;
 }
 <* Get the trace of the matrix (Sum of the values along the diagonal) *>
 fn float Matrix.trace(self) @export("matrix_trace") {

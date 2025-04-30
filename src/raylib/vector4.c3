@@ -7,40 +7,80 @@ import std::math;
 struct Vector4 {
 	float x, y, z, w;
 }
-<* Add two matrices returning the result *>
-fn Vector4 Vector4.add(self, Vector4 rhs) @export("vector4_add") {
+<* Equals *>
+fn bool Vector4.equals(self, Vector4 rhs) @operator(==) @export("vector4_equals") {
+	return (self.x == rhs.x && self.y == rhs.y && self.z == rhs.z && self.w == rhs.w);
+}
+<* Addition *>
+fn Vector4 Vector4.add(self, Vector4 rhs) @operator(+) @export("vector4_add") {
 	return {
-		.x = self.x + rhs.x,
-		.y = self.y + rhs.y,
-		.z = self.z + rhs.z,
-		.w = self.w + rhs.w,
+		self.x + rhs.x,
+		self.y + rhs.y,
+		self.z + rhs.z,
+		self.w + rhs.w,
 	};
 }
-<* Subtract two matrices returning the result *>
-fn Vector4 Vector4.sub(self, Vector4 rhs) @export("vector4_sub") {
+<* Subtraction *>
+fn Vector4 Vector4.sub(self, Vector4 rhs) @operator(-) @export("vector4_sub") {
 	return {
-		.x = self.x - rhs.x,
-		.y = self.y - rhs.y,
-		.z = self.z - rhs.z,
-		.w = self.w - rhs.w,
+		self.x - rhs.x,
+		self.y - rhs.y,
+		self.z - rhs.z,
+		self.w - rhs.w,
 	};
 }
-<* Multiply two matrices returning the result *>
-fn Vector4 Vector4.mul(self, Vector4 rhs) @export("vector4_mul") {
+<* Multiplication *>
+fn Vector4 Vector4.mul(self, Vector4 rhs) @operator(*) @export("vector4_mul") {
 	return {
-		.x = self.x * rhs.x,
-		.y = self.y * rhs.y,
-		.z = self.z * rhs.z,
-		.w = self.w * rhs.w,
+		self.x * rhs.x,
+		self.y * rhs.y,
+		self.z * rhs.z,
+		self.w * rhs.w,
 	};
 }
-<* Divide two matrices returning the result *>
-fn Vector4 Vector4.div(self, Vector4 rhs) @export("vector4_div") {
+<* Division *>
+fn Vector4 Vector4.div(self, Vector4 rhs) @operator(/) @export("vector4_div") {
 	return {
-		.x = self.x / rhs.x,
-		.y = self.y / rhs.y,
-		.z = self.z / rhs.z,
-		.w = self.w / rhs.w,
+		self.x / rhs.x,
+		self.y / rhs.y,
+		self.z / rhs.z,
+		self.w / rhs.w,
+	};
+}
+<* Add to with float *>
+fn Vector4 Vector4.pos_offset(self, float rhs) @operator_s(+) @export("vector4_posoffset") {
+	return {
+		self.x + rhs,
+		self.y + rhs,
+		self.z + rhs,
+		self.w + rhs,
+	};
+}
+<* Subtract from with float *>
+fn Vector4 Vector4.neg_offset(self, float rhs) @operator_s(-) @export("vector4_negoffset") {
+	return {
+		self.x - rhs,
+		self.y - rhs,
+		self.z - rhs,
+		self.w - rhs,
+	};
+}
+<* Multiply by float *>
+fn Vector4 Vector4.scale(self, float rhs) @operator_s(*) @export("vector4_scale") {
+	return {
+		self.x * rhs,
+		self.y * rhs,
+		self.z * rhs,
+		self.w * rhs,
+	};
+}
+<* Divide by float *>
+fn Vector4 Vector4.inverse(self, float rhs) @operator_s(/) @export("vector4_inverse") {
+	return {
+		self.x / rhs,
+		self.y / rhs,
+		self.z / rhs,
+		self.w / rhs,
 	};
 }
 <* Calculate vector length *>
