@@ -311,10 +311,10 @@ struct Matrix {
 	float m2, m6, m10, m14;
 	float m3, m7, m11, m15;
 }
-extern fn bool Matrix.equals(self, Matrix) @extern("matrix_equals");
-extern fn Matrix Matrix.add(self, Matrix) @extern("matrix_add");
-extern fn Matrix Matrix.sub(self, Matrix) @extern("matrix_sub");
-extern fn Matrix Matrix.mul(self, Matrix) @extern("matrix_mul");
+extern fn bool Matrix.equals(self, Matrix) @operator(==) @extern("matrix_equals");
+extern fn Matrix Matrix.add(self, Matrix) @operator(+) @extern("matrix_add");
+extern fn Matrix Matrix.sub(self, Matrix) @operator(-) @extern("matrix_sub");
+extern fn Matrix Matrix.mul(self, Matrix) @operator(*) @extern("matrix_mul");
 extern fn float Matrix.determinant(self) @extern("matrix_determinant");
 extern fn float Matrix.trace(self) @extern("matrix_trace");
 extern fn Matrix Matrix.transpose(self) @extern("matrix_transpose");
@@ -552,15 +552,15 @@ enum TraceLogLevel : int {
 struct Vector2 {
   float x,y;
 }
-extern fn bool Vector2.equals(self, Vector2) @extern("vector2_equals");
-extern fn Vector2 Vector2.add(self, Vector2) @extern("vector2_add");
-extern fn Vector2 Vector2.sub(self, Vector2) @extern("vector2_sub");
-extern fn Vector2 Vector2.mul(self, Vector2) @extern("vector2_mul");
-extern fn Vector2 Vector2.div(self, Vector2) @extern("vector2_div");
-extern fn Vector2 Vector2.pos_offset(self, float) @extern("vector2_posoffset");
-extern fn Vector2 Vector2.neg_offset(self, float) @extern("vector2_negoffset");
-extern fn Vector2 Vector2.scale(self, float) @extern("vector2_scale");
-extern fn Vector2 Vector2.inverse(self, float) @extern("vector2_inverse");
+extern fn bool Vector2.equals(self, Vector2) @operator(==) @extern("vector2_equals");
+extern fn Vector2 Vector2.add(self, Vector2) @operator(+) @extern("vector2_add");
+extern fn Vector2 Vector2.sub(self, Vector2) @operator(-) @extern("vector2_sub");
+extern fn Vector2 Vector2.mul(self, Vector2) @operator(*) @extern("vector2_mul");
+extern fn Vector2 Vector2.div(self, Vector2) @operator(/) @extern("vector2_div");
+extern fn Vector2 Vector2.pos_offset(self, float) @operator_s(+) @extern("vector2_posoffset");
+extern fn Vector2 Vector2.neg_offset(self, float) @operator_s(-) @extern("vector2_negoffset");
+extern fn Vector2 Vector2.scale(self, float) @operator_s(*) @extern("vector2_scale");
+extern fn Vector2 Vector2.inverse(self, float) @operator_s(/) @extern("vector2_inverse");
 extern fn float Vector2.length(self) @extern("vector2_length");
 extern fn float Vector2.length_sqr(self) @extern("vector2_lengthsqr");
 extern fn float Vector2.dot_product(self, Vector2) @extern("vector2_dotproduct");
@@ -581,15 +581,15 @@ extern fn Vector2 Vector2.clamp_mag(self, float, float) @extern("vector2_clampma
 struct Vector3 {
   float x,y,z;
 }
-extern fn bool Vector3.equals(self, Vector3) @extern("vector3_equals");
-extern fn Vector3 Vector3.add(self, Vector3) @extern("vector3_add");
-extern fn Vector3 Vector3.sub(self, Vector3) @extern("vector3_sub");
-extern fn Vector3 Vector3.mul(self, Vector3) @extern("vector3_mul");
-extern fn Vector3 Vector3.div(self, Vector3) @extern("vector3_div");
-extern fn Vector3 Vector3.pos_offset(self, float) @extern("vector3_posoffset");
-extern fn Vector3 Vector3.neg_offset(self, float) @extern("vector3_negoffset");
-extern fn Vector3 Vector3.scale(self, float) @extern("vector3_scale");
-extern fn Vector3 Vector3.inverse(self, float) @extern("vector3_inverse");
+extern fn bool Vector3.equals(self, Vector3) @operator(==) @extern("vector3_equals");
+extern fn Vector3 Vector3.add(self, Vector3) @operator(+) @extern("vector3_add");
+extern fn Vector3 Vector3.sub(self, Vector3) @operator(-) @extern("vector3_sub");
+extern fn Vector3 Vector3.mul(self, Vector3) @operator(*) @extern("vector3_mul");
+extern fn Vector3 Vector3.div(self, Vector3) @operator(/) @extern("vector3_div");
+extern fn Vector3 Vector3.pos_offset(self, float) @operator_s(+) @extern("vector3_posoffset");
+extern fn Vector3 Vector3.neg_offset(self, float) @operator_s(-) @extern("vector3_negoffset");
+extern fn Vector3 Vector3.scale(self, float) @operator_s(*) @extern("vector3_scale");
+extern fn Vector3 Vector3.inverse(self, float) @operator_s(/) @extern("vector3_inverse");
 extern fn float[] Vector3.to_array(self) @extern("vector3_toarray");
 extern fn int[3]   Vector3.to_int_array(self) @extern("vector3.tointarray");
 extern fn Vector3 Vector3.cross_product(self, Vector3) @extern("vector3_crossproduct");
@@ -625,15 +625,15 @@ extern fn void Vector3.print(self) @extern("vector3_print");
 struct Vector4 {
   float x,y,z,w;
 }
-extern fn bool Vector4.equals(self, Vector4) @extern("vector4_equals");
-extern fn Vector4 Vector4.add(self, Vector4) @extern("vector4_add");
-extern fn Vector4 Vector4.sub(self, Vector4) @extern("vector4_sub");
-extern fn Vector4 Vector4.mul(self, Vector4) @extern("vector4_mul");
-extern fn Vector4 Vector4.div(self, Vector4) @extern("vector4_div");
-extern fn Vector4 Vector4.pos_offset(self, Vector4) @extern("vector4_posoffset");
-extern fn Vector4 Vector4.neg_offset(self, Vector4) @extern("vector4_negoffset");
-extern fn Vector4 Vector4.scale(self, Vector4) @extern("vector4_scale");
-extern fn Vector4 Vector4.inverse(self, Vector4) @extern("vector4_inverse");
+extern fn bool Vector4.equals(self, Vector4) @operator(==) @extern("vector4_equals");
+extern fn Vector4 Vector4.add(self, Vector4) @operator(+) @extern("vector4_add");
+extern fn Vector4 Vector4.sub(self, Vector4) @operator(-) @extern("vector4_sub");
+extern fn Vector4 Vector4.mul(self, Vector4) @operator(*) @extern("vector4_mul");
+extern fn Vector4 Vector4.div(self, Vector4) @operator(/) @extern("vector4_div");
+extern fn Vector4 Vector4.pos_offset(self, float) @operator_s(+) @extern("vector4_posoffset");
+extern fn Vector4 Vector4.neg_offset(self, float) @operator_s(-) @extern("vector4_negoffset");
+extern fn Vector4 Vector4.scale(self, float) @operator_s(*) @extern("vector4_scale");
+extern fn Vector4 Vector4.inverse(self, float) @operator_s(/) @extern("vector4_inverse");
 extern fn float Vector4.length(self) @extern("vector4_length");
 extern fn float Vector4.length_sqr(self) @extern("vector4_lengthsqr");
 extern fn float Vector4.do_product(self, Vector4) @extern("vector4_dotproduct");
