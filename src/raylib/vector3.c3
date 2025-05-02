@@ -47,6 +47,30 @@ fn Vector3 Vector3.div(self, Vector3 rhs) @operator(/) @export("vector3_div") {
 		self.z / rhs.z,
 	};
 }
+<* Add and assign *>
+fn void Vector3.add_assign(&self, Vector3 rhs) @operator(+=) @export("vector3_addassign") {
+	self.x += rhs.x;
+	self.y += rhs.y;
+	self.z += rhs.z;
+}
+<* Subtract and assign *>
+fn void Vector3.sub_assign(&self, Vector3 rhs) @operator(-=) @export("vector3_subassign") {
+	self.x -= rhs.x;
+	self.y -= rhs.y;
+	self.z -= rhs.z;
+}
+<* Multiply and assign *>
+fn void Vector3.mul_assign(&self, Vector3 rhs) @operator(*=) @export("vector3_mulassign") {
+	self.x *= rhs.x;
+	self.y *= rhs.y;
+	self.z *= rhs.z;
+}
+<* Divide and assign *>
+fn void Vector3.div_assign(&self, Vector3 rhs) @operator(/=) @export("vector3_divassign") {
+	self.x /= rhs.x;
+	self.y /= rhs.y;
+	self.z /= rhs.z;
+}
 <* Add to with float *>
 fn Vector3 Vector3.pos_offset(self, float rhs) @operator_s(+) @export("vector3_posoffset") {
 	return {

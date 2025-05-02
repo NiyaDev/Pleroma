@@ -557,6 +557,10 @@ extern fn Vector2 Vector2.add(self, Vector2) @operator(+) @extern("vector2_add")
 extern fn Vector2 Vector2.sub(self, Vector2) @operator(-) @extern("vector2_sub");
 extern fn Vector2 Vector2.mul(self, Vector2) @operator(*) @extern("vector2_mul");
 extern fn Vector2 Vector2.div(self, Vector2) @operator(/) @extern("vector2_div");
+extern fn void Vector2.add_assign(&self, Vector2) @operator(+=) @extern("vector2_addassign");
+extern fn void Vector2.sub_assign(&self, Vector2) @operator(-=) @extern("vector2_subassign");
+extern fn void Vector2.mul_assign(&self, Vector2) @operator(*=) @extern("vector2_mulassign");
+extern fn void Vector2.div_assign(&self, Vector2) @operator(/=) @extern("vector2_divassign");
 extern fn Vector2 Vector2.pos_offset(self, float) @operator_s(+) @extern("vector2_posoffset");
 extern fn Vector2 Vector2.neg_offset(self, float) @operator_s(-) @extern("vector2_negoffset");
 extern fn Vector2 Vector2.scale(self, float) @operator_s(*) @extern("vector2_scale");

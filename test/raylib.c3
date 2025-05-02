@@ -18,10 +18,21 @@ fn void vector2() @test {
   assert((v3 / v2) == {5,5}, "Operator / failed");
 
   // Real operators
-  assert((v2 + f1) == {7,9}, "Operator_r + failed");
-  assert((v2 - f1) == {-3,-1}, "Operator_r - failed");
-  assert((v2 * f1) == {10,20}, "Operator_r * failed");
-  assert((v3 / f1) == {2,4}, "Operator_r / failed");
+  assert((v2 + f1) == {7,9}, "Operator_s + failed");
+  assert((v2 - f1) == {-3,-1}, "Operator_s - failed");
+  assert((v2 * f1) == {10,20}, "Operator_s * failed");
+  assert((v3 / f1) == {2,4}, "Operator_s / failed");
+
+  // Assignments
+  Vector2 v4 = {0,0};
+  v4 += v1;
+  assert(v4 == {1,1}, "Operator += failed");
+  v4 -= v2;
+  assert(v4 == {-1,-3}, "Operator -= failed");
+  v4 *= v3;
+  assert(v4 == {-10,-60}, "Operator *= failed");
+  v4 /= v2;
+  assert(v4 == {-5,-15}, "Operator /= failed");
 }
 
 fn void vector3() @test {
@@ -39,10 +50,21 @@ fn void vector3() @test {
   assert((v3 / v2) == {5,5,5}, "Operator / failed");
 
   // Real operators
-  assert((v2 + f1) == {7,9,11}, "Operator_r + failed");
-  assert((v2 - f1) == {-3,-1,1}, "Operator_r - failed");
-  assert((v2 * f1) == {10,20,30}, "Operator_r * failed");
-  assert((v3 / f1) == {2,4,6}, "Operator_r / failed");
+  assert((v2 + f1) == {7,9,11}, "Operator_s + failed");
+  assert((v2 - f1) == {-3,-1,1}, "Operator_s - failed");
+  assert((v2 * f1) == {10,20,30}, "Operator_s * failed");
+  assert((v3 / f1) == {2,4,6}, "Operator_s / failed");
+
+  // Assignments
+  Vector3 v4 = {0,0,0};
+  v4 += v1;
+  assert(v4 == {1,1,1}, "Operator += failed");
+  v4 -= v2;
+  assert(v4 == {-1,-3,-5}, "Operator -= failed");
+  v4 *= v3;
+  assert(v4 == {-10,-60,-150}, "Operator *= failed");
+  v4 /= v2;
+  assert(v4 == {-5,-15,-25}, "Operator /= failed");
 }
 
 fn void vector4() @test {
@@ -60,9 +82,20 @@ fn void vector4() @test {
   assert((v3 / v2) == {5,5,5,5}, "Operator / failed");
 
   // Real operators
-  assert((v2 + f1) == {7,9,11,13}, "Operator_r + failed");
-  assert((v2 - f1) == {-3,-1,1,3}, "Operator_r - failed");
-  assert((v2 * f1) == {10,20,30,40}, "Operator_r * failed");
-  assert((v3 / f1) == {2,4,6,8}, "Operator_r / failed");
+  assert((v2 + f1) == {7,9,11,13}, "Operator_s + failed");
+  assert((v2 - f1) == {-3,-1,1,3}, "Operator_s - failed");
+  assert((v2 * f1) == {10,20,30,40}, "Operator_s * failed");
+  assert((v3 / f1) == {2,4,6,8}, "Operator_s / failed");
+
+  // Assignments
+  Vector4 v4 = {0,0,0,0};
+  v4 += v1;
+  assert(v4 == {1,1,1,1}, "Operator += failed");
+  v4 -= v2;
+  assert(v4 == {-1,-3,-5,-7}, "Operator -= failed");
+  v4 *= v3;
+  assert(v4 == {-10,-60,-150,-280}, "Operator *= failed");
+  v4 /= v2;
+  assert(v4 == {-5,-15,-25,-35}, "Operator /= failed");
 }
 

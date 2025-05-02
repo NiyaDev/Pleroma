@@ -47,6 +47,34 @@ fn Vector4 Vector4.div(self, Vector4 rhs) @operator(/) @export("vector4_div") {
 		self.w / rhs.w,
 	};
 }
+<* Add and assign *>
+fn void Vector4.add_assign(&self, Vector4 rhs) @operator(+=) @export("vector4_addassign") {
+	self.x += rhs.x;
+	self.y += rhs.y;
+	self.z += rhs.z;
+	self.w += rhs.w;
+}
+<* Subtract and assign *>
+fn void Vector4.sub_assign(&self, Vector4 rhs) @operator(-=) @export("vector4_subassign") {
+	self.x -= rhs.x;
+	self.y -= rhs.y;
+	self.z -= rhs.z;
+	self.w -= rhs.w;
+}
+<* Multiply and assign *>
+fn void Vector4.mul_assign(&self, Vector4 rhs) @operator(*=) @export("vector4_mulassign") {
+	self.x *= rhs.x;
+	self.y *= rhs.y;
+	self.z *= rhs.z;
+	self.w *= rhs.w;
+}
+<* Divide and assign *>
+fn void Vector4.div_assign(&self, Vector4 rhs) @operator(/=) @export("vector4_divassign") {
+	self.x /= rhs.x;
+	self.y /= rhs.y;
+	self.z /= rhs.z;
+	self.w /= rhs.w;
+}
 <* Add to with float *>
 fn Vector4 Vector4.pos_offset(self, float rhs) @operator_s(+) @export("vector4_posoffset") {
 	return {

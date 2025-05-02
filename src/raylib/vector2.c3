@@ -34,11 +34,31 @@ fn Vector2 Vector2.mul(self, Vector2 rhs) @operator(*) @export("vector2_mul") {
 	};
 }
 <* Division *>
-fn Vector2 Vector2.div(&self, Vector2 rhs) @operator(/) @export("vector2_div") {
+fn Vector2 Vector2.div(self, Vector2 rhs) @operator(/) @export("vector2_div") {
 	return {
 		self.x / rhs.x,
 		self.y / rhs.y,
 	};
+}
+<* Add and assign *>
+fn void Vector2.add_assign(&self, Vector2 rhs) @operator(+=) @export("vector2_addassign") {
+	self.x += rhs.x;
+	self.y += rhs.y;
+}
+<* Subtract and assign *>
+fn void Vector2.sub_assign(&self, Vector2 rhs) @operator(-=) @export("vector2_subassign") {
+	self.x -= rhs.x;
+	self.y -= rhs.y;
+}
+<* Multiply and assign *>
+fn void Vector2.mul_assign(&self, Vector2 rhs) @operator(*=) @export("vector2_mulassign") {
+	self.x *= rhs.x;
+	self.y *= rhs.y;
+}
+<* Divide and assign *>
+fn void Vector2.div_assign(&self, Vector2 rhs) @operator(/=) @export("vector2_divassign") {
+	self.x /= rhs.x;
+	self.y /= rhs.y;
 }
 <* Add to with float *>
 fn Vector2 Vector2.pos_offset(&self, float rhs) @operator_s(+) @export("vector2_posoffset") {
