@@ -418,6 +418,15 @@ extern fn RayCollision Ray.quad(self, Vector3, Vector3, Vector3, Vector3) @exter
 struct Rectangle {
   float x, y, width, height;
 }
+extern fn bool Rectangle.equals(self, Rectangle) @operator(==) @extern("rectangle_equals");
+extern fn Rectangle Rectangle.add(self, Rectangle) @operator(+) @extern("rectangle_add");
+extern fn Rectangle Rectangle.sub(self, Rectangle) @operator(-) @extern("rectangle_sub");
+extern fn Rectangle Rectangle.mul(self, Rectangle) @operator(*) @extern("rectangle_mul");
+extern fn Rectangle Rectangle.div(self, Rectangle) @operator(/) @extern("rectangle_div");
+extern fn void Rectangle.add_assign(&self, Rectangle) @operator(+=) @extern("rectangle_addassign");
+extern fn void Rectangle.sub_assign(&self, Rectangle) @operator(-=) @extern("rectangle_subassign");
+extern fn void Rectangle.mul_assign(&self, Rectangle) @operator(*=) @extern("rectangle_mulassign");
+extern fn void Rectangle.div_assign(&self, Rectangle) @operator(/=) @extern("rectangle_divassign");
 
 //= RenderTexture
 struct RenderTexture {

@@ -334,12 +334,6 @@ struct RayCollision {
 }
 
 
-<* Rectangle *>
-struct Rectangle {
-  float x, y, width, height;
-}
-
-
 <* Render Texture *>
 struct RenderTexture {
 	uint id;
