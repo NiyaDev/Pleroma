@@ -6,7 +6,7 @@ Game engine built using C3 and Raylib.
 
 Raylib - 5.5
 
-Raylib bindings - 1.0.0
+Raylib bindings - 1.1.0
 
 Raygui - 4.0
 
