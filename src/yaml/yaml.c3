@@ -200,9 +200,13 @@ fn YAMLType String.get_type(self) {
   return YAMLType.STRING;
 }
 <* Splits array string into multiple *>
-fn String[] String.split_array(&self) { 
-  String[] output = self.strip("[").strip_end("]").split(allocator::heap(), ",");
+fn String[] String.split_array(&self) {
+  //usz start = 0;
+  //usz pointer = 0;
 
+  //while (self[pointer] != ']')
+
+  String[] output = self.strip("[").strip_end("]").split(allocator::heap(), ",");
   for (int i; i < output.len; i++) output[i] = output[i].strip("\n\t");
 
   return output;
