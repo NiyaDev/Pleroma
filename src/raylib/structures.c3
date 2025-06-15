@@ -222,14 +222,6 @@ enum CameraProjection {
   ORTHOGRAPHIC,
 }
 
-
-<* File path list *>
-struct FilePathList {
-  uint capacity, count;
-  char** paths;
-}
-
-
 <* Mesh *>
 struct Mesh {
 	int vertexCount;			  // Number of vertices stored in arrays

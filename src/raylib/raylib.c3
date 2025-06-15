@@ -242,11 +242,6 @@ extern fn bool save_file_text(char* fileName, char* text) @extern("SaveFileText"
 
 // TODO: Remaining functions
 
-// Check if a file has been dropped into window
-extern fn bool is_file_dropped() @extern("IsFileDropped");
-// Load dropped filepaths
-extern fn FilePathList load_dropped_files() @extern("LoadDroppedFiles");
-
 
 //= Compression/Encoding functionality
 // Compress data (DEFLATE algorithm), memory must be MemFree()

@@ -182,10 +182,13 @@ extern fn Color   Color.alphablend(self, Color, Color) @extern("color_alphablend
 extern fn Color   hex(uint) 							 @extern("color_hex");
 
 //= FilePathList
-struct FilePathList {
-  uint capacity, count;
-  char** paths;
-}
+//struct FilePathList {
+//  uint capacity, count;
+//  char** paths;
+//}
+alias FilePathList = List{String};
+extern fn FilePathList load_dropped_dir() @extern("fpl_load");
+
 
 //= float
 extern fn bool close(float, float, float) @extern("float_close");

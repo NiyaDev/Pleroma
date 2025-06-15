@@ -1,6 +1,6 @@
 
 
-import pleroma::raylib;
+import pleroma;
 
 
 fn void vector2() @test {
@@ -99,3 +99,27 @@ fn void vector4() @test {
   assert(v4 == {-5,-15,-25,-35}, "Operator /= failed");
 }
 
+fn void file_path_list() @test {
+  FilePathList fpl;
+
+  while (!raylib::window_should_close()) {
+    if (raylib::is_file_dropped()) {
+      fpl = raylib::load_dropped_dir();
+      assert(fpl.len() > 0, "Failed to generate list");
+
+      fpl.clean();
+      return;
+    }
+
+    raylib::begin_drawing();
+    raylib::clear_background(raylib::WHITE);
+    raylib::end_drawing();
+  }
+}
+
+fn void a() @test {
+  raylib::init_window(200,200,"test");
+}
+fn void z() @test {
+  raylib::close_window();
+}
