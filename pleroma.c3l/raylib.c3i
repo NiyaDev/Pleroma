@@ -1,5 +1,6 @@
 
 module pleroma::raylib;
+import std::collections;
 //= Audio
 struct Wave {
   uint frame_count;
@@ -182,13 +183,10 @@ extern fn Color   Color.alphablend(self, Color, Color) @extern("color_alphablend
 extern fn Color   hex(uint) 							 @extern("color_hex");
 
 //= FilePathList
-//struct FilePathList {
-//  uint capacity, count;
-//  char** paths;
-//}
 alias FilePathList = List{String};
 extern fn FilePathList load_dropped_dir() @extern("fpl_load");
-
+extern fn FilePathList? check_for_drop() @extern("fpl_check");
+extern fn bool is_file_dropped() @extern("IsFileDropped");
 
 //= float
 extern fn bool close(float, float, float) @extern("float_close");
